@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>로또 번호 추천</title>
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #1d2671, #c33764);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    .container {
+        text-align: center;
+        background: rgba(0,0,0,0.3);
+        padding: 40px;
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        width: 90%;
+        max-width: 600px;
+    }
+
+    h1 {
+        margin-bottom: 10px;
+    }
+
+    .set {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 10px 0;
+    }
+
+    .ball {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: white;
+        color: black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        font-size: 16px;
+        transition: transform 0.3s ease;
+    }
+
+    .ball:hover {
+        transform: scale(1.2);
+    }
+
+    button {
+        margin-top: 20px;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        background: linear-gradient(45deg, #ff512f, #dd2476);
+        color: white;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎰 로또 5줄 자동 추천</h1>
+    <p>버튼 한 번으로 5세트 생성!</p>
+
+    <div id="lottoArea"></div>
+
+    <button onclick="generateAll()">번호 뽑기</button>
+</div>
+
+<script>
+function generateSet() {
+    let numbers = [];
+
+    while(numbers.length < 6) {
+        let num = Math.floor(Math.random() * 45) + 1;
+        if(!numbers.includes(num)) numbers.push(num);
+    }
+
+    return numbers.sort((a,b)=>a-b);
+}
+
+function getColor(num) {
+    if (num <= 10) return "#fbc400";
+    if (num <= 20) return "#69c8f2";
+    if (num <= 30) return "#ff7272";
+    if (num <= 40) return "#aaa";
+    return "#b0d840";
+}
+
+function generateAll() {
+    const area = document.getElementById("lottoArea");
+    area.innerHTML = "";
+
+    for(let i=0; i<5; i++) {
+        let set = generateSet();
+
+        let row = document.createElement("div");
+        row.className = "set";
+
+        set.forEach(num => {
+            let ball = document.createElement("div");
+            ball.className = "ball";
+            ball.innerText = num;
+            ball.style.background = getColor(num);
+            row.appendChild(ball);
+        });
+
+        area.appendChild(row);
+    }
+}
+</script>
+
+</body>
+</html>
