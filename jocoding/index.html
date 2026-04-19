@@ -265,6 +265,8 @@ const PLACES_DATA = [
         name_en: "Everland",
         lat: 37.294,
         lng: 127.203,
+        address: "경기도 용인시 처인구 포곡읍 에버랜드로 199",
+        address_en: "199 Everland-ro, Pogok-eup, Cheoin-gu, Yongin-si, Gyeonggi-do",
         price: "50,000원~",
         price_en: "From 50,000 KRW",
         desc: "사파리 월드와 판다월드 등 아이들이 가장 좋아하는 테마파크",
@@ -276,6 +278,8 @@ const PLACES_DATA = [
         name_en: "Lotte World Adventure",
         lat: 37.511,
         lng: 127.098,
+        address: "서울특별시 송파구 올림픽로 240",
+        address_en: "240 Olympic-ro, Songpa-gu, Seoul",
         price: "47,000원~",
         price_en: "From 47,000 KRW",
         desc: "실내외 테마파크로 날씨와 상관없이 즐길 수 있는 모험의 나라",
@@ -287,6 +291,8 @@ const PLACES_DATA = [
         name_en: "KidZania Seoul",
         lat: 37.513,
         lng: 127.102,
+        address: "서울특별시 송파구 올림픽로 240",
+        address_en: "240 Olympic-ro, Songpa-gu, Seoul",
         price: "40,000원~",
         price_en: "From 40,000 KRW",
         desc: "아이들이 현실감 넘치는 직업을 미리 경험해볼 수 있는 직업 테마파크",
@@ -298,6 +304,8 @@ const PLACES_DATA = [
         name_en: "Seoul Grand Park Zoo",
         lat: 37.427,
         lng: 127.017,
+        address: "경기도 과천시 대공원광장로 102",
+        address_en: "102 Daegongwongwangjang-ro, Gwacheon-si, Gyeonggi-do",
         price: "5,000원~",
         price_en: "From 5,000 KRW",
         desc: "국내 최대 규모의 동물원으로 산책하며 동물들을 만나기 좋은 곳",
@@ -309,6 +317,8 @@ const PLACES_DATA = [
         name_en: "Anseong Farmland",
         lat: 37.014,
         lng: 127.151,
+        address: "경기도 안성시 공도읍 대신두길 28",
+        address_en: "28 Daesindu-gil, Gongdo-eup, Anseong-si, Gyeonggi-do",
         price: "12,000원~",
         price_en: "From 12,000 KRW",
         desc: "계절마다 아름다운 꽃밭과 동물 먹이주기 체험이 가득한 농장",
@@ -320,6 +330,8 @@ const PLACES_DATA = [
         name_en: "National Children's Science Museum",
         lat: 37.584,
         lng: 126.996,
+        address: "서울특별시 종로구 창경궁로 215",
+        address_en: "215 Changgyeonggung-ro, Jongno-gu, Seoul",
         price: "2,000원~",
         price_en: "From 2,000 KRW",
         desc: "체험형 전시물을 통해 과학의 원리를 쉽고 재미있게 배우는 공간",
@@ -331,6 +343,8 @@ const PLACES_DATA = [
         name_en: "Gyeonggi Children's Museum",
         lat: 37.271,
         lng: 127.109,
+        address: "경기도 용인시 기흥구 상갈로 6",
+        address_en: "6 Sanggal-ro, Giheung-gu, Yongin-si, Gyeonggi-do",
         price: "4,000원~",
         price_en: "From 4,000 KRW",
         desc: "놀이를 통해 배움의 즐거움을 깨닫는 자기주도적 박물관",
@@ -342,6 +356,8 @@ const PLACES_DATA = [
         name_en: "COEX Aquarium",
         lat: 37.513,
         lng: 127.059,
+        address: "서울특별시 강남구 영동대로 513",
+        address_en: "513 Yeongdong-daero, Gangnam-gu, Seoul",
         price: "30,000원~",
         price_en: "From 30,000 KRW",
         desc: "도심 속에서 만나는 환상적인 수중 세계와 상어 친구들",
@@ -353,6 +369,8 @@ const PLACES_DATA = [
         name_en: "Aqua Planet Ilsan",
         lat: 37.664,
         lng: 126.758,
+        address: "경기도 고양시 일산서구 한류월드로 282",
+        address_en: "282 Hallyuworld-ro, Ilsan-seo-gu, Goyang-si, Gyeonggi-do",
         price: "29,000원~",
         price_en: "From 29,000 KRW",
         desc: "수족관과 동물원을 동시에 즐길 수 있는 복합 관람 공간",
@@ -364,6 +382,8 @@ const PLACES_DATA = [
         name_en: "Seoul Children's Grand Park",
         lat: 37.548,
         lng: 127.074,
+        address: "서울특별시 광진구 능동로 216",
+        address_en: "216 Neungdong-ro, Gwangjin-gu, Seoul",
         price: "무료 (시설별 유료)",
         price_en: "Free (Fees for some facilities)",
         desc: "공원, 동물원, 식물원, 놀이동산이 모두 모인 나들이 명소",
@@ -384,6 +404,7 @@ const translations = {
         labelMessage: "문의 및 제보 내용",
         submitBtn: "보내기",
         priceLabel: "입장료: ",
+        addrLabel: "주소: ",
         locLabel: "위치 보기"
     },
     en: {
@@ -398,6 +419,7 @@ const translations = {
         labelMessage: "Message & Report",
         submitBtn: "Submit",
         priceLabel: "Price: ",
+        addrLabel: "Address: ",
         locLabel: "View Location"
     }
 };
@@ -406,12 +428,14 @@ let map;
 let markers = [];
 
 function initMap() {
-    if (typeof kakao === 'undefined') {
-        document.getElementById('map').innerText = "카카오 지도 API 키를 입력하면 지도가 표시됩니다.";
+    const container = document.getElementById('map');
+    
+    // 카카오 객체가 로드될 때까지 대기
+    if (typeof kakao === 'undefined' || !kakao.maps) {
+        setTimeout(initMap, 500);
         return;
     }
 
-    const container = document.getElementById('map');
     const options = {
         center: new kakao.maps.LatLng(37.45, 127.05),
         level: 9
@@ -432,6 +456,7 @@ function renderSpots() {
         card.className = "spot-card";
         card.innerHTML = `
             <h3>${lang === 'ko' ? spot.name : spot.name_en}</h3>
+            <p class="spot-info"><strong>${translations[lang].addrLabel}</strong> ${lang === 'ko' ? spot.address : spot.address_en}</p>
             <p class="spot-info"><strong>${translations[lang].priceLabel}</strong> <span class="spot-price">${lang === 'ko' ? spot.price : spot.price_en}</span></p>
             <p class="spot-info">${lang === 'ko' ? spot.desc : spot.desc_en}</p>
         `;
@@ -448,7 +473,10 @@ function renderSpots() {
             markers.push(marker);
 
             const infowindow = new kakao.maps.InfoWindow({
-                content: `<div style="padding:5px; color:#333; font-size:12px;">${lang === 'ko' ? spot.name : spot.name_en}</div>`
+                content: `<div style="padding:10px; color:#333; font-size:12px; width:150px;">
+                            <strong>${lang === 'ko' ? spot.name : spot.name_en}</strong><br>
+                            ${lang === 'ko' ? spot.price : spot.price_en}
+                          </div>`
             });
 
             kakao.maps.event.addListener(marker, 'click', function() {
