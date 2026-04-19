@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title id="pageTitle">아이와 오늘 뭐하지? - 서울/경기 TOP 10</title>
+<title id="pageTitle">아이와 오늘 뭐하지? - 무료/유료 TOP 20</title>
 <style>
     :root {
         --bg-gradient: linear-gradient(135deg, #fff9e6, #e6f7ff);
@@ -14,6 +14,8 @@
         --input-border: #ddd;
         --label-color: #666;
         --accent-color: #ff9f43;
+        --free-color: #3498db;
+        --paid-color: #e74c3c;
     }
 
     [data-theme="dark"] {
@@ -49,7 +51,7 @@
         backdrop-filter: blur(10px);
         box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         width: 95%;
-        max-width: 800px;
+        max-width: 1000px;
         margin: 0 auto;
         transition: background 0.3s;
     }
@@ -82,64 +84,66 @@
         transform: scale(1.05);
     }
 
-    h1 {
-        margin-bottom: 10px;
-        color: var(--accent-color);
-    }
-
-    p#desc {
+    h1 { margin-bottom: 10px; color: var(--accent-color); }
+    
+    .criteria-box {
+        background: rgba(255,255,255,0.5);
+        padding: 15px;
+        border-radius: 15px;
         margin-bottom: 30px;
-        font-size: 1.1rem;
+        font-size: 0.9rem;
+        border: 1px dashed var(--accent-color);
+        text-align: left;
     }
 
-    /* 지도 스타일 */
     #map {
         width: 100%;
-        height: 400px;
+        height: 450px;
         border-radius: 15px;
         margin-bottom: 30px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         background: #eee;
     }
 
-    /* 명소 리스트 스타일 */
-    .spots-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
+    /* 2단 리스트 레이아웃 */
+    .sections-container {
+        display: flex;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+
+    .section {
+        flex: 1;
+        min-width: 300px;
         text-align: left;
     }
 
+    .section h2 {
+        text-align: center;
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-size: 1.3rem;
+    }
+
+    .free-header { background: var(--free-color); color: white; }
+    .paid-header { background: var(--paid-color); color: white; }
+
     .spot-card {
         background: var(--card-bg);
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        transition: transform 0.3s;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+        margin-bottom: 15px;
+        transition: transform 0.2s;
         border: 1px solid var(--input-border);
     }
 
-    .spot-card:hover {
-        transform: translateY(-5px);
-    }
+    .spot-card:hover { transform: translateY(-3px); }
+    .spot-card h3 { margin-top: 0; margin-bottom: 8px; font-size: 1.1rem; }
+    .spot-info { font-size: 0.85rem; margin-bottom: 4px; }
+    .spot-price { font-weight: bold; }
 
-    .spot-card h3 {
-        margin-top: 0;
-        margin-bottom: 10px;
-        color: var(--accent-color);
-    }
-
-    .spot-info {
-        font-size: 0.9rem;
-        margin-bottom: 5px;
-    }
-
-    .spot-price {
-        font-weight: bold;
-        color: #e74c3c;
-    }
-
-    /* 제휴 문의 폼 스타일 */
     .contact-form {
         margin-top: 50px;
         padding-top: 30px;
@@ -147,53 +151,14 @@
         text-align: left;
     }
 
-    .contact-form h2 {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
-    .form-group {
-        margin-bottom: 15px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-size: 0.9rem;
-        color: var(--label-color);
-    }
-
-    .form-group input, .form-group textarea {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid var(--input-border);
-        border-radius: 8px;
-        background: var(--input-bg);
-        color: var(--text-color);
-        box-sizing: border-box;
-    }
-
     .submit-btn {
-        width: 100%;
-        padding: 15px;
-        border: none;
-        border-radius: 25px;
-        background: var(--accent-color);
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-
-    .submit-btn:hover {
-        opacity: 0.9;
-        transform: scale(1.02);
+        width: 100%; padding: 15px; border: none; border-radius: 25px;
+        background: var(--accent-color); color: white; font-weight: bold;
+        cursor: pointer; transition: 0.3s;
     }
 
     .comments-section {
-        margin-top: 50px;
-        padding-top: 30px;
-        border-top: 1px solid var(--input-border);
+        margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--input-border);
     }
 </style>
 </head>
@@ -206,338 +171,193 @@
     </div>
     
     <h1 id="title">👶 아이와 오늘 뭐하지?</h1>
-    <p id="desc">서울/경기 아이 동반 추천 명소 TOP 10 (매월 업데이트)</p>
+    <p id="desc">서울/경기 아이 동반 추천 명소 TOP 20</p>
 
-    <!-- 카카오 지도 -->
+    <div class="criteria-box">
+        <strong id="criteriaTitle">📊 선정 기준:</strong>
+        <ul id="criteriaList" style="margin: 5px 0 0 20px; padding: 0;">
+            <li>네이버/구글 평점 4.0 이상의 높은 사용자 만족도</li>
+            <li>최근 1년 내 SNS 및 블로그 언급량 상위권</li>
+            <li>아이들이 직접 체험 가능한 놀이/학습 시설 완비</li>
+            <li>유모차 대여, 수유실 등 부모 편의시설 우수</li>
+        </ul>
+    </div>
+
     <div id="map"></div>
 
-    <!-- 명소 리스트 -->
-    <div class="spots-grid" id="spotsList">
-        <!-- JS에서 동적 생성됨 -->
+    <div class="sections-container">
+        <!-- 무료 섹션 -->
+        <div class="section">
+            <h2 class="free-header" id="freeTitle">💙 무료 명소 TOP 10</h2>
+            <div id="freeList"></div>
+        </div>
+        <!-- 유료 섹션 -->
+        <div class="section">
+            <h2 class="paid-header" id="paidTitle">❤️ 유료 명소 TOP 10</h2>
+            <div id="paidList"></div>
+        </div>
     </div>
 
     <!-- 제휴 문의 -->
     <div class="contact-form">
-        <h2 id="contactTitle">🤝 제휴 및 장소 제보</h2>
+        <h2 id="contactTitle" style="text-align:center;">🤝 제휴 및 장소 제보</h2>
         <form action="https://formspree.io/f/mrerkyqp" method="POST">
-            <div class="form-group">
-                <label for="company" id="labelCompany">업체명/이름</label>
-                <input type="text" id="company" name="company" required>
+            <div style="margin-bottom:15px;">
+                <label for="company" id="labelCompany" style="display:block; margin-bottom:5px; font-size:0.9rem;">업체명/이름</label>
+                <input type="text" id="company" name="company" required style="width:100%; padding:12px; border:1px solid var(--input-border); border-radius:8px; background:var(--input-bg); color:var(--text-color); box-sizing:border-box;">
             </div>
-            <div class="form-group">
-                <label for="email" id="labelEmail">이메일 주소</label>
-                <input type="email" id="email" name="_replyto" required>
+            <div style="margin-bottom:15px;">
+                <label for="email" id="labelEmail" style="display:block; margin-bottom:5px; font-size:0.9rem;">이메일 주소</label>
+                <input type="email" id="email" name="_replyto" required style="width:100%; padding:12px; border:1px solid var(--input-border); border-radius:8px; background:var(--input-bg); color:var(--text-color); box-sizing:border-box;">
             </div>
-            <div class="form-group">
-                <label for="message" id="labelMessage">문의 및 제보 내용</label>
-                <textarea id="message" name="message" required style="height: 100px;"></textarea>
+            <div style="margin-bottom:15px;">
+                <label for="message" id="labelMessage" style="display:block; margin-bottom:5px; font-size:0.9rem;">문의 및 제보 내용</label>
+                <textarea id="message" name="message" required style="width:100%; height:100px; padding:12px; border:1px solid var(--input-border); border-radius:8px; background:var(--input-bg); color:var(--text-color); box-sizing:border-box;"></textarea>
             </div>
             <input type="text" name="_gotcha" style="display:none">
             <button type="submit" class="submit-btn" id="submitBtn">보내기</button>
         </form>
     </div>
 
-    <!-- Disqus 댓글 -->
     <div class="comments-section">
         <div id="disqus_thread"></div>
-        <script>
-            (function() {
-            var d = document, s = d.createElement('script');
-            s.src = 'https://infiniblue.disqus.com/embed.js';
-            s.setAttribute('data-timestamp', +new Date());
-            (d.head || d.body).appendChild(s);
-            })();
-        </script>
     </div>
 </div>
 
-<!-- 카카오 지도 API (autoload=false 적용으로 더 안정적으로 로드) -->
 <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=57bfea397961e50faf4c06e08d0b0ab4&autoload=false"></script>
 
 <script>
-/**
- * 2026년 4월 기준 데이터 (매월 업데이트 시 아래 배열만 수정하세요)
- */
-const PLACES_DATA = [
-    {
-        id: 1,
-        name: "에버랜드",
-        name_en: "Everland",
-        lat: 37.294,
-        lng: 127.203,
-        address: "경기도 용인시 처인구 포곡읍 에버랜드로 199",
-        address_en: "199 Everland-ro, Pogok-eup, Cheoin-gu, Yongin-si, Gyeonggi-do",
-        price: "50,000원~",
-        price_en: "From 50,000 KRW",
-        desc: "사파리 월드와 판다월드 등 아이들이 가장 좋아하는 테마파크",
-        desc_en: "Korea's largest theme park with Safari and Panda World."
-    },
-    {
-        id: 2,
-        name: "롯데월드 어드벤처",
-        name_en: "Lotte World Adventure",
-        lat: 37.511,
-        lng: 127.098,
-        address: "서울특별시 송파구 올림픽로 240",
-        address_en: "240 Olympic-ro, Songpa-gu, Seoul",
-        price: "47,000원~",
-        price_en: "From 47,000 KRW",
-        desc: "실내외 테마파크로 날씨와 상관없이 즐길 수 있는 모험의 나라",
-        desc_en: "Indoor and outdoor theme park for all weather conditions."
-    },
-    {
-        id: 3,
-        name: "키자니아 서울",
-        name_en: "KidZania Seoul",
-        lat: 37.513,
-        lng: 127.102,
-        address: "서울특별시 송파구 올림픽로 240",
-        address_en: "240 Olympic-ro, Songpa-gu, Seoul",
-        price: "40,000원~",
-        price_en: "From 40,000 KRW",
-        desc: "아이들이 현실감 넘치는 직업을 미리 경험해볼 수 있는 직업 테마파크",
-        desc_en: "A realistic vocational theme park for children to experience jobs."
-    },
-    {
-        id: 4,
-        name: "서울대공원 동물원",
-        name_en: "Seoul Grand Park Zoo",
-        lat: 37.427,
-        lng: 127.017,
-        address: "경기도 과천시 대공원광장로 102",
-        address_en: "102 Daegongwongwangjang-ro, Gwacheon-si, Gyeonggi-do",
-        price: "5,000원~",
-        price_en: "From 5,000 KRW",
-        desc: "국내 최대 규모의 동물원으로 산책하며 동물들을 만나기 좋은 곳",
-        desc_en: "The largest zoo in Korea, great for walking and seeing animals."
-    },
-    {
-        id: 5,
-        name: "안성팜랜드",
-        name_en: "Anseong Farmland",
-        lat: 37.014,
-        lng: 127.151,
-        address: "경기도 안성시 공도읍 대신두길 28",
-        address_en: "28 Daesindu-gil, Gongdo-eup, Anseong-si, Gyeonggi-do",
-        price: "12,000원~",
-        price_en: "From 12,000 KRW",
-        desc: "계절마다 아름다운 꽃밭과 동물 먹이주기 체험이 가득한 농장",
-        desc_en: "A farm with beautiful flower fields and animal feeding experiences."
-    },
-    {
-        id: 6,
-        name: "국립어린이과학관",
-        name_en: "National Children's Science Museum",
-        lat: 37.584,
-        lng: 126.996,
-        address: "서울특별시 종로구 창경궁로 215",
-        address_en: "215 Changgyeonggung-ro, Jongno-gu, Seoul",
-        price: "2,000원~",
-        price_en: "From 2,000 KRW",
-        desc: "체험형 전시물을 통해 과학의 원리를 쉽고 재미있게 배우는 공간",
-        desc_en: "A space to learn science principles through hands-on exhibits."
-    },
-    {
-        id: 7,
-        name: "경기도어린이박물관",
-        name_en: "Gyeonggi Children's Museum",
-        lat: 37.271,
-        lng: 127.109,
-        address: "경기도 용인시 기흥구 상갈로 6",
-        address_en: "6 Sanggal-ro, Giheung-gu, Yongin-si, Gyeonggi-do",
-        price: "4,000원~",
-        price_en: "From 4,000 KRW",
-        desc: "놀이를 통해 배움의 즐거움을 깨닫는 자기주도적 박물관",
-        desc_en: "A self-directed museum where children learn through play."
-    },
-    {
-        id: 8,
-        name: "코엑스 아쿠아리움",
-        name_en: "COEX Aquarium",
-        lat: 37.513,
-        lng: 127.059,
-        address: "서울특별시 강남구 영동대로 513",
-        address_en: "513 Yeongdong-daero, Gangnam-gu, Seoul",
-        price: "30,000원~",
-        price_en: "From 30,000 KRW",
-        desc: "도심 속에서 만나는 환상적인 수중 세계와 상어 친구들",
-        desc_en: "Fantastic underwater world and sharks in the heart of the city."
-    },
-    {
-        id: 9,
-        name: "아쿠아플라넷 일산",
-        name_en: "Aqua Planet Ilsan",
-        lat: 37.664,
-        lng: 126.758,
-        address: "경기도 고양시 일산서구 한류월드로 282",
-        address_en: "282 Hallyuworld-ro, Ilsan-seo-gu, Goyang-si, Gyeonggi-do",
-        price: "29,000원~",
-        price_en: "From 29,000 KRW",
-        desc: "수족관과 동물원을 동시에 즐길 수 있는 복합 관람 공간",
-        desc_en: "A complex space where you can enjoy both aquarium and zoo."
-    },
-    {
-        id: 10,
-        name: "서울어린이대공원",
-        name_en: "Seoul Children's Grand Park",
-        lat: 37.548,
-        lng: 127.074,
-        address: "서울특별시 광진구 능동로 216",
-        address_en: "216 Neungdong-ro, Gwangjin-gu, Seoul",
-        price: "무료 (시설별 유료)",
-        price_en: "Free (Fees for some facilities)",
-        desc: "공원, 동물원, 식물원, 놀이동산이 모두 모인 나들이 명소",
-        desc_en: "A spot with park, zoo, botanical garden, and amusement park."
-    }
+const FREE_PLACES = [
+    { name: "서울어린이대공원", name_en: "Seoul Children's Grand Park", lat: 37.548, lng: 127.074, address: "서울 광진구 능동로 216", price: "무료 (동물원/식물원)", price_en: "Free (Zoo/Botany)" },
+    { name: "국립중앙박물관 어린이박물관", name_en: "National Museum Kids", lat: 37.523, lng: 126.979, address: "서울 용산구 서빙고로 137", price: "무료 (예약 필수)", price_en: "Free (Booking req.)" },
+    { name: "전쟁기념관 어린이박물관", name_en: "War Memorial Kids", lat: 37.536, lng: 126.977, address: "서울 용산구 이태원로 29", price: "무료", price_en: "Free" },
+    { name: "서울시립과학관", name_en: "Seoul Science Center", lat: 37.637, lng: 127.079, address: "서울 노원구 한글비석로 160", price: "무료 (상설전시)", price_en: "Free (Permanent)" },
+    { name: "경기도박물관", name_en: "Gyeonggi Museum", lat: 37.270, lng: 127.110, address: "경기 용인시 기흥구 상갈로 6", price: "무료", price_en: "Free" },
+    { name: "국립과천과학관 (야외)", name_en: "Gwacheon Science (Outdoor)", lat: 37.437, lng: 127.017, address: "경기 과천시 상하벌로 110", price: "야외전시장 무료", price_en: "Free (Outdoor)" },
+    { name: "동대문디자인플라자(DDP) 잔디언덕", name_en: "DDP Grass Hill", lat: 37.566, lng: 127.009, address: "서울 중구 을지로 281", price: "무료", price_en: "Free" },
+    { name: "인천나비공원", name_en: "Incheon Butterfly Park", lat: 37.519, lng: 126.697, address: "인천 부평구 평천로 26-47", price: "무료", price_en: "Free" },
+    { name: "경기평화광장 북카페", name_en: "Gyeonggi Peace Square", lat: 37.753, lng: 127.070, address: "경기 의정부시 청사로 1", price: "무료", price_en: "Free" },
+    { name: "고양어린이박물관 (주말무료)", name_en: "Goyang Kids (Weekend Free)", lat: 37.632, lng: 126.832, address: "경기 고양시 덕양구 화중로 26", price: "첫째/셋째 주말 무료", price_en: "1st/3rd Weekend Free" }
+];
+
+const PAID_PLACES = [
+    { name: "에버랜드", name_en: "Everland", lat: 37.294, lng: 127.203, address: "경기 용인시 처인구 포곡읍 에버랜드로 199", price: "50,000원~", price_en: "50,000 KRW~" },
+    { name: "롯데월드 어드벤처", name_en: "Lotte World Adventure", lat: 37.511, lng: 127.098, address: "서울 송파구 올림픽로 240", price: "47,000원~", price_en: "47,000 KRW~" },
+    { name: "키자니아 서울", name_en: "KidZania Seoul", lat: 37.513, lng: 127.102, address: "서울 송파구 올림픽로 240", price: "40,000원~", price_en: "40,000 KRW~" },
+    { name: "코엑스 아쿠아리움", name_en: "COEX Aquarium", lat: 37.513, lng: 127.059, address: "서울 강남구 영동대로 513", price: "30,000원~", price_en: "30,000 KRW~" },
+    { name: "안성팜랜드", name_en: "Anseong Farmland", lat: 37.014, lng: 127.151, address: "경기 안성시 공도읍 대신두길 28", price: "12,000원~", price_en: "12,000 KRW~" },
+    { name: "아쿠아플라넷 일산", name_en: "Aqua Planet Ilsan", lat: 37.664, lng: 126.758, address: "경기 고양시 일산서구 한류월드로 282", price: "29,000원~", price_en: "29,000 KRW~" },
+    { name: "한국민속촌", name_en: "Korean Folk Village", lat: 37.258, lng: 127.116, address: "경기 용인시 기흥구 민속촌로 90", price: "30,000원~", price_en: "30,000 KRW~" },
+    { name: "광명동굴", name_en: "Gwangmyeong Cave", lat: 37.426, lng: 126.866, address: "경기 광명시 가학로85번길 142", price: "6,000원~", price_en: "6,000 KRW~" },
+    { name: "파주 하니랜드", name_en: "Paju Honey Land", lat: 37.765, lng: 126.837, address: "경기 파주시 조리읍 장곡로 218", price: "15,000원~", price_en: "15,000 KRW~" },
+    { name: "일산 뽀로로파크", name_en: "Ilsan Pororo Park", lat: 37.665, lng: 126.753, address: "경기 고양시 일산서구 주엽로 80", price: "25,000원~", price_en: "25,000 KRW~" }
 ];
 
 const translations = {
     ko: {
-        pageTitle: "아이와 오늘 뭐하지? - 서울/경기 TOP 10",
-        langBtn: "🌐 English",
-        themeBtn: "🌓 모드 변경",
-        title: "👶 아이와 오늘 뭐하지?",
-        desc: "서울/경기 아이 동반 추천 명소 TOP 10 (매월 업데이트)",
+        pageTitle: "아이와 오늘 뭐하지? - 무료/유료 TOP 20",
+        langBtn: "🌐 English", themeBtn: "🌓 모드 변경",
+        title: "👶 아이와 오늘 뭐하지?", desc: "서울/경기 아이 동반 추천 명소 TOP 20",
+        criteriaTitle: "📊 선정 기준:",
+        freeTitle: "💙 무료 명소 TOP 10", paidTitle: "❤️ 유료 명소 TOP 10",
         contactTitle: "🤝 제휴 및 장소 제보",
-        labelCompany: "업체명/이름",
-        labelEmail: "이메일 주소",
-        labelMessage: "문의 및 제보 내용",
-        submitBtn: "보내기",
-        priceLabel: "입장료: ",
-        addrLabel: "주소: ",
-        locLabel: "위치 보기"
+        labelCompany: "업체명/이름", labelEmail: "이메일 주소", labelMessage: "문의 및 제보 내용",
+        submitBtn: "보내기", addrLabel: "주소: ", priceLabel: "금액: "
     },
     en: {
-        pageTitle: "Where to go with kids? - Seoul/Gyeonggi TOP 10",
-        langBtn: "🌐 한국어",
-        themeBtn: "🌓 Toggle Theme",
-        title: "👶 What to do with Kids?",
-        desc: "Top 10 Recommended Spots in Seoul/Gyeonggi (Monthly Update)",
-        contactTitle: "🤝 Affiliate & Info Report",
-        labelCompany: "Company/Name",
-        labelEmail: "Email Address",
-        labelMessage: "Message & Report",
-        submitBtn: "Submit",
-        priceLabel: "Price: ",
-        addrLabel: "Address: ",
-        locLabel: "View Location"
+        pageTitle: "Kids Activities - Free/Paid TOP 20",
+        langBtn: "🌐 한국어", themeBtn: "🌓 Toggle Theme",
+        title: "👶 What to do with Kids?", desc: "Top 20 Recommended Spots in Seoul/Gyeonggi",
+        criteriaTitle: "📊 Criteria:",
+        freeTitle: "💙 Free Spots TOP 10", paidTitle: "❤️ Paid Spots TOP 10",
+        contactTitle: "🤝 Affiliate & Report",
+        labelCompany: "Name/Company", labelEmail: "Email", labelMessage: "Message",
+        submitBtn: "Submit", addrLabel: "Addr: ", priceLabel: "Price: "
     }
 };
 
 let map;
-let markers = [];
-
 function initMap() {
-    console.log("카카오 지도 로딩 시도 중 (autoload=false)...");
-    const container = document.getElementById('map');
-    
-    if (typeof kakao === 'undefined') {
-        console.error("카카오 지도 SDK가 로드되지 않았습니다.");
-        container.innerHTML = "<div style='padding:20px; color:red;'>SDK 로드 실패. API 키와 도메인 설정을 확인하세요.</div>";
-        return;
-    }
-
-    // kakao.maps.load를 사용하여 SDK가 완전히 로드된 후 실행
+    if (typeof kakao === 'undefined') { setTimeout(initMap, 500); return; }
     kakao.maps.load(function() {
-        console.log("카카오 지도 SDK 로드 완료. 지도 초기화 시작.");
-        try {
-            const options = {
-                center: new kakao.maps.LatLng(37.5665, 126.9780),
-                level: 9
-            };
-
-            map = new kakao.maps.Map(container, options);
-            console.log("카카오 지도 생성 성공!");
-            renderSpots();
-        } catch (e) {
-            console.error("지도 초기화 중 에러:", e);
-        }
+        map = new kakao.maps.Map(document.getElementById('map'), { center: new kakao.maps.LatLng(37.5, 127.0), level: 10 });
+        renderSpots();
     });
 }
 
 function renderSpots() {
     const lang = localStorage.getItem('lang') || 'ko';
-    const list = document.getElementById('spotsList');
-    list.innerHTML = "";
-
-    PLACES_DATA.forEach(spot => {
-        // 리스트 카드 생성
-        const card = document.createElement('div');
-        card.className = "spot-card";
-        card.innerHTML = `
-            <h3>${lang === 'ko' ? spot.name : spot.name_en}</h3>
-            <p class="spot-info"><strong>${translations[lang].addrLabel}</strong> ${lang === 'ko' ? spot.address : spot.address_en}</p>
-            <p class="spot-info"><strong>${translations[lang].priceLabel}</strong> <span class="spot-price">${lang === 'ko' ? spot.price : spot.price_en}</span></p>
-            <p class="spot-info">${lang === 'ko' ? spot.desc : spot.desc_en}</p>
-        `;
-        list.appendChild(card);
-
-        // 지도 마커 표시
-        if (map) {
-            const markerPosition = new kakao.maps.LatLng(spot.lat, spot.lng);
-            const marker = new kakao.maps.Marker({
-                position: markerPosition,
-                map: map,
-                title: lang === 'ko' ? spot.name : spot.name_en
-            });
-            markers.push(marker);
-
-            const infowindow = new kakao.maps.InfoWindow({
-                content: `<div style="padding:10px; color:#333; font-size:12px; width:150px;">
-                            <strong>${lang === 'ko' ? spot.name : spot.name_en}</strong><br>
-                            ${lang === 'ko' ? spot.price : spot.price_en}
-                          </div>`
-            });
-
-            kakao.maps.event.addListener(marker, 'click', function() {
-                infowindow.open(map, marker);
-            });
-        }
-    });
+    const renderList = (data, containerId) => {
+        const container = document.getElementById(containerId);
+        container.innerHTML = "";
+        data.forEach(spot => {
+            const card = document.createElement('div');
+            card.className = "spot-card";
+            card.innerHTML = `
+                <h3>${lang==='ko'?spot.name:spot.name_en}</h3>
+                <p class="spot-info"><strong>${translations[lang].addrLabel}</strong> ${spot.address}</p>
+                <p class="spot-info"><strong>${translations[lang].priceLabel}</strong> <span style="color:${containerId==='freeList'?'#3498db':'#e74c3c'}">${lang==='ko'?spot.price:spot.price_en}</span></p>
+            `;
+            container.appendChild(card);
+            
+            if(map) {
+                const marker = new kakao.maps.Marker({
+                    position: new kakao.maps.LatLng(spot.lat, spot.lng),
+                    map: map
+                });
+                const iw = new kakao.maps.InfoWindow({ content: `<div style="padding:5px;font-size:12px;color:#333;">${lang==='ko'?spot.name:spot.name_en}</div>` });
+                kakao.maps.event.addListener(marker, 'click', () => iw.open(map, marker));
+            }
+        });
+    };
+    renderList(FREE_PLACES, 'freeList');
+    renderList(PAID_PLACES, 'paidList');
 }
 
 function updateTexts(lang) {
-    const mapTexts = translations[lang];
-    document.getElementById('pageTitle').innerText = mapTexts.pageTitle;
-    document.getElementById('langBtn').innerText = mapTexts.langBtn;
-    document.getElementById('themeBtn').innerText = mapTexts.themeBtn;
-    document.getElementById('title').innerText = mapTexts.title;
-    document.getElementById('desc').innerText = mapTexts.desc;
-    document.getElementById('contactTitle').innerText = mapTexts.contactTitle;
-    document.getElementById('labelCompany').innerText = mapTexts.labelCompany;
-    document.getElementById('labelEmail').innerText = mapTexts.labelEmail;
-    document.getElementById('labelMessage').innerText = mapTexts.labelMessage;
-    document.getElementById('submitBtn').innerText = mapTexts.submitBtn;
-    
+    const t = translations[lang];
+    document.getElementById('pageTitle').innerText = t.pageTitle;
+    document.getElementById('langBtn').innerText = t.langBtn;
+    document.getElementById('themeBtn').innerText = t.themeBtn;
+    document.getElementById('title').innerText = t.title;
+    document.getElementById('desc').innerText = t.desc;
+    document.getElementById('criteriaTitle').innerText = t.criteriaTitle;
+    document.getElementById('freeTitle').innerText = t.freeTitle;
+    document.getElementById('paidTitle').innerText = t.paidTitle;
+    document.getElementById('contactTitle').innerText = t.contactTitle;
+    document.getElementById('labelCompany').innerText = t.labelCompany;
+    document.getElementById('labelEmail').innerText = t.labelEmail;
+    document.getElementById('labelMessage').innerText = t.labelMessage;
+    document.getElementById('submitBtn').innerText = t.submitBtn;
     document.documentElement.lang = lang;
     renderSpots();
 }
 
 function toggleLang() {
-    const currentLang = localStorage.getItem('lang') || 'ko';
-    const targetLang = currentLang === 'ko' ? 'en' : 'ko';
-    localStorage.setItem('lang', targetLang);
-    updateTexts(targetLang);
+    const l = (localStorage.getItem('lang') || 'ko') === 'ko' ? 'en' : 'ko';
+    localStorage.setItem('lang', l);
+    updateTexts(l);
 }
 
 function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', targetTheme);
-    localStorage.setItem('theme', targetTheme);
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
 }
 
-// 초기 로드
-window.onload = function() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    
-    const savedLang = localStorage.getItem('lang') || 'ko';
-    updateTexts(savedLang);
-    
+window.onload = () => {
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+    updateTexts(localStorage.getItem('lang') || 'ko');
     initMap();
 };
 </script>
-
+<script>
+    (function() {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://infiniblue.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
 </body>
 </html>
