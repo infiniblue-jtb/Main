@@ -2,57 +2,58 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>로또 번호 추천</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">아이와 오늘 뭐하지? - 서울/경기 TOP 10</title>
 <style>
     :root {
-        --bg-gradient: linear-gradient(135deg, #1d2671, #c33764);
-        --container-bg: rgba(0,0,0,0.3);
-        --text-color: white;
-        --ball-bg: white;
-        --ball-text: black;
-        --input-bg: rgba(255,255,255,0.1);
-        --input-border: rgba(255,255,255,0.3);
-        --label-color: #ddd;
+        --bg-gradient: linear-gradient(135deg, #fff9e6, #e6f7ff);
+        --container-bg: rgba(255, 255, 255, 0.9);
+        --text-color: #444;
+        --card-bg: white;
+        --input-bg: #f9f9f9;
+        --input-border: #ddd;
+        --label-color: #666;
+        --accent-color: #ff9f43;
     }
 
-    [data-theme="light"] {
-        --bg-gradient: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-        --container-bg: rgba(255,255,255,0.8);
-        --text-color: #333;
-        --ball-bg: #eee;
-        --ball-text: #333;
-        --input-bg: rgba(0,0,0,0.05);
-        --input-border: rgba(0,0,0,0.1);
-        --label-color: #666;
+    [data-theme="dark"] {
+        --bg-gradient: linear-gradient(135deg, #2c3e50, #000000);
+        --container-bg: rgba(0, 0, 0, 0.7);
+        --text-color: #eee;
+        --card-bg: #333;
+        --input-bg: #444;
+        --input-border: #555;
+        --label-color: #bbb;
+        --accent-color: #f39c12;
     }
 
     body {
         margin: 0;
-        font-family: 'Segoe UI', sans-serif;
+        font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
         background: var(--bg-gradient);
         color: var(--text-color);
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
         min-height: 100vh;
         transition: background 0.3s, color 0.3s;
+        padding: 20px 0;
     }
 
     .container {
         position: relative;
         text-align: center;
         background: var(--container-bg);
-        padding: 40px;
+        padding: 40px 20px;
         border-radius: 20px;
         backdrop-filter: blur(10px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        width: 90%;
-        max-width: 600px;
-        margin: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        width: 95%;
+        max-width: 800px;
+        margin: 0 auto;
         transition: background 0.3s;
     }
 
-    /* 상단 컨트롤러 (테마/언어 토글) */
     .top-controls {
         position: absolute;
         top: 20px;
@@ -71,7 +72,6 @@
         border-radius: 15px;
         cursor: pointer;
         font-size: 13px;
-        margin-top: 0;
         transition: all 0.3s;
         white-space: nowrap;
     }
@@ -84,63 +84,72 @@
 
     h1 {
         margin-bottom: 10px;
+        color: var(--accent-color);
     }
 
-    .set {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin: 10px 0;
+    p#desc {
+        margin-bottom: 30px;
+        font-size: 1.1rem;
     }
 
-    .ball {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        background: var(--ball-bg);
-        color: var(--ball-text);
-        display: flex;
-        justify-content: center;
-        align-items: center;
+    /* 지도 스타일 */
+    #map {
+        width: 100%;
+        height: 400px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        background: #eee;
+    }
+
+    /* 명소 리스트 스타일 */
+    .spots-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        text-align: left;
+    }
+
+    .spot-card {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        transition: transform 0.3s;
+        border: 1px solid var(--input-border);
+    }
+
+    .spot-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .spot-card h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: var(--accent-color);
+    }
+
+    .spot-info {
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+
+    .spot-price {
         font-weight: bold;
-        font-size: 16px;
-        transition: transform 0.3s ease, background 0.3s, color 0.3s;
-    }
-
-    .ball:hover {
-        transform: scale(1.2);
-    }
-
-    button {
-        margin-top: 20px;
-        padding: 12px 25px;
-        border: none;
-        border-radius: 25px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        background: linear-gradient(45deg, #ff512f, #dd2476);
-        color: white;
-        transition: 0.3s;
-    }
-
-    button:hover {
-        transform: scale(1.1);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        color: #e74c3c;
     }
 
     /* 제휴 문의 폼 스타일 */
     .contact-form {
-        margin-top: 40px;
+        margin-top: 50px;
         padding-top: 30px;
-        border-top: 1px solid rgba(128,128,128,0.2);
+        border-top: 1px solid var(--input-border);
         text-align: left;
     }
 
     .contact-form h2 {
         text-align: center;
         margin-bottom: 20px;
-        font-size: 1.5rem;
     }
 
     .form-group {
@@ -156,30 +165,35 @@
 
     .form-group input, .form-group textarea {
         width: 100%;
-        padding: 10px;
+        padding: 12px;
         border: 1px solid var(--input-border);
         border-radius: 8px;
         background: var(--input-bg);
         color: var(--text-color);
         box-sizing: border-box;
-        transition: background 0.3s, border 0.3s, color 0.3s;
-    }
-
-    .form-group textarea {
-        height: 80px;
-        resize: vertical;
     }
 
     .submit-btn {
         width: 100%;
-        margin-top: 10px;
+        padding: 15px;
+        border: none;
+        border-radius: 25px;
+        background: var(--accent-color);
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
     }
 
-    /* 댓글 섹션 스타일 */
+    .submit-btn:hover {
+        opacity: 0.9;
+        transform: scale(1.02);
+    }
+
     .comments-section {
-        margin-top: 40px;
+        margin-top: 50px;
         padding-top: 30px;
-        border-top: 1px solid rgba(128,128,128,0.2);
+        border-top: 1px solid var(--input-border);
     }
 </style>
 </head>
@@ -190,194 +204,301 @@
         <button class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 English</button>
         <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌓 모드 변경</button>
     </div>
-    <h1 id="title">🎰 로또 5줄 자동 추천</h1>
-    <p id="desc">버튼 한 번으로 5세트 생성!</p>
+    
+    <h1 id="title">👶 아이와 오늘 뭐하지?</h1>
+    <p id="desc">서울/경기 아이 동반 추천 명소 TOP 10 (매월 업데이트)</p>
 
-    <!-- 최근 당첨 번호 섹션 추가 -->
-    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin: 20px 0;">
-        <h3 style="margin-top: 0;" id="recentTitle">🎉 제1220회 당첨번호 (2026-04-18)</h3>
-        <div class="set">
-            <div class="ball" style="background: #fbc400;">2</div>
-            <div class="ball" style="background: #69c8f2;">22</div>
-            <div class="ball" style="background: #ff7272;">25</div>
-            <div class="ball" style="background: #ff7272;">28</div>
-            <div class="ball" style="background: #aaa;">34</div>
-            <div class="ball" style="background: #b0d840;">43</div>
-            <div style="display: flex; align-items: center; margin: 0 5px; font-weight: bold;">+</div>
-            <div class="ball" style="background: #69c8f2;">16</div>
-        </div>
+    <!-- 카카오 지도 -->
+    <div id="map"></div>
+
+    <!-- 명소 리스트 -->
+    <div class="spots-grid" id="spotsList">
+        <!-- JS에서 동적 생성됨 -->
     </div>
 
-    <!-- 춤추는 고양이와 돌아다니는 고양이 추가 -->
-    <div style="margin: 20px 0; display: flex; justify-content: center; gap: 20px; align-items: center;">
-        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueGZ3bmZ3bmZ3bmZ3bmZ3bmZ3bmZ3bmZ3bmZ3bmZ3bmZ3bmZ3JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/GeimqsH0TLDt4tScGw/giphy.gif" alt="Dancing Cat" style="width: 150px; border-radius: 10px;">
-        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2Zic3RyZndmZndmZndmZndmZndmZndmZndmZndmZndmZndmZndmJmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3oriO0OEd9QIDdllqo/giphy.gif" alt="Cute Cat" style="width: 150px; border-radius: 10px;">
-    </div>
-
-    <div id="lottoArea"></div>
-
-    <button onclick="generateAll()" id="generateBtn">번호 뽑기</button>
-
-    <!-- 제휴 문의 폼 -->
+    <!-- 제휴 문의 -->
     <div class="contact-form">
-        <h2 id="contactTitle">🤝 제휴 문의</h2>
+        <h2 id="contactTitle">🤝 제휴 및 장소 제보</h2>
         <form action="https://formspree.io/f/mrerkyqp" method="POST">
             <div class="form-group">
-                <label for="company" id="labelCompany">업체명</label>
+                <label for="company" id="labelCompany">업체명/이름</label>
                 <input type="text" id="company" name="company" required>
-            </div>
-            <div class="form-group">
-                <label for="name" id="labelName">담당자명</label>
-                <input type="text" id="name" name="name" required>
             </div>
             <div class="form-group">
                 <label for="email" id="labelEmail">이메일 주소</label>
                 <input type="email" id="email" name="_replyto" required>
             </div>
             <div class="form-group">
-                <label for="message" id="labelMessage">문의 내용</label>
-                <textarea id="message" name="message" required></textarea>
+                <label for="message" id="labelMessage">문의 및 제보 내용</label>
+                <textarea id="message" name="message" required style="height: 100px;"></textarea>
             </div>
             <input type="text" name="_gotcha" style="display:none">
-            <button type="submit" class="submit-btn" id="submitBtn">문의하기</button>
+            <button type="submit" class="submit-btn" id="submitBtn">보내기</button>
         </form>
     </div>
 
-    <!-- Disqus 댓글 섹션 -->
+    <!-- Disqus 댓글 -->
     <div class="comments-section">
         <div id="disqus_thread"></div>
         <script>
-            /**
-            *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-            *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
-            /*
-            var disqus_config = function () {
-            this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-            this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-            };
-            */
-            (function() { // DON'T EDIT BELOW THIS LINE
+            (function() {
             var d = document, s = d.createElement('script');
             s.src = 'https://infiniblue.disqus.com/embed.js';
             s.setAttribute('data-timestamp', +new Date());
             (d.head || d.body).appendChild(s);
             })();
         </script>
-        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
     </div>
 </div>
 
+<!-- 카카오 지도 API (본인의 API 키로 교체 필요) -->
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_MAP_API_KEY"></script>
+
 <script>
-function generateSet() {
-    let numbers = [];
-
-    while(numbers.length < 6) {
-        let num = Math.floor(Math.random() * 45) + 1;
-        if(!numbers.includes(num)) numbers.push(num);
+/**
+ * 2026년 4월 기준 데이터 (매월 업데이트 시 아래 배열만 수정하세요)
+ */
+const PLACES_DATA = [
+    {
+        id: 1,
+        name: "에버랜드",
+        name_en: "Everland",
+        lat: 37.294,
+        lng: 127.203,
+        price: "50,000원~",
+        price_en: "From 50,000 KRW",
+        desc: "사파리 월드와 판다월드 등 아이들이 가장 좋아하는 테마파크",
+        desc_en: "Korea's largest theme park with Safari and Panda World."
+    },
+    {
+        id: 2,
+        name: "롯데월드 어드벤처",
+        name_en: "Lotte World Adventure",
+        lat: 37.511,
+        lng: 127.098,
+        price: "47,000원~",
+        price_en: "From 47,000 KRW",
+        desc: "실내외 테마파크로 날씨와 상관없이 즐길 수 있는 모험의 나라",
+        desc_en: "Indoor and outdoor theme park for all weather conditions."
+    },
+    {
+        id: 3,
+        name: "키자니아 서울",
+        name_en: "KidZania Seoul",
+        lat: 37.513,
+        lng: 127.102,
+        price: "40,000원~",
+        price_en: "From 40,000 KRW",
+        desc: "아이들이 현실감 넘치는 직업을 미리 경험해볼 수 있는 직업 테마파크",
+        desc_en: "A realistic vocational theme park for children to experience jobs."
+    },
+    {
+        id: 4,
+        name: "서울대공원 동물원",
+        name_en: "Seoul Grand Park Zoo",
+        lat: 37.427,
+        lng: 127.017,
+        price: "5,000원~",
+        price_en: "From 5,000 KRW",
+        desc: "국내 최대 규모의 동물원으로 산책하며 동물들을 만나기 좋은 곳",
+        desc_en: "The largest zoo in Korea, great for walking and seeing animals."
+    },
+    {
+        id: 5,
+        name: "안성팜랜드",
+        name_en: "Anseong Farmland",
+        lat: 37.014,
+        lng: 127.151,
+        price: "12,000원~",
+        price_en: "From 12,000 KRW",
+        desc: "계절마다 아름다운 꽃밭과 동물 먹이주기 체험이 가득한 농장",
+        desc_en: "A farm with beautiful flower fields and animal feeding experiences."
+    },
+    {
+        id: 6,
+        name: "국립어린이과학관",
+        name_en: "National Children's Science Museum",
+        lat: 37.584,
+        lng: 126.996,
+        price: "2,000원~",
+        price_en: "From 2,000 KRW",
+        desc: "체험형 전시물을 통해 과학의 원리를 쉽고 재미있게 배우는 공간",
+        desc_en: "A space to learn science principles through hands-on exhibits."
+    },
+    {
+        id: 7,
+        name: "경기도어린이박물관",
+        name_en: "Gyeonggi Children's Museum",
+        lat: 37.271,
+        lng: 127.109,
+        price: "4,000원~",
+        price_en: "From 4,000 KRW",
+        desc: "놀이를 통해 배움의 즐거움을 깨닫는 자기주도적 박물관",
+        desc_en: "A self-directed museum where children learn through play."
+    },
+    {
+        id: 8,
+        name: "코엑스 아쿠아리움",
+        name_en: "COEX Aquarium",
+        lat: 37.513,
+        lng: 127.059,
+        price: "30,000원~",
+        price_en: "From 30,000 KRW",
+        desc: "도심 속에서 만나는 환상적인 수중 세계와 상어 친구들",
+        desc_en: "Fantastic underwater world and sharks in the heart of the city."
+    },
+    {
+        id: 9,
+        name: "아쿠아플라넷 일산",
+        name_en: "Aqua Planet Ilsan",
+        lat: 37.664,
+        lng: 126.758,
+        price: "29,000원~",
+        price_en: "From 29,000 KRW",
+        desc: "수족관과 동물원을 동시에 즐길 수 있는 복합 관람 공간",
+        desc_en: "A complex space where you can enjoy both aquarium and zoo."
+    },
+    {
+        id: 10,
+        name: "서울어린이대공원",
+        name_en: "Seoul Children's Grand Park",
+        lat: 37.548,
+        lng: 127.074,
+        price: "무료 (시설별 유료)",
+        price_en: "Free (Fees for some facilities)",
+        desc: "공원, 동물원, 식물원, 놀이동산이 모두 모인 나들이 명소",
+        desc_en: "A spot with park, zoo, botanical garden, and amusement park."
     }
+];
 
-    return numbers.sort((a,b)=>a-b);
-}
-
-function getColor(num) {
-    if (num <= 10) return "#fbc400";
-    if (num <= 20) return "#69c8f2";
-    if (num <= 30) return "#ff7272";
-    if (num <= 40) return "#aaa";
-    return "#b0d840";
-}
-
-function generateAll() {
-    const area = document.getElementById("lottoArea");
-    area.innerHTML = "";
-
-    for(let i=0; i<5; i++) {
-        let set = generateSet();
-
-        let row = document.createElement("div");
-        row.className = "set";
-
-        set.forEach(num => {
-            let ball = document.createElement("div");
-            ball.className = "ball";
-            ball.innerText = num;
-            ball.style.background = getColor(num);
-            row.appendChild(ball);
-        });
-
-        area.appendChild(row);
-    }
-}
-
-// 테마 토글 로직
-function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const targetTheme = currentTheme === 'light' ? 'dark' : 'light';
-    
-    document.documentElement.setAttribute('data-theme', targetTheme);
-    localStorage.setItem('theme', targetTheme);
-}
-
-// 초기 테마 설정 로드
-(function() {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-})();
-
-// 언어 설정 및 번역 맵
 const translations = {
     ko: {
+        pageTitle: "아이와 오늘 뭐하지? - 서울/경기 TOP 10",
         langBtn: "🌐 English",
         themeBtn: "🌓 모드 변경",
-        title: "🎰 로또 5줄 자동 추천",
-        desc: "버튼 한 번으로 5세트 생성!",
-        recentTitle: "🎉 제1220회 당첨번호 (2026-04-18)",
-        generateBtn: "번호 뽑기",
-        contactTitle: "🤝 제휴 문의",
-        labelCompany: "업체명",
-        labelName: "담당자명",
+        title: "👶 아이와 오늘 뭐하지?",
+        desc: "서울/경기 아이 동반 추천 명소 TOP 10 (매월 업데이트)",
+        contactTitle: "🤝 제휴 및 장소 제보",
+        labelCompany: "업체명/이름",
         labelEmail: "이메일 주소",
-        labelMessage: "문의 내용",
-        submitBtn: "문의하기"
+        labelMessage: "문의 및 제보 내용",
+        submitBtn: "보내기",
+        priceLabel: "입장료: ",
+        locLabel: "위치 보기"
     },
     en: {
+        pageTitle: "Where to go with kids? - Seoul/Gyeonggi TOP 10",
         langBtn: "🌐 한국어",
         themeBtn: "🌓 Toggle Theme",
-        title: "🎰 Lotto 5-Row Auto-Recommendation",
-        desc: "Generate 5 sets with one click!",
-        recentTitle: "🎉 1220th Winning Numbers (2026-04-18)",
-        generateBtn: "Generate Numbers",
-        contactTitle: "🤝 Affiliate Inquiry",
-        labelCompany: "Company Name",
-        labelName: "Contact Name",
+        title: "👶 What to do with Kids?",
+        desc: "Top 10 Recommended Spots in Seoul/Gyeonggi (Monthly Update)",
+        contactTitle: "🤝 Affiliate & Info Report",
+        labelCompany: "Company/Name",
         labelEmail: "Email Address",
-        labelMessage: "Message",
-        submitBtn: "Submit"
+        labelMessage: "Message & Report",
+        submitBtn: "Submit",
+        priceLabel: "Price: ",
+        locLabel: "View Location"
     }
 };
 
-function updateTexts(lang) {
-    const map = translations[lang];
-    for (let id in map) {
-        const el = document.getElementById(id);
-        if (el) el.innerText = map[id];
+let map;
+let markers = [];
+
+function initMap() {
+    if (typeof kakao === 'undefined') {
+        document.getElementById('map').innerText = "카카오 지도 API 키를 입력하면 지도가 표시됩니다.";
+        return;
     }
+
+    const container = document.getElementById('map');
+    const options = {
+        center: new kakao.maps.LatLng(37.45, 127.05),
+        level: 9
+    };
+
+    map = new kakao.maps.Map(container, options);
+    renderSpots();
+}
+
+function renderSpots() {
+    const lang = localStorage.getItem('lang') || 'ko';
+    const list = document.getElementById('spotsList');
+    list.innerHTML = "";
+
+    PLACES_DATA.forEach(spot => {
+        // 리스트 카드 생성
+        const card = document.createElement('div');
+        card.className = "spot-card";
+        card.innerHTML = `
+            <h3>${lang === 'ko' ? spot.name : spot.name_en}</h3>
+            <p class="spot-info"><strong>${translations[lang].priceLabel}</strong> <span class="spot-price">${lang === 'ko' ? spot.price : spot.price_en}</span></p>
+            <p class="spot-info">${lang === 'ko' ? spot.desc : spot.desc_en}</p>
+        `;
+        list.appendChild(card);
+
+        // 지도 마커 표시
+        if (map) {
+            const markerPosition = new kakao.maps.LatLng(spot.lat, spot.lng);
+            const marker = new kakao.maps.Marker({
+                position: markerPosition,
+                map: map,
+                title: lang === 'ko' ? spot.name : spot.name_en
+            });
+            markers.push(marker);
+
+            const infowindow = new kakao.maps.InfoWindow({
+                content: `<div style="padding:5px; color:#333; font-size:12px;">${lang === 'ko' ? spot.name : spot.name_en}</div>`
+            });
+
+            kakao.maps.event.addListener(marker, 'click', function() {
+                infowindow.open(map, marker);
+            });
+        }
+    });
+}
+
+function updateTexts(lang) {
+    const mapTexts = translations[lang];
+    document.getElementById('pageTitle').innerText = mapTexts.pageTitle;
+    document.getElementById('langBtn').innerText = mapTexts.langBtn;
+    document.getElementById('themeBtn').innerText = mapTexts.themeBtn;
+    document.getElementById('title').innerText = mapTexts.title;
+    document.getElementById('desc').innerText = mapTexts.desc;
+    document.getElementById('contactTitle').innerText = mapTexts.contactTitle;
+    document.getElementById('labelCompany').innerText = mapTexts.labelCompany;
+    document.getElementById('labelEmail').innerText = mapTexts.labelEmail;
+    document.getElementById('labelMessage').innerText = mapTexts.labelMessage;
+    document.getElementById('submitBtn').innerText = mapTexts.submitBtn;
+    
     document.documentElement.lang = lang;
+    renderSpots();
 }
 
 function toggleLang() {
     const currentLang = localStorage.getItem('lang') || 'ko';
     const targetLang = currentLang === 'ko' ? 'en' : 'ko';
-    
     localStorage.setItem('lang', targetLang);
     updateTexts(targetLang);
 }
 
-// 초기 언어 설정 로드
-(function() {
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', targetTheme);
+    localStorage.setItem('theme', targetTheme);
+}
+
+// 초기 로드
+window.onload = function() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
     const savedLang = localStorage.getItem('lang') || 'ko';
     updateTexts(savedLang);
-})();
+    
+    initMap();
+};
 </script>
 
 </body>
