@@ -251,8 +251,8 @@
     </div>
 </div>
 
-<!-- 카카오 지도 API (본인의 API 키로 교체 필요) -->
-<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=57bfea397961e50faf4c06e08d0b0ab4"></script>
+<!-- 카카오 지도 API (autoload=false 적용으로 더 안정적으로 로드) -->
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=57bfea397961e50faf4c06e08d0b0ab4&autoload=false"></script>
 
 <script>
 /**
@@ -428,34 +428,31 @@ let map;
 let markers = [];
 
 function initMap() {
-    console.log("카카오 지도 초기화 시도 중...");
+    console.log("카카오 지도 로딩 시도 중 (autoload=false)...");
     const container = document.getElementById('map');
     
     if (typeof kakao === 'undefined') {
-        console.error("카카오 지도 SDK가 로드되지 않았습니다. API 키나 도메인 설정을 확인하세요.");
-        container.innerHTML = "<div style='padding:20px; color:red;'>카카오 지도 SDK 로드 실패. API 키와 도메인 설정을 확인해주세요.</div>";
+        console.error("카카오 지도 SDK가 로드되지 않았습니다.");
+        container.innerHTML = "<div style='padding:20px; color:red;'>SDK 로드 실패. API 키와 도메인 설정을 확인하세요.</div>";
         return;
     }
 
-    if (!kakao.maps || !kakao.maps.LatLng) {
-        console.warn("카카오 지도 객체가 아직 준비되지 않았습니다. 0.5초 후 재시도합니다.");
-        setTimeout(initMap, 500);
-        return;
-    }
+    // kakao.maps.load를 사용하여 SDK가 완전히 로드된 후 실행
+    kakao.maps.load(function() {
+        console.log("카카오 지도 SDK 로드 완료. 지도 초기화 시작.");
+        try {
+            const options = {
+                center: new kakao.maps.LatLng(37.5665, 126.9780),
+                level: 9
+            };
 
-    try {
-        const options = {
-            center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울 시청 기준
-            level: 9
-        };
-
-        map = new kakao.maps.Map(container, options);
-        console.log("카카오 지도 생성 성공!");
-        renderSpots();
-    } catch (e) {
-        console.error("지도 생성 중 오류 발생:", e);
-        container.innerHTML = "<div style='padding:20px; color:red;'>지도 생성 중 오류가 발생했습니다: " + e.message + "</div>";
-    }
+            map = new kakao.maps.Map(container, options);
+            console.log("카카오 지도 생성 성공!");
+            renderSpots();
+        } catch (e) {
+            console.error("지도 초기화 중 에러:", e);
+        }
+    });
 }
 
 function renderSpots() {
