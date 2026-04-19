@@ -428,21 +428,34 @@ let map;
 let markers = [];
 
 function initMap() {
+    console.log("카카오 지도 초기화 시도 중...");
     const container = document.getElementById('map');
     
-    // 카카오 객체가 로드될 때까지 대기
-    if (typeof kakao === 'undefined' || !kakao.maps) {
+    if (typeof kakao === 'undefined') {
+        console.error("카카오 지도 SDK가 로드되지 않았습니다. API 키나 도메인 설정을 확인하세요.");
+        container.innerHTML = "<div style='padding:20px; color:red;'>카카오 지도 SDK 로드 실패. API 키와 도메인 설정을 확인해주세요.</div>";
+        return;
+    }
+
+    if (!kakao.maps || !kakao.maps.LatLng) {
+        console.warn("카카오 지도 객체가 아직 준비되지 않았습니다. 0.5초 후 재시도합니다.");
         setTimeout(initMap, 500);
         return;
     }
 
-    const options = {
-        center: new kakao.maps.LatLng(37.45, 127.05),
-        level: 9
-    };
+    try {
+        const options = {
+            center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울 시청 기준
+            level: 9
+        };
 
-    map = new kakao.maps.Map(container, options);
-    renderSpots();
+        map = new kakao.maps.Map(container, options);
+        console.log("카카오 지도 생성 성공!");
+        renderSpots();
+    } catch (e) {
+        console.error("지도 생성 중 오류 발생:", e);
+        container.innerHTML = "<div style='padding:20px; color:red;'>지도 생성 중 오류가 발생했습니다: " + e.message + "</div>";
+    }
 }
 
 function renderSpots() {
