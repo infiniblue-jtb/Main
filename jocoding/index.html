@@ -74,6 +74,27 @@
         transform: none;
     }
 
+    /* 언어 토글 버튼 */
+    .lang-toggle {
+        position: absolute;
+        top: 20px;
+        right: 120px; /* 테마 버튼 옆에 배치 */
+        background: none;
+        border: 2px solid var(--text-color);
+        color: var(--text-color);
+        padding: 5px 10px;
+        border-radius: 15px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-top: 0;
+        transition: all 0.3s;
+    }
+
+    .lang-toggle:hover {
+        background: var(--text-color);
+        color: var(--container-bg);
+    }
+
     h1 {
         margin-bottom: 10px;
     }
@@ -178,13 +199,14 @@
 <body>
 
 <div class="container">
-    <button class="theme-toggle" onclick="toggleTheme()">🌓 모드 변경</button>
-    <h1>🎰 로또 5줄 자동 추천</h1>
-    <p>버튼 한 번으로 5세트 생성!</p>
+    <button class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 English</button>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌓 모드 변경</button>
+    <h1 id="title">🎰 로또 5줄 자동 추천</h1>
+    <p id="desc">버튼 한 번으로 5세트 생성!</p>
 
     <!-- 최근 당첨 번호 섹션 추가 -->
     <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin: 20px 0;">
-        <h3 style="margin-top: 0;">🎉 제1220회 당첨번호 (2026-04-18)</h3>
+        <h3 style="margin-top: 0;" id="recentTitle">🎉 제1220회 당첨번호 (2026-04-18)</h3>
         <div class="set">
             <div class="ball" style="background: #fbc400;">2</div>
             <div class="ball" style="background: #69c8f2;">22</div>
@@ -205,30 +227,30 @@
 
     <div id="lottoArea"></div>
 
-    <button onclick="generateAll()">번호 뽑기</button>
+    <button onclick="generateAll()" id="generateBtn">번호 뽑기</button>
 
     <!-- 제휴 문의 폼 -->
     <div class="contact-form">
-        <h2>🤝 제휴 문의</h2>
+        <h2 id="contactTitle">🤝 제휴 문의</h2>
         <form action="https://formspree.io/f/mrerkyqp" method="POST">
             <div class="form-group">
-                <label for="company">업체명</label>
+                <label for="company" id="labelCompany">업체명</label>
                 <input type="text" id="company" name="company" required>
             </div>
             <div class="form-group">
-                <label for="name">담당자명</label>
+                <label for="name" id="labelName">담당자명</label>
                 <input type="text" id="name" name="name" required>
             </div>
             <div class="form-group">
-                <label for="email">이메일 주소</label>
+                <label for="email" id="labelEmail">이메일 주소</label>
                 <input type="email" id="email" name="_replyto" required>
             </div>
             <div class="form-group">
-                <label for="message">문의 내용</label>
+                <label for="message" id="labelMessage">문의 내용</label>
                 <textarea id="message" name="message" required></textarea>
             </div>
             <input type="text" name="_gotcha" style="display:none">
-            <button type="submit" class="submit-btn">문의하기</button>
+            <button type="submit" class="submit-btn" id="submitBtn">문의하기</button>
         </form>
     </div>
 
@@ -311,6 +333,61 @@ function toggleTheme() {
 (function() {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
+})();
+
+// 언어 설정 및 번역 맵
+const translations = {
+    ko: {
+        langBtn: "🌐 English",
+        themeBtn: "🌓 모드 변경",
+        title: "🎰 로또 5줄 자동 추천",
+        desc: "버튼 한 번으로 5세트 생성!",
+        recentTitle: "🎉 제1220회 당첨번호 (2026-04-18)",
+        generateBtn: "번호 뽑기",
+        contactTitle: "🤝 제휴 문의",
+        labelCompany: "업체명",
+        labelName: "담당자명",
+        labelEmail: "이메일 주소",
+        labelMessage: "문의 내용",
+        submitBtn: "문의하기"
+    },
+    en: {
+        langBtn: "🌐 한국어",
+        themeBtn: "🌓 Toggle Theme",
+        title: "🎰 Lotto 5-Row Auto-Recommendation",
+        desc: "Generate 5 sets with one click!",
+        recentTitle: "🎉 1220th Winning Numbers (2026-04-18)",
+        generateBtn: "Generate Numbers",
+        contactTitle: "🤝 Affiliate Inquiry",
+        labelCompany: "Company Name",
+        labelName: "Contact Name",
+        labelEmail: "Email Address",
+        labelMessage: "Message",
+        submitBtn: "Submit"
+    }
+};
+
+function updateTexts(lang) {
+    const map = translations[lang];
+    for (let id in map) {
+        const el = document.getElementById(id);
+        if (el) el.innerText = map[id];
+    }
+    document.documentElement.lang = lang;
+}
+
+function toggleLang() {
+    const currentLang = localStorage.getItem('lang') || 'ko';
+    const targetLang = currentLang === 'ko' ? 'en' : 'ko';
+    
+    localStorage.setItem('lang', targetLang);
+    updateTexts(targetLang);
+}
+
+// 초기 언어 설정 로드
+(function() {
+    const savedLang = localStorage.getItem('lang') || 'ko';
+    updateTexts(savedLang);
 })();
 </script>
 
