@@ -1,184 +1,145 @@
 <template>
   <div id="app-wrapper">
-    <nav class="luxury-nav" :class="{ 'scrolled': isScrolled }">
+    <nav class="main-nav">
       <div class="nav-container">
-        <div class="logo">HAPPYKIDS</div>
+        <div class="logo">✨ HappyKids</div>
         <div class="nav-links">
-          <router-link to="/" class="nav-item">DISCOVER</router-link>
-          <router-link to="/food" class="nav-item">GASTRONOMY</router-link>
+          <router-link to="/" class="nav-item">👶 아이와 오늘 뭐하지?</router-link>
+          <router-link to="/food" class="nav-item">🍕 오늘 뭐 먹지?</router-link>
         </div>
       </div>
     </nav>
     
     <main class="content-wrapper">
       <router-view v-slot="{ Component }">
-        <transition name="page-fade" mode="out-in">
+        <transition name="fade" mode="out-in">
           <component :is="Component" />
         </transition>
       </router-view>
     </main>
 
-    <footer class="luxury-footer">
-      <div class="footer-content">
-        <div class="footer-logo">HAPPYKIDS</div>
-        <p class="copyright">&copy; 2026 CURATED FOR FAMILY. ALL RIGHTS RESERVED.</p>
-      </div>
+    <footer class="main-footer">
+      <p>&copy; 2026 HappyKids. All rights reserved.</p>
     </footer>
   </div>
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue';
-
 export default {
-  name: 'App',
-  setup() {
-    const isScrolled = ref(false);
-
-    const handleScroll = () => {
-      isScrolled.value = window.scrollY > 50;
-    };
-
-    onMounted(() => {
-      window.addEventListener('scroll', handleScroll);
-    });
-
-    onUnmounted(() => {
-      window.removeEventListener('scroll', handleScroll);
-    });
-
-    return { isScrolled };
-  }
+  name: 'App'
 }
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;1,400&family=Noto+Sans+KR:wght@300;400;700&display=swap');
-
 :root {
-  --accent-color: #1a1a1a;
-  --text-color: #1a1a1a;
-  --light-gray: #f9f9f9;
+  --bg-gradient: linear-gradient(135deg, #fff9e6, #e6f7ff);
+  --container-bg: rgba(255, 255, 255, 0.9);
+  --text-color: #444;
+  --card-bg: white;
+  --input-bg: #f9f9f9;
+  --input-border: #ddd;
+  --label-color: #666;
+  --accent-color: #ff9f43;
+  --free-color: #3498db;
+  --paid-color: #e74c3c;
+  --nav-bg: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] {
+  --bg-gradient: linear-gradient(135deg, #2c3e50, #000000);
+  --container-bg: rgba(0, 0, 0, 0.7);
+  --text-color: #eee;
+  --card-bg: #333;
+  --input-bg: #444;
+  --input-border: #555;
+  --label-color: #bbb;
+  --accent-color: #f39c12;
+  --nav-bg: rgba(0, 0, 0, 0.8);
 }
 
 body {
   margin: 0;
-  padding: 0;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+  background: var(--bg-gradient);
   color: var(--text-color);
-  background: #fff;
-  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s, color 0.3s;
 }
 
 #app-wrapper {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
 }
 
-.luxury-nav {
-  position: fixed;
+.main-nav {
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
   z-index: 1000;
-  padding: 30px 0;
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-  background: transparent;
-}
-
-.luxury-nav.scrolled {
-  padding: 15px 0;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--nav-bg);
   backdrop-filter: blur(10px);
-  box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 15px 0;
 }
 
 .nav-container {
-  max-width: 1400px;
+  max-width: 1000px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 40px;
+  padding: 0 20px;
 }
 
 .logo {
-  font-family: 'Bodoni Moda', serif;
   font-size: 1.5rem;
-  letter-spacing: 0.2em;
-  font-weight: 700;
+  font-weight: bold;
+  color: var(--accent-color);
 }
 
 .nav-links {
   display: flex;
-  gap: 40px;
+  gap: 20px;
 }
 
 .nav-item {
   text-decoration: none;
   color: var(--text-color);
-  font-family: 'Bodoni Moda', serif;
-  font-size: 0.9rem;
-  letter-spacing: 0.15em;
-  font-weight: 400;
-  position: relative;
-  padding-bottom: 5px;
+  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 10px;
+  transition: all 0.3s;
 }
 
-.nav-item::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 1px;
-  background: var(--text-color);
-  transition: width 0.3s ease;
+.nav-item:hover {
+  background: rgba(0,0,0,0.05);
+  color: var(--accent-color);
 }
 
-.nav-item:hover::after, .router-link-active::after {
-  width: 100%;
+.router-link-active {
+  background: var(--accent-color);
+  color: white !important;
 }
 
 .content-wrapper {
   flex: 1;
-  margin-top: 0;
+  padding: 40px 0;
 }
 
-.luxury-footer {
-  padding: 100px 40px;
-  background: #fff;
-  border-top: 1px solid #eee;
+.main-footer {
   text-align: center;
-}
-
-.footer-logo {
-  font-family: 'Bodoni Moda', serif;
-  font-size: 1.2rem;
-  letter-spacing: 0.3em;
-  margin-bottom: 30px;
-}
-
-.copyright {
-  font-size: 0.7rem;
-  color: #999;
-  letter-spacing: 0.1em;
+  padding: 20px;
+  font-size: 0.9rem;
+  color: var(--label-color);
 }
 
 /* Page Transitions */
-.page-fade-enter-active,
-.page-fade-leave-active {
-  transition: opacity 0.5s ease, transform 0.5s ease;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
 }
 
-.page-fade-enter-from {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
-  transform: translateY(10px);
-}
-
-.page-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
 }
 </style>

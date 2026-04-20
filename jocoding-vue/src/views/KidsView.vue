@@ -1,95 +1,70 @@
 <template>
-  <div class="luxury-container">
-    <header class="hero-section">
-      <div class="hero-content">
-        <span class="sub-title">EXPLORE WITH KIDS</span>
-        <h1 class="main-title">{{ t.title }}</h1>
-        <p class="hero-desc">{{ t.desc }}</p>
-      </div>
-    </header>
+  <div class="container">
+    <div class="top-controls">
+      <button class="lang-toggle" @click="toggleLang">{{ t.langBtn }}</button>
+      <button class="theme-toggle" @click="toggleTheme">{{ t.themeBtn }}</button>
+    </div>
+    
+    <h1>{{ t.title }}</h1>
+    <p>{{ t.desc }}</p>
 
-    <section class="content-section">
-      <div class="criteria-luxury">
-        <div class="criteria-header">
-          <span class="dot"></span>
-          <h2>{{ t.criteriaTitle }}</h2>
-        </div>
-        <ul class="luxury-list">
-          <li>네이버/구글 평점 4.0 이상의 높은 사용자 만족도</li>
-          <li>최근 1년 내 SNS 및 블로그 언급량 상위권</li>
-          <li>아이들이 직접 체험 가능한 놀이/학습 시설 완비</li>
-          <li>유모차 대여, 수유실 등 부모 편의시설 우수</li>
-        </ul>
-      </div>
+    <div class="criteria-box">
+      <strong>{{ t.criteriaTitle }}</strong>
+      <ul style="margin: 5px 0 0 20px; padding: 0;">
+        <li>네이버/구글 평점 4.0 이상의 높은 사용자 만족도</li>
+        <li>최근 1년 내 SNS 및 블로그 언급량 상위권</li>
+        <li>아이들이 직접 체험 가능한 놀이/학습 시설 완비</li>
+        <li>유모차 대여, 수유실 등 부모 편의시설 우수</li>
+      </ul>
+    </div>
 
-      <div class="map-wrapper">
-        <div id="map" ref="mapContainer"></div>
-      </div>
+    <div id="map" ref="mapContainer"></div>
 
-      <div class="grid-container">
-        <!-- 무료 섹션 -->
-        <div class="luxury-column">
-          <div class="column-header free">
-            <span>01</span>
-            <h2>{{ t.freeTitle }}</h2>
-          </div>
-          <div class="spot-grid">
-            <div v-for="spot in freePlaces" :key="spot.name" class="luxury-card">
-              <div class="card-inner">
-                <span class="card-category">FREE</span>
-                <h3>{{ currentLang === 'ko' ? spot.name : spot.name_en }}</h3>
-                <p class="spot-addr">{{ spot.address }}</p>
-                <div class="card-footer">
-                  <span class="price-label">{{ currentLang === 'ko' ? spot.price : spot.price_en }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 유료 섹션 -->
-        <div class="luxury-column">
-          <div class="column-header paid">
-            <span>02</span>
-            <h2>{{ t.paidTitle }}</h2>
-          </div>
-          <div class="spot-grid">
-            <div v-for="spot in paidPlaces" :key="spot.name" class="luxury-card">
-              <div class="card-inner">
-                <span class="card-category">PREMIUM</span>
-                <h3>{{ currentLang === 'ko' ? spot.name : spot.name_en }}</h3>
-                <p class="spot-addr">{{ spot.address }}</p>
-                <div class="card-footer">
-                  <span class="price-label highlighted">{{ currentLang === 'ko' ? spot.price : spot.price_en }}</span>
-                </div>
-              </div>
-            </div>
+    <div class="sections-container">
+      <!-- 무료 섹션 -->
+      <div class="section">
+        <h2 class="free-header">{{ t.freeTitle }}</h2>
+        <div id="freeList">
+          <div v-for="spot in freePlaces" :key="spot.name" class="spot-card">
+            <h3>{{ currentLang === 'ko' ? spot.name : spot.name_en }}</h3>
+            <p class="spot-info"><strong>{{ t.addrLabel }}</strong> {{ spot.address }}</p>
+            <p class="spot-info"><strong>{{ t.priceLabel }}</strong> <span style="color: #3498db">{{ currentLang === 'ko' ? spot.price : spot.price_en }}</span></p>
           </div>
         </div>
       </div>
-    </section>
+      <!-- 유료 섹션 -->
+      <div class="section">
+        <h2 class="paid-header">{{ t.paidTitle }}</h2>
+        <div id="paidList">
+          <div v-for="spot in paidPlaces" :key="spot.name" class="spot-card">
+            <h3>{{ currentLang === 'ko' ? spot.name : spot.name_en }}</h3>
+            <p class="spot-info"><strong>{{ t.addrLabel }}</strong> {{ spot.address }}</p>
+            <p class="spot-info"><strong>{{ t.priceLabel }}</strong> <span style="color: #e74c3c">{{ currentLang === 'ko' ? spot.price : spot.price_en }}</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- 제휴 문의 -->
-    <section class="contact-section">
-      <div class="contact-inner">
-        <h2>{{ t.contactTitle }}</h2>
-        <form action="https://formspree.io/f/mrerkyqp" method="POST" class="luxury-form">
-          <div class="input-group">
-            <input type="text" id="company" name="company" required placeholder=" ">
-            <label for="company">{{ t.labelCompany }}</label>
-          </div>
-          <div class="input-group">
-            <input type="email" id="email" name="_replyto" required placeholder=" ">
-            <label for="email">{{ t.labelEmail }}</label>
-          </div>
-          <div class="input-group">
-            <textarea id="message" name="message" required placeholder=" "></textarea>
-            <label for="message">{{ t.labelMessage }}</label>
-          </div>
-          <button type="submit" class="luxury-submit">{{ t.submitBtn }}</button>
-        </form>
-      </div>
-    </section>
+    <div class="contact-form">
+      <h2 style="text-align:center;">{{ t.contactTitle }}</h2>
+      <form action="https://formspree.io/f/mrerkyqp" method="POST">
+        <div style="margin-bottom:15px;">
+          <label for="company" style="display:block; margin-bottom:5px; font-size:0.9rem;">{{ t.labelCompany }}</label>
+          <input type="text" id="company" name="company" required class="form-input">
+        </div>
+        <div style="margin-bottom:15px;">
+          <label for="email" style="display:block; margin-bottom:5px; font-size:0.9rem;">{{ t.labelEmail }}</label>
+          <input type="email" id="email" name="_replyto" required class="form-input">
+        </div>
+        <div style="margin-bottom:15px;">
+          <label for="message" style="display:block; margin-bottom:5px; font-size:0.9rem;">{{ t.labelMessage }}</label>
+          <textarea id="message" name="message" required class="form-textarea"></textarea>
+        </div>
+        <input type="text" name="_gotcha" style="display:none">
+        <button type="submit" class="submit-btn">{{ t.submitBtn }}</button>
+      </form>
+    </div>
 
     <div class="comments-section">
       <div id="disqus_thread"></div>
@@ -129,20 +104,22 @@ const PAID_PLACES = [
 
 const TRANSLATIONS = {
   ko: {
-    title: "아이와 오늘 뭐하지?", desc: "서울/경기 아이 동반 추천 명소 TOP 20",
-    criteriaTitle: "선정 기준",
-    freeTitle: "무료 명소", paidTitle: "유료 명소",
-    contactTitle: "제휴 및 장소 제보",
+    title: "👶 아이와 오늘 뭐하지?", desc: "서울/경기 아이 동반 추천 명소 TOP 20",
+    criteriaTitle: "📊 선정 기준:",
+    freeTitle: "💙 무료 명소 TOP 10", paidTitle: "❤️ 유료 명소 TOP 10",
+    contactTitle: "🤝 제휴 및 장소 제보",
     labelCompany: "업체명/이름", labelEmail: "이메일 주소", labelMessage: "문의 및 제보 내용",
-    submitBtn: "SEND MESSAGE", addrLabel: "주소: ", priceLabel: "금액: "
+    submitBtn: "보내기", addrLabel: "주소: ", priceLabel: "금액: ",
+    langBtn: "🌐 English", themeBtn: "🌓 모드 변경"
   },
   en: {
-    title: "Where to go today?", desc: "Top 20 Recommended Spots for Kids",
-    criteriaTitle: "Criteria",
-    freeTitle: "Free Spots", paidTitle: "Premium Spots",
-    contactTitle: "Affiliate & Report",
+    title: "👶 What to do with Kids?", desc: "Top 20 Recommended Spots in Seoul/Gyeonggi",
+    criteriaTitle: "📊 Criteria:",
+    freeTitle: "💙 Free Spots TOP 10", paidTitle: "❤️ Paid Spots TOP 10",
+    contactTitle: "🤝 Affiliate & Report",
     labelCompany: "Name/Company", labelEmail: "Email", labelMessage: "Message",
-    submitBtn: "SEND MESSAGE", addrLabel: "Addr: ", priceLabel: "Price: "
+    submitBtn: "Submit", addrLabel: "Addr: ", priceLabel: "Price: ",
+    langBtn: "🌐 한국어", themeBtn: "🌓 Toggle Theme"
   }
 };
 
@@ -150,12 +127,27 @@ export default {
   name: 'KidsView',
   setup() {
     const currentLang = ref(localStorage.getItem('lang') || 'ko');
+    const theme = ref(localStorage.getItem('theme') || 'light');
     const map = ref(null);
     const markers = ref([]);
+
     const t = computed(() => TRANSLATIONS[currentLang.value]);
 
     const freePlaces = ref(FREE_PLACES);
     const paidPlaces = ref(PAID_PLACES);
+
+    const toggleLang = () => {
+      currentLang.value = currentLang.value === 'ko' ? 'en' : 'ko';
+      localStorage.setItem('lang', currentLang.value);
+      document.documentElement.lang = currentLang.value;
+      renderMarkers();
+    };
+
+    const toggleTheme = () => {
+      theme.value = theme.value === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('theme', theme.value);
+      document.documentElement.setAttribute('data-theme', theme.value);
+    };
 
     const initMap = () => {
       if (typeof kakao === 'undefined') {
@@ -186,7 +178,7 @@ export default {
         });
         const name = currentLang.value === 'ko' ? spot.name : spot.name_en;
         const iw = new kakao.maps.InfoWindow({
-          content: `<div style="padding:10px;font-size:12px;color:#333;font-family:'Noto Sans KR';">${name}</div>`
+          content: `<div style="padding:5px;font-size:12px;color:#333;">${name}</div>`
         });
         kakao.maps.event.addListener(marker, 'click', () => iw.open(map.value, marker));
         markers.value.push(marker);
@@ -195,6 +187,7 @@ export default {
 
     onMounted(() => {
       initMap();
+      // Disqus
       if (!document.getElementById('disqus-script')) {
         const d = document, s = d.createElement('script');
         s.id = 'disqus-script';
@@ -204,280 +197,149 @@ export default {
       }
     });
 
-    return { currentLang, t, freePlaces, paidPlaces };
+    return {
+      currentLang,
+      theme,
+      t,
+      freePlaces,
+      paidPlaces,
+      toggleLang,
+      toggleTheme
+    };
   }
 }
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;1,400&family=Noto+Sans+KR:wght@300;400;700&display=swap');
-
-.luxury-container {
-  font-family: 'Noto Sans KR', sans-serif;
-  color: #1a1a1a;
-  background: #fff;
-}
-
-.hero-section {
-  height: 60vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Scoped styles for KidsView */
+.container {
+  position: relative;
   text-align: center;
-  background: #fcfcfc;
-  border-bottom: 1px solid #eee;
-}
-
-.sub-title {
-  font-family: 'Bodoni Moda', serif;
-  letter-spacing: 0.3em;
-  font-size: 0.8rem;
-  color: #888;
-  display: block;
-  margin-bottom: 20px;
-}
-
-.main-title {
-  font-family: 'Bodoni Moda', serif;
-  font-size: 4rem;
-  font-weight: 400;
-  margin: 0;
-  letter-spacing: -0.02em;
-}
-
-.hero-desc {
-  font-size: 1.1rem;
-  color: #666;
-  margin-top: 20px;
-  font-weight: 300;
-}
-
-.content-section {
-  max-width: 1400px;
+  background: var(--container-bg);
+  padding: 40px 20px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  width: 95%;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 100px 40px;
+  transition: background 0.3s;
 }
 
-.criteria-luxury {
-  margin-bottom: 80px;
-}
-
-.criteria-header {
+.top-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
   display: flex;
-  align-items: center;
-  gap: 15px;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.theme-toggle, .lang-toggle {
+  background: none;
+  border: 2px solid var(--text-color);
+  color: var(--text-color);
+  padding: 5px 12px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.theme-toggle:hover, .lang-toggle:hover {
+  background: var(--text-color);
+  color: var(--container-bg);
+  transform: scale(1.05);
+}
+
+h1 { margin-bottom: 10px; color: var(--accent-color); }
+
+.criteria-box {
+  background: rgba(255,255,255,0.5);
+  padding: 15px;
+  border-radius: 15px;
   margin-bottom: 30px;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  background: #1a1a1a;
-  border-radius: 50%;
-}
-
-.criteria-header h2 {
-  font-family: 'Bodoni Moda', serif;
-  font-size: 1.8rem;
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.luxury-list {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-.luxury-list li {
-  font-size: 0.95rem;
-  color: #555;
-  padding: 20px;
-  border-left: 1px solid #ddd;
-}
-
-.map-wrapper {
-  margin-bottom: 100px;
-  border-radius: 0;
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+  font-size: 0.9rem;
+  border: 1px dashed var(--accent-color);
+  text-align: left;
 }
 
 #map {
   width: 100%;
-  height: 600px;
-  filter: grayscale(0.2);
+  height: 450px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  background: #eee;
 }
 
-.grid-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
-}
-
-.column-header {
+.sections-container {
   display: flex;
-  align-items: baseline;
-  gap: 15px;
-  margin-bottom: 40px;
-  border-bottom: 2px solid #1a1a1a;
-  padding-bottom: 10px;
-}
-
-.column-header span {
-  font-family: 'Bodoni Moda', serif;
-  font-size: 1.5rem;
-  font-style: italic;
-}
-
-.column-header h2 {
-  font-size: 1.5rem;
-  margin: 0;
-  font-weight: 700;
-}
-
-.spot-grid {
-  display: grid;
   gap: 30px;
+  flex-wrap: wrap;
 }
 
-.luxury-card {
-  border: 1px solid #eee;
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+.section {
+  flex: 1;
+  min-width: 300px;
+  text-align: left;
 }
 
-.luxury-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
-  border-color: #1a1a1a;
-}
-
-.card-inner {
-  padding: 30px;
-}
-
-.card-category {
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  color: #999;
-  display: block;
-  margin-bottom: 15px;
-}
-
-.luxury-card h3 {
-  font-size: 1.3rem;
-  margin: 0 0 10px 0;
-}
-
-.spot-addr {
-  font-size: 0.85rem;
-  color: #777;
-  line-height: 1.6;
-}
-
-.card-footer {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #f5f5f5;
-}
-
-.price-label {
-  font-size: 0.85rem;
-  color: #555;
-}
-
-.highlighted {
-  font-weight: 700;
-  color: #1a1a1a;
-}
-
-.contact-section {
-  background: #1a1a1a;
-  color: #fff;
-  padding: 120px 40px;
-}
-
-.contact-inner {
-  max-width: 800px;
-  margin: 0 auto;
+.section h2 {
   text-align: center;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 1.3rem;
 }
 
-.contact-inner h2 {
-  font-family: 'Bodoni Moda', serif;
-  font-size: 2.5rem;
-  margin-bottom: 60px;
-  letter-spacing: 0.05em;
+.free-header { background: var(--free-color); color: white; }
+.paid-header { background: var(--paid-color); color: white; }
+
+.spot-card {
+  background: var(--card-bg);
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+  margin-bottom: 15px;
+  transition: transform 0.2s;
+  border: 1px solid var(--input-border);
 }
 
-.luxury-form {
-  display: grid;
-  gap: 40px;
+.spot-card:hover { transform: translateY(-3px); }
+.spot-card h3 { margin-top: 0; margin-bottom: 8px; font-size: 1.1rem; }
+.spot-info { font-size: 0.85rem; margin-bottom: 4px; }
+
+.contact-form {
+  margin-top: 50px;
+  padding-top: 30px;
+  border-top: 1px solid var(--input-border);
+  text-align: left;
 }
 
-.input-group {
-  position: relative;
-}
-
-.input-group input, .input-group textarea {
+.form-input, .form-textarea {
   width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #444;
-  padding: 10px 0;
-  color: #fff;
-  font-size: 1rem;
-  outline: none;
-  transition: border-color 0.3s;
+  padding: 12px;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  background: var(--input-bg);
+  color: var(--text-color);
+  box-sizing: border-box;
 }
 
-.input-group label {
-  position: absolute;
-  left: 0;
-  top: 10px;
-  color: #888;
-  pointer-events: none;
-  transition: all 0.3s;
-  font-size: 0.9rem;
+.form-textarea {
+  height: 100px;
 }
 
-.input-group input:focus + label,
-.input-group input:not(:placeholder-shown) + label,
-.input-group textarea:focus + label,
-.input-group textarea:not(:placeholder-shown) + label {
-  top: -20px;
-  font-size: 0.75rem;
-  color: #fff;
+.submit-btn {
+  width: 100%; padding: 15px; border: none; border-radius: 25px;
+  background: var(--accent-color); color: white; font-weight: bold;
+  cursor: pointer; transition: 0.3s;
 }
 
-.input-group input:focus, .input-group textarea:focus {
-  border-bottom-color: #fff;
-}
-
-.luxury-submit {
-  background: #fff;
-  color: #1a1a1a;
-  border: none;
-  padding: 20px;
-  font-family: 'Bodoni Moda', serif;
-  font-size: 1rem;
-  letter-spacing: 0.2em;
-  cursor: pointer;
-  transition: all 0.3s;
-  margin-top: 20px;
-}
-
-.luxury-submit:hover {
-  background: #1a1a1a;
-  color: #fff;
-  outline: 1px solid #fff;
-}
-
-@media (max-width: 900px) {
-  .grid-container { grid-template-columns: 1fr; }
-  .main-title { font-size: 2.5rem; }
+.comments-section {
+  margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--input-border);
 }
 </style>
