@@ -47,42 +47,7 @@
 /* global kakao */
 import { ref, onMounted, computed, inject, onUnmounted, watch } from 'vue';
 
-const FREE_PLACES = [
-  { name: "서울어린이대공원", name_en: "Seoul Children's Grand Park", lat: 37.548, lng: 127.074, address: "서울 광진구 능동로 216", price: "무료 (동물원/식물원)", price_en: "Free (Zoo/Botany)" },
-  { name: "국립중앙박물관 어린이박물관", name_en: "National Museum Kids", lat: 37.523, lng: 126.979, address: "서울 용산구 서빙고로 137", price: "무료 (예약 필수)", price_en: "Free (Booking req.)" },
-  { name: "전쟁기념관 어린이박물관", name_en: "War Memorial Kids", lat: 37.536, lng: 126.977, address: "서울 용산구 이태원로 29", price: "무료", price_en: "Free" },
-  { name: "서울시립과학관", name_en: "Seoul Science Center", lat: 37.637, lng: 127.079, address: "서울 노원구 한글비석로 160", price: "무료 (상설전시)", price_en: "Free (Permanent)" },
-  { name: "경기도박물관", name_en: "Gyeonggi Museum", lat: 37.270, lng: 127.110, address: "경기 용인시 기흥구 상갈로 6", price: "무료", price_en: "Free" },
-  { name: "국립과천과학관 (야외)", name_en: "Gwacheon Science (Outdoor)", lat: 37.437, lng: 127.017, address: "경기 과천시 상하벌로 110", price: "야외전시장 무료", price_en: "Free (Outdoor)" },
-  { name: "동대문디자인플라자(DDP) 잔디언덕", name_en: "DDP Grass Hill", lat: 37.566, lng: 127.009, address: "서울 중구 을지로 281", price: "무료", price_en: "Free" },
-  { name: "인천나비공원", name_en: "Incheon Butterfly Park", lat: 37.519, lng: 126.697, address: "인천 부평구 평천로 26-47", price: "무료", price_en: "Free" },
-  { name: "경기평화광장 북카페", name_en: "Gyeonggi Peace Square", lat: 37.753, lng: 127.070, address: "경기 의정부시 청사로 1", price: "무료", price_en: "Free" },
-  { name: "고양어린이박물관 (주말무료)", name_en: "Goyang Kids (Weekend Free)", lat: 37.632, lng: 126.832, address: "경기 고양시 덕양구 화중로 26", price: "첫째/셋째 주말 무료", price_en: "1st/3rd Weekend Free" }
-];
-
-const PAID_PLACES = [
-  { name: "에버랜드", name_en: "Everland", lat: 37.294, lng: 127.203, address: "경기 용인시 처인구 포곡읍 에버랜드로 199", price: "50,000원~", price_en: "50,000 KRW~" },
-  { name: "롯데월드 어드벤처", name_en: "Lotte World Adventure", lat: 37.511, lng: 127.098, address: "서울 송파구 올림픽로 240", price: "47,000원~", price_en: "47,000 KRW~" },
-  { name: "키자니아 서울", name_en: "KidZania Seoul", lat: 37.513, lng: 127.102, address: "서울 송파구 올림픽로 240", price: "40,000원~", price_en: "40,000 KRW~" },
-  { name: "코엑스 아쿠아리움", name_en: "COEX Aquarium", lat: 37.513, lng: 127.059, address: "서울 강남구 영동대로 513", price: "30,000원~", price_en: "30,000 KRW~" },
-  { name: "안성팜랜드", name_en: "Anseong Farmland", lat: 37.014, lng: 127.151, address: "경기 안성시 공도읍 대신두길 28", price: "12,000원~", price_en: "12,000 KRW~" },
-  { name: "아쿠아플라넷 일산", name_en: "Aqua Planet Ilsan", lat: 37.664, lng: 126.758, address: "경기 고양시 일산서구 한류월드로 282", price: "29,000원~", price_en: "29,000 KRW~" },
-  { name: "한국민속촌", name_en: "Korean Folk Village", lat: 37.258, lng: 127.116, address: "경기 용인시 기흥구 민속촌로 90", price: "30,000원~", price_en: "30,000 KRW~" },
-  { name: "광명동굴", name_en: "Gwangmyeong Cave", lat: 37.426, lng: 126.866, address: "경기 광명시 가학로85번길 142", price: "6,000원~", price_en: "6,000 KRW~" },
-  { name: "파주 하니랜드", name_en: "Paju Honey Land", lat: 37.765, lng: 126.837, address: "경기 파주시 조리읍 장곡로 218", price: "15,000원~", price_en: "15,000 KRW~" },
-  { name: "일산 뽀로로파크", name_en: "Ilsan Pororo Park", lat: 37.665, lng: 126.753, address: "경기 고양시 일산서구 주엽로 80", price: "25,000원~", price_en: "25,000 KRW~" }
-];
-
-const TRANSLATIONS = {
-  ko: {
-    title: "아이와 오늘 뭐하지?", desc: "서울/경기 아이 동반 추천 명소 TOP 20",
-    freeTitle: "무료 명소", paidTitle: "유료 명소"
-  },
-  en: {
-    title: "Play with Kids", desc: "Top 20 Recommended Spots in Seoul/Gyeonggi",
-    freeTitle: "Free Selection", paidTitle: "Paid Selection"
-  }
-};
+import data from '../assets/data.json';
 
 export default {
   name: 'KidsView',
@@ -93,8 +58,8 @@ export default {
     const markers = ref([]);
     const t = computed(() => TRANSLATIONS[currentLang.value]);
 
-    const freePlaces = ref(FREE_PLACES);
-    const paidPlaces = ref(PAID_PLACES);
+    const freePlaces = ref(data.kids.free);
+    const paidPlaces = ref(data.kids.paid);
 
     const initMap = () => {
       if (typeof kakao === 'undefined') {

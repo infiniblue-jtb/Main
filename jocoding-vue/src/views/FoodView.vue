@@ -70,34 +70,7 @@
 /* global kakao */
 import { ref, onMounted, computed, inject, onUnmounted, watch } from 'vue';
 
-const BREAKFAST_ITEMS = [
-  { name: "죽이야기", name_en: "Juk Iyagi", lat: 37.5665, lng: 126.9780, address: "서울 중구 태평로1가", menu: "야채죽, 전복죽", menu_en: "Veggie Porridge, Abalone Porridge" },
-  { name: "파리바게뜨 시그니처", name_en: "Paris Baguette Signature", lat: 37.5600, lng: 126.9800, address: "서울 중구 명동", menu: "샌드위치, 오므라이스", menu_en: "Sandwich, Omurice" },
-  { name: "본죽", name_en: "Bonjuk", lat: 37.5700, lng: 126.9750, address: "서울 종로구 세종로", menu: "쇠고기야채죽", menu_en: "Beef Veggie Porridge" }
-];
-
-const LUNCH_ITEMS = [
-  { name: "남산돈까스", name_en: "Namsan Cutlet", lat: 37.5550, lng: 126.9850, address: "서울 중구 남산동", menu: "왕돈까스, 치즈돈까스", menu_en: "King Cutlet, Cheese Cutlet" },
-  { name: "미즈컨테이너", name_en: "Mies Container", lat: 37.4980, lng: 127.0270, address: "서울 강남구 역삼동", menu: "샐러드 스파게티, 베이컨 포테이토 피자", menu_en: "Salad Spaghetti, Bacon Potato Pizza" },
-  { name: "서가앤쿡", name_en: "Seoga & Cook", lat: 37.5010, lng: 127.0250, address: "서울 서초구 서초동", menu: "목살 한상, 까르보나라", menu_en: "Pork Steak Hansang, Carbonara" }
-];
-
-const DINNER_ITEMS = [
-  { name: "하남돼지집", name_en: "Hanam Pig", lat: 37.5100, lng: 127.0300, address: "서울 강남구 논현동", menu: "삼겹살, 목살 (직접 구워줌)", menu_en: "Grilled Pork Belly, Neck" },
-  { name: "애슐리퀸즈", name_en: "Ashley Queens", lat: 37.5130, lng: 127.0580, address: "서울 강남구 삼성동", menu: "패밀리 뷔페", menu_en: "Family Buffet" },
-  { name: "빕스(VIPS)", name_en: "VIPS", lat: 37.5150, lng: 127.0600, address: "서울 강남구 대치동", menu: "스테이크, 샐러드바", menu_en: "Steak, Salad Bar" }
-];
-
-const TRANSLATIONS = {
-  ko: {
-    title: "오늘 뭐먹지?", desc: "아이와 함께 즐기는 건강하고 맛있는 한 끼",
-    breakfastTitle: "좋은 아침", lunchTitle: "맛있는 점심", dinnerTitle: "든든한 저녁"
-  },
-  en: {
-    title: "What to Eat", desc: "Healthy and delicious meals for family",
-    breakfastTitle: "Good Morning", lunchTitle: "Delicious Lunch", dinnerTitle: "Hearty Dinner"
-  }
-};
+import data from '../assets/data.json';
 
 export default {
   name: 'FoodView',
@@ -108,9 +81,9 @@ export default {
     const markers = ref([]);
     const t = computed(() => TRANSLATIONS[currentLang.value]);
 
-    const breakfastItems = ref(BREAKFAST_ITEMS);
-    const lunchItems = ref(LUNCH_ITEMS);
-    const dinnerItems = ref(DINNER_ITEMS);
+    const breakfastItems = ref(data.food.breakfast);
+    const lunchItems = ref(data.food.lunch);
+    const dinnerItems = ref(data.food.dinner);
 
     const initMap = () => {
       if (typeof kakao === 'undefined') {
