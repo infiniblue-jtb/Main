@@ -5,8 +5,8 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 async function updateData() {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    console.error('GEMINI_API_KEY is not set');
-    return;
+    console.error('ERROR: GEMINI_API_KEY is not set in GitHub Secrets.');
+    process.exit(1);
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
@@ -14,23 +14,22 @@ async function updateData() {
 
   const prompt = `
     Provide a JSON object for kid-friendly places in Seoul/Gyeonggi area and food recommendations.
-    The response MUST be a valid JSON object only, without any markdown formatting or code blocks.
+    The response MUST be ONLY a valid JSON object. Do not include any text before or after the JSON.
     
     Structure:
     {
       "kids": {
-        "free": [{"name": "string", "name_en": "string", "lat": number, "lng": number, "address": "string", "price": "string", "price_en": "string"}], // 10 items
-        "paid": [{"name": "string", "name_en": "string", "lat": number, "lng": number, "address": "string", "price": "string", "price_en": "string"}] // 10 items
+        "free": [{"name": "string", "name_en": "string", "lat": number, "lng": number, "address": "string", "price": "string", "price_en": "string"}],
+        "paid": [{"name": "string", "name_en": "string", "lat": number, "lng": number, "address": "string", "price": "string", "price_en": "string"}]
       },
       "food": {
-        "breakfast": [{"name": "string", "name_en": "string", "lat": number, "lng": number, "address": "string", "menu": "string", "menu_en": "string"}], // 3 items
-        "lunch": [{"name": "string", "name_en": "string", "lat": number, "lng": number, "address": "string", "menu": "string", "menu_en": "string"}], // 3 items
-        "dinner": [{"name": "string", "name_en": "string", "lat": number, "lng": number, "address": "string", "menu": "string", "menu_en": "string"}] // 3 items
+        "breakfast": [{"name": "string", "name_en": "string", "lat": number, "lng": number, "address": "string", "menu": "string", "menu_en": "string"}],
+        "lunch": [{"name": "string", "name_en": "string", "lat": number, "lng": number, "address": "string", "menu": "string", "menu_en": "string"}],
+        "dinner": [{"name": "string", "name_en": "string", "lat": number, "lng": number, "address": "string", "menu": "string", "menu_en": "string"}]
       }
     }
     
-    Ensure coordinates (lat, lng) are accurate for Seoul/Gyeonggi.
-    Make the recommendations diverse and popular for families with children.
+    Make the items realistic and popular.
   `;
 
   try {
@@ -38,16 +37,20 @@ async function updateData() {
     const response = await result.response;
     let text = response.text();
     
-    // Clean up potential markdown code blocks
-    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    // JSON만 추출하기 위한 정규표현식
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error("Could not find JSON in Gemini response: " + text);
+    }
     
-    const data = JSON.parse(text);
+    const jsonText = jsonMatch[0];
+    const data = JSON.parse(jsonText);
+    
     const filePath = path.join(__dirname, '../src/assets/data.json');
-    
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
     console.log('Successfully updated data.json');
   } catch (error) {
-    console.error('Error updating data:', error);
+    console.error('Update failed:', error);
     process.exit(1);
   }
 }
