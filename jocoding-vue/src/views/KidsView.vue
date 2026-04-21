@@ -1,10 +1,5 @@
 <template>
   <div class="container">
-    <div class="top-controls">
-      <button class="lang-toggle" @click="toggleLang">{{ t.langBtn }}</button>
-      <button class="theme-toggle" @click="toggleTheme">{{ t.themeBtn }}</button>
-    </div>
-    
     <h1>{{ t.title }}</h1>
     <p>{{ t.desc }}</p>
 
@@ -47,7 +42,7 @@
 
 <script>
 /* global kakao */
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, inject, onUnmounted, watch } from 'vue';
 
 const FREE_PLACES = [
   { name: "서울어린이대공원", name_en: "Seoul Children's Grand Park", lat: 37.548, lng: 127.074, address: "서울 광진구 능동로 216", price: "무료 (동물원/식물원)", price_en: "Free (Zoo/Botany)" },
@@ -80,42 +75,27 @@ const TRANSLATIONS = {
     title: "👶 아이와 오늘 뭐하지?", desc: "서울/경기 아이 동반 추천 명소 TOP 20",
     criteriaTitle: "📊 선정 기준:",
     freeTitle: "💙 무료 명소 TOP 10", paidTitle: "❤️ 유료 명소 TOP 10",
-    addrLabel: "주소: ", priceLabel: "금액: ",
-    langBtn: "🌐 English", themeBtn: "🌓 모드 변경"
+    addrLabel: "주소: ", priceLabel: "금액: "
   },
   en: {
     title: "👶 What to do with Kids?", desc: "Top 20 Recommended Spots in Seoul/Gyeonggi",
     criteriaTitle: "📊 Criteria:",
     freeTitle: "💙 Free Spots TOP 10", paidTitle: "❤️ Paid Spots TOP 10",
-    addrLabel: "Addr: ", priceLabel: "Price: ",
-    langBtn: "🌐 한국어", themeBtn: "🌓 Toggle Theme"
+    addrLabel: "Addr: ", priceLabel: "Price: "
   }
 };
 
 export default {
   name: 'KidsView',
   setup() {
-    const currentLang = ref(localStorage.getItem('lang') || 'ko');
-    const theme = ref(localStorage.getItem('theme') || 'light');
+    const currentLang = inject('currentLang');
+    const theme = inject('theme');
     const map = ref(null);
     const markers = ref([]);
     const t = computed(() => TRANSLATIONS[currentLang.value]);
 
     const freePlaces = ref(FREE_PLACES);
     const paidPlaces = ref(PAID_PLACES);
-
-    const toggleLang = () => {
-      currentLang.value = currentLang.value === 'ko' ? 'en' : 'ko';
-      localStorage.setItem('lang', currentLang.value);
-      document.documentElement.lang = currentLang.value;
-      renderMarkers();
-    };
-
-    const toggleTheme = () => {
-      theme.value = theme.value === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('theme', theme.value);
-      document.documentElement.setAttribute('data-theme', theme.value);
-    };
 
     const initMap = () => {
       if (typeof kakao === 'undefined') {
@@ -147,13 +127,24 @@ export default {
       });
     };
 
+    const handleLangChange = () => {
+      renderMarkers();
+    };
+
     onMounted(() => {
-      document.documentElement.setAttribute('data-theme', theme.value);
-      document.documentElement.lang = currentLang.value;
       initMap();
+      window.addEventListener('lang-changed', handleLangChange);
     });
 
-    return { currentLang, theme, t, freePlaces, paidPlaces, toggleLang, toggleTheme };
+    onUnmounted(() => {
+      window.removeEventListener('lang-changed', handleLangChange);
+    });
+
+    watch(currentLang, () => {
+        renderMarkers();
+    });
+
+    return { currentLang, theme, t, freePlaces, paidPlaces };
   }
 }
 </script>
@@ -172,12 +163,6 @@ export default {
   margin: 0 auto;
   transition: background 0.3s;
 }
-.top-controls { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; }
-.theme-toggle, .lang-toggle {
-  background: none; border: 2px solid var(--text-color); color: var(--text-color);
-  padding: 5px 12px; border-radius: 15px; cursor: pointer; font-size: 13px; transition: all 0.3s;
-}
-.theme-toggle:hover, .lang-toggle:hover { background: var(--text-color); color: var(--container-bg); }
 h1 { margin-bottom: 10px; color: var(--accent-color); }
 .criteria-box {
   background: rgba(255,255,255,0.5); padding: 15px; border-radius: 15px; margin-bottom: 30px;
