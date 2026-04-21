@@ -2,21 +2,23 @@ name: Weekly Data Update
 
 on:
   schedule:
-    - cron: '0 0 * * 1' # 매주 월요일 00:00 UTC (한국 시간 오전 9시)
-  workflow_dispatch: # 수동 실행 버튼 추가
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
 
 jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # 최신 Node.js 환경 강제 사용
     steps:
       - uses: actions/checkout@v4
       
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           
       - name: Install dependencies
         run: |
@@ -27,7 +29,8 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          node jocoding-vue/scripts/update-data.js
+          cd jocoding-vue
+          node scripts/update-data.js
           
       - name: Commit and push changes
         run: |
