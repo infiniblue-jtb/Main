@@ -1,25 +1,38 @@
 <template>
-  <div id="app-wrapper">
-    <nav class="main-nav">
+  <div id="app-wrapper" :class="{ 'dark-mode': theme === 'dark' }">
+    <nav class="apple-nav">
       <div class="nav-container">
-        <div class="logo">✨ HappyKids</div>
-        <div class="nav-links">
-          <router-link to="/" class="nav-item">{{ currentLang === 'ko' ? '👶 아이와 뭐하지?' : '👶 What to do?' }}</router-link>
-          <router-link to="/food" class="nav-item">{{ currentLang === 'ko' ? '🍕 오늘 뭐먹지?' : '🍕 What to eat?' }}</router-link>
+        <div class="logo-group">
+          <span class="logo-icon">✨</span>
+          <span class="logo-text">HappyKids</span>
         </div>
-        <div class="top-controls">
-          <button class="lang-toggle" @click="toggleLang">{{ currentLang === 'ko' ? '🌐 English' : '🌐 한국어' }}</button>
-          <button class="theme-toggle" @click="toggleTheme">{{ currentLang === 'ko' ? '🌓 모드 변경' : '🌓 Toggle Theme' }}</button>
+        <div class="nav-links">
+          <router-link to="/" class="nav-item">{{ currentLang === 'ko' ? '아이와 뭐하지' : 'Explore' }}</router-link>
+          <router-link to="/food" class="nav-item">{{ currentLang === 'ko' ? '오늘 뭐먹지' : 'Eat' }}</router-link>
+        </div>
+        <div class="control-group">
+          <button class="icon-btn" @click="toggleLang" :title="currentLang === 'ko' ? 'English' : '한국어'">
+            {{ currentLang === 'ko' ? 'EN' : 'KO' }}
+          </button>
+          <button class="icon-btn theme-btn" @click="toggleTheme">
+            <span v-if="theme === 'light'">🌙</span>
+            <span v-else>☀️</span>
+          </button>
         </div>
       </div>
     </nav>
-    <main class="content-wrapper">
+    <main class="main-content">
       <router-view v-slot="{ Component }">
-        <transition name="fade" mode="out-in">
+        <transition name="apple-fade" mode="out-in">
           <component :is="Component" />
         </transition>
       </router-view>
     </main>
+    <footer class="apple-footer">
+      <div class="footer-content">
+        <p>© 2026 HappyKids. Designed for happiness.</p>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -36,7 +49,6 @@ export default {
       currentLang.value = currentLang.value === 'ko' ? 'en' : 'ko';
       localStorage.setItem('lang', currentLang.value);
       document.documentElement.lang = currentLang.value;
-      // Trigger a global event or rely on reactivity if possible
       window.dispatchEvent(new CustomEvent('lang-changed', { detail: currentLang.value }));
     };
 
@@ -48,58 +60,167 @@ export default {
 
     provide('currentLang', currentLang);
     provide('theme', theme);
-    provide('toggleLang', toggleLang);
-    provide('toggleTheme', toggleTheme);
 
     onMounted(() => {
       document.documentElement.setAttribute('data-theme', theme.value);
       document.documentElement.lang = currentLang.value;
     });
 
-    return { currentLang, toggleLang, toggleTheme };
+    return { currentLang, theme, toggleLang, toggleTheme };
   }
 }
 </script>
 
 <style>
-:root {
-  --bg-gradient: linear-gradient(135deg, #fff9e6, #e6f7ff);
-  --container-bg: rgba(255, 255, 255, 0.9);
-  --text-color: #444;
-  --card-bg: white;
-  --input-border: #ddd;
-  --accent-color: #ff9f43;
-  --free-color: #3498db;
-  --paid-color: #e74c3c;
-}
-[data-theme="dark"] {
-  --bg-gradient: linear-gradient(135deg, #2c3e50, #000000);
-  --container-bg: rgba(0, 0, 0, 0.7);
-  --text-color: #eee;
-  --card-bg: #333;
-  --input-border: #555;
-  --accent-color: #f39c12;
-}
-body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg-gradient); color: var(--text-color); }
-.main-nav { position: sticky; top: 0; z-index: 1000; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 15px 0; }
-.nav-container { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
-.logo { font-size: 1.5rem; font-weight: bold; color: var(--accent-color); }
-.nav-links { display: flex; gap: 15px; }
-.nav-item { text-decoration: none; color: var(--text-color); font-weight: 500; padding: 8px 12px; border-radius: 10px; transition: all 0.3s; font-size: 0.95rem; }
-.router-link-active { background: var(--accent-color); color: white !important; }
-.top-controls { display: flex; gap: 10px; }
-.theme-toggle, .lang-toggle {
-  background: none; border: 1px solid var(--text-color); color: var(--text-color);
-  padding: 5px 10px; border-radius: 15px; cursor: pointer; font-size: 12px; transition: all 0.3s;
-}
-.theme-toggle:hover, .lang-toggle:hover { background: var(--text-color); color: white; }
-.content-wrapper { padding: 40px 0; }
-.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
-@media (max-width: 768px) {
-  .nav-container { flex-direction: column; gap: 15px; }
-  .nav-links { width: 100%; justify-content: center; }
-  .top-controls { width: 100%; justify-content: center; }
+:root {
+  --nav-bg: rgba(251, 251, 253, 0.8);
+  --page-bg: #ffffff;
+  --text-primary: #1d1d1f;
+  --text-secondary: #86868b;
+  --accent: #0071e3;
+  --card-bg: #f5f5f7;
+  --blur: blur(20px);
+}
+
+[data-theme="dark"] {
+  --nav-bg: rgba(0, 0, 0, 0.8);
+  --page-bg: #000000;
+  --text-primary: #f5f5f7;
+  --text-secondary: #a1a1a6;
+  --accent: #2997ff;
+  --card-bg: #1c1c1e;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--page-bg);
+  color: var(--text-primary);
+  transition: background-color 0.5s ease;
+}
+
+.apple-nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 48px;
+  background: var(--nav-bg);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  z-index: 9999;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] .apple-nav {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.nav-container {
+  max-width: 1024px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 22px;
+}
+
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 30px;
+}
+
+.nav-item {
+  text-decoration: none;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  opacity: 0.8;
+  transition: opacity 0.3s;
+  font-weight: 400;
+}
+
+.nav-item:hover {
+  opacity: 1;
+}
+
+.router-link-active {
+  opacity: 1;
+  font-weight: 600;
+}
+
+.control-group {
+  display: flex;
+  gap: 15px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.8;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+
+.icon-btn:hover {
+  opacity: 1;
+  background: rgba(0,0,0,0.05);
+}
+
+[data-theme="dark"] .icon-btn:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.main-content {
+  margin-top: 48px;
+  min-height: 100vh;
+}
+
+.apple-footer {
+  padding: 60px 22px;
+  background: var(--card-bg);
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* Animations */
+.apple-fade-enter-active, .apple-fade-leave-active {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.apple-fade-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.apple-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+@media (max-width: 734px) {
+  .nav-links { gap: 15px; }
+  .logo-text { display: none; }
 }
 </style>
+

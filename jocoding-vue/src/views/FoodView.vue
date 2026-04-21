@@ -1,55 +1,68 @@
 <template>
-  <div class="container">
-    <h1>{{ t.title }}</h1>
-    <p>{{ t.desc }}</p>
+  <div class="apple-page">
+    <header class="hero-section">
+      <h1 class="hero-title">{{ t.title }}</h1>
+      <p class="hero-subtitle">{{ t.desc }}</p>
+    </header>
 
-    <div class="criteria-box">
-      <strong>{{ t.criteriaTitle }}</strong>
-      <ul style="margin: 5px 0 0 20px; padding: 0;">
-        <li>아기의자 및 유아용 식기 완비 여부</li>
-        <li>자극적이지 않고 영양가 높은 어린이 메뉴 보유</li>
-        <li>유모차 이동이 편리한 넓은 공간 및 쾌적한 환경</li>
-        <li>가족 단위 방문객의 실제 리뷰 및 평점 분석</li>
-      </ul>
-    </div>
+    <section class="map-section">
+      <div class="glass-card map-container">
+        <div id="map" ref="mapContainer"></div>
+      </div>
+    </section>
 
-    <div id="map" ref="mapContainer"></div>
-
-    <div class="sections-container">
+    <section class="content-section">
       <!-- 아침 -->
-      <div class="section">
-        <h2 class="breakfast-header">{{ t.breakfastTitle }}</h2>
-        <div class="food-list">
-          <div v-for="item in breakfastItems" :key="item.name" class="spot-card">
-            <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>
-            <p class="spot-info"><strong>{{ t.addrLabel }}</strong> {{ item.address }}</p>
-            <p class="spot-info"><strong>{{ t.menuLabel }}</strong> {{ currentLang === 'ko' ? item.menu : item.menu_en }}</p>
+      <div class="time-block">
+        <div class="section-header">
+          <h2 class="section-title">{{ t.breakfastTitle }}</h2>
+        </div>
+        <div class="bento-grid">
+          <div v-for="item in breakfastItems" :key="item.name" class="apple-card food-card">
+            <div class="card-content">
+              <span class="card-tag morning">{{ currentLang === 'ko' ? '아침' : 'Breakfast' }}</span>
+              <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>
+              <p class="address">{{ item.address }}</p>
+              <p class="menu-desc">{{ currentLang === 'ko' ? item.menu : item.menu_en }}</p>
+            </div>
           </div>
         </div>
       </div>
+
       <!-- 점심 -->
-      <div class="section">
-        <h2 class="lunch-header">{{ t.lunchTitle }}</h2>
-        <div class="food-list">
-          <div v-for="item in lunchItems" :key="item.name" class="spot-card">
-            <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>
-            <p class="spot-info"><strong>{{ t.addrLabel }}</strong> {{ item.address }}</p>
-            <p class="spot-info"><strong>{{ t.menuLabel }}</strong> {{ currentLang === 'ko' ? item.menu : item.menu_en }}</p>
+      <div class="time-block mt-80">
+        <div class="section-header">
+          <h2 class="section-title">{{ t.lunchTitle }}</h2>
+        </div>
+        <div class="bento-grid">
+          <div v-for="item in lunchItems" :key="item.name" class="apple-card food-card">
+            <div class="card-content">
+              <span class="card-tag afternoon">{{ currentLang === 'ko' ? '점심' : 'Lunch' }}</span>
+              <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>
+              <p class="address">{{ item.address }}</p>
+              <p class="menu-desc">{{ currentLang === 'ko' ? item.menu : item.menu_en }}</p>
+            </div>
           </div>
         </div>
       </div>
+
       <!-- 저녁 -->
-      <div class="section">
-        <h2 class="dinner-header">{{ t.dinnerTitle }}</h2>
-        <div class="food-list">
-          <div v-for="item in dinnerItems" :key="item.name" class="spot-card">
-            <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>
-            <p class="spot-info"><strong>{{ t.addrLabel }}</strong> {{ item.address }}</p>
-            <p class="spot-info"><strong>{{ t.menuLabel }}</strong> {{ currentLang === 'ko' ? item.menu : item.menu_en }}</p>
+      <div class="time-block mt-80">
+        <div class="section-header">
+          <h2 class="section-title">{{ t.dinnerTitle }}</h2>
+        </div>
+        <div class="bento-grid">
+          <div v-for="item in dinnerItems" :key="item.name" class="apple-card food-card">
+            <div class="card-content">
+              <span class="card-tag evening">{{ currentLang === 'ko' ? '저녁' : 'Dinner' }}</span>
+              <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>
+              <p class="address">{{ item.address }}</p>
+              <p class="menu-desc">{{ currentLang === 'ko' ? item.menu : item.menu_en }}</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   </div>
 </template>
 
@@ -77,20 +90,12 @@ const DINNER_ITEMS = [
 
 const TRANSLATIONS = {
   ko: {
-    title: "🍕 오늘 뭐먹지?", desc: "아이와 함께 즐기는 건강하고 맛있는 한 끼",
-    criteriaTitle: "📊 선정 기준:",
-    breakfastTitle: "☀️ 아침 추천 (08:00~10:00)",
-    lunchTitle: "🕛 점심 추천 (12:00~14:00)",
-    dinnerTitle: "🌙 저녁 추천 (18:00~20:00)",
-    addrLabel: "위치: ", menuLabel: "추천 메뉴: "
+    title: "오늘 뭐먹지?", desc: "아이와 함께 즐기는 건강하고 맛있는 한 끼",
+    breakfastTitle: "좋은 아침", lunchTitle: "맛있는 점심", dinnerTitle: "든든한 저녁"
   },
   en: {
-    title: "🍕 What to Eat Today?", desc: "Healthy and delicious meals for you and your kids",
-    criteriaTitle: "📊 Criteria:",
-    breakfastTitle: "☀️ Breakfast (08:00~10:00)",
-    lunchTitle: "🕛 Lunch (12:00~14:00)",
-    dinnerTitle: "🌙 Dinner (18:00~20:00)",
-    addrLabel: "Loc: ", menuLabel: "Recommended: "
+    title: "What to Eat", desc: "Healthy and delicious meals for family",
+    breakfastTitle: "Good Morning", lunchTitle: "Delicious Lunch", dinnerTitle: "Hearty Dinner"
   }
 };
 
@@ -131,28 +136,22 @@ export default {
           map: map.value
         });
         const name = currentLang.value === 'ko' ? item.name : item.name_en;
-        const iw = new kakao.maps.InfoWindow({ content: `<div style="padding:5px;font-size:12px;color:#333;">${name}</div>` });
+        const iw = new kakao.maps.InfoWindow({ content: `<div style="padding:5px;font-size:12px;color:#333;border:none;">${name}</div>` });
         kakao.maps.event.addListener(marker, 'click', () => iw.open(map.value, marker));
         markers.value.push(marker);
       });
     };
 
-    const handleLangChange = () => {
-      renderMarkers();
-    };
-
     onMounted(() => {
       initMap();
-      window.addEventListener('lang-changed', handleLangChange);
+      window.addEventListener('lang-changed', renderMarkers);
     });
 
     onUnmounted(() => {
-      window.removeEventListener('lang-changed', handleLangChange);
+      window.removeEventListener('lang-changed', renderMarkers);
     });
 
-    watch(currentLang, () => {
-        renderMarkers();
-    });
+    watch(currentLang, () => renderMarkers());
 
     return { currentLang, theme, t, breakfastItems, lunchItems, dinnerItems };
   }
@@ -160,35 +159,26 @@ export default {
 </script>
 
 <style scoped>
-.container {
-  position: relative;
-  text-align: center;
-  background: var(--container-bg);
-  padding: 40px 20px;
-  border-radius: 20px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  width: 95%;
-  max-width: 1000px;
-  margin: 0 auto;
-  transition: background 0.3s;
-}
-h1 { margin-bottom: 10px; color: var(--accent-color); }
-.criteria-box {
-  background: rgba(255,255,255,0.5); padding: 15px; border-radius: 15px; margin-bottom: 30px;
-  font-size: 0.9rem; border: 1px dashed var(--accent-color); text-align: left;
-}
-#map { width: 100%; height: 450px; border-radius: 15px; margin-bottom: 30px; background: #eee; }
-.sections-container { display: flex; gap: 20px; flex-wrap: wrap; }
-.section { flex: 1; min-width: 300px; text-align: left; }
-.section h2 { text-align: center; padding: 10px; border-radius: 10px; margin-bottom: 20px; font-size: 1.1rem; }
-.breakfast-header { background: #ff9f43; color: white; }
-.lunch-header { background: #ee5253; color: white; }
-.dinner-header { background: #10ac84; color: white; }
-.spot-card {
-  background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px;
-  border: 1px solid var(--input-border); transition: transform 0.2s;
-}
-.spot-card:hover { transform: translateY(-3px); }
-.spot-info { font-size: 0.85rem; margin-bottom: 4px; }
+.apple-page { padding-bottom: 100px; }
+.hero-section { padding: 80px 22px 40px; text-align: center; max-width: 800px; margin: 0 auto; }
+.hero-title { font-size: 3.5rem; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 12px; }
+.hero-subtitle { font-size: 1.5rem; color: var(--text-secondary); font-weight: 400; }
+.map-section { max-width: 1024px; margin: 0 auto 80px; padding: 0 22px; }
+.glass-card { background: var(--card-bg); border-radius: 28px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+#map { width: 100%; height: 500px; filter: grayscale(0.2); }
+.content-section { max-width: 1024px; margin: 0 auto; padding: 0 22px; }
+.section-header { margin-bottom: 30px; }
+.section-title { font-size: 2rem; font-weight: 600; }
+.mt-80 { margin-top: 80px; }
+.bento-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.apple-card { background: var(--card-bg); border-radius: 22px; padding: 30px; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: flex-end; min-height: 220px; border: 1px solid transparent; }
+.apple-card:hover { transform: scale(1.02); border: 1px solid var(--accent); }
+.card-tag { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; display: block; }
+.card-tag.morning { color: #ff9500; }
+.card-tag.afternoon { color: #ff3b30; }
+.card-tag.evening { color: #34c759; }
+.apple-card h3 { font-size: 1.4rem; font-weight: 600; margin: 0 0 8px 0; }
+.address { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; }
+.menu-desc { font-size: 0.95rem; font-weight: 400; line-height: 1.4; opacity: 0.9; }
+@media (max-width: 734px) { .hero-title { font-size: 2.5rem; } .hero-subtitle { font-size: 1.2rem; } .bento-grid { grid-template-columns: 1fr; } }
 </style>

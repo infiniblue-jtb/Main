@@ -1,42 +1,45 @@
 <template>
-  <div class="container">
-    <h1>{{ t.title }}</h1>
-    <p>{{ t.desc }}</p>
+  <div class="apple-page">
+    <header class="hero-section">
+      <h1 class="hero-title">{{ t.title }}</h1>
+      <p class="hero-subtitle">{{ t.desc }}</p>
+    </header>
 
-    <div class="criteria-box">
-      <strong>{{ t.criteriaTitle }}</strong>
-      <ul style="margin: 5px 0 0 20px; padding: 0;">
-        <li>네이버/구글 평점 4.0 이상의 높은 사용자 만족도</li>
-        <li>최근 1년 내 SNS 및 블로그 언급량 상위권</li>
-        <li>아이들이 직접 체험 가능한 놀이/학습 시설 완비</li>
-        <li>유모차 대여, 수유실 등 부모 편의시설 우수</li>
-      </ul>
-    </div>
+    <section class="map-section">
+      <div class="glass-card map-container">
+        <div id="map" ref="mapContainer"></div>
+      </div>
+    </section>
 
-    <div id="map" ref="mapContainer"></div>
-
-    <div class="sections-container">
-      <div class="section">
-        <h2 class="free-header">{{ t.freeTitle }}</h2>
-        <div id="freeList">
-          <div v-for="spot in freePlaces" :key="spot.name" class="spot-card">
+    <section class="content-section">
+      <div class="section-header">
+        <h2 class="section-title">{{ t.freeTitle }}</h2>
+      </div>
+      <div class="bento-grid">
+        <div v-for="spot in freePlaces" :key="spot.name" class="apple-card">
+          <div class="card-content">
+            <span class="card-tag free">{{ currentLang === 'ko' ? '무료' : 'Free' }}</span>
             <h3>{{ currentLang === 'ko' ? spot.name : spot.name_en }}</h3>
-            <p class="spot-info"><strong>{{ t.addrLabel }}</strong> {{ spot.address }}</p>
-            <p class="spot-info"><strong>{{ t.priceLabel }}</strong> <span style="color: #3498db">{{ currentLang === 'ko' ? spot.price : spot.price_en }}</span></p>
+            <p class="address">{{ spot.address }}</p>
+            <p class="price">{{ currentLang === 'ko' ? spot.price : spot.price_en }}</p>
           </div>
         </div>
       </div>
-      <div class="section">
-        <h2 class="paid-header">{{ t.paidTitle }}</h2>
-        <div id="paidList">
-          <div v-for="spot in paidPlaces" :key="spot.name" class="spot-card">
+
+      <div class="section-header mt-80">
+        <h2 class="section-title">{{ t.paidTitle }}</h2>
+      </div>
+      <div class="bento-grid">
+        <div v-for="spot in paidPlaces" :key="spot.name" class="apple-card">
+          <div class="card-content">
+            <span class="card-tag paid">{{ currentLang === 'ko' ? '유료' : 'Paid' }}</span>
             <h3>{{ currentLang === 'ko' ? spot.name : spot.name_en }}</h3>
-            <p class="spot-info"><strong>{{ t.addrLabel }}</strong> {{ spot.address }}</p>
-            <p class="spot-info"><strong>{{ t.priceLabel }}</strong> <span style="color: #e74c3c">{{ currentLang === 'ko' ? spot.price : spot.price_en }}</span></p>
+            <p class="address">{{ spot.address }}</p>
+            <p class="price">{{ currentLang === 'ko' ? spot.price : spot.price_en }}</p>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   </div>
 </template>
 
@@ -72,16 +75,12 @@ const PAID_PLACES = [
 
 const TRANSLATIONS = {
   ko: {
-    title: "👶 아이와 오늘 뭐하지?", desc: "서울/경기 아이 동반 추천 명소 TOP 20",
-    criteriaTitle: "📊 선정 기준:",
-    freeTitle: "💙 무료 명소 TOP 10", paidTitle: "❤️ 유료 명소 TOP 10",
-    addrLabel: "주소: ", priceLabel: "금액: "
+    title: "아이와 오늘 뭐하지?", desc: "서울/경기 아이 동반 추천 명소 TOP 20",
+    freeTitle: "무료 명소", paidTitle: "유료 명소"
   },
   en: {
-    title: "👶 What to do with Kids?", desc: "Top 20 Recommended Spots in Seoul/Gyeonggi",
-    criteriaTitle: "📊 Criteria:",
-    freeTitle: "💙 Free Spots TOP 10", paidTitle: "❤️ Paid Spots TOP 10",
-    addrLabel: "Addr: ", priceLabel: "Price: "
+    title: "Play with Kids", desc: "Top 20 Recommended Spots in Seoul/Gyeonggi",
+    freeTitle: "Free Selection", paidTitle: "Paid Selection"
   }
 };
 
@@ -121,28 +120,22 @@ export default {
           map: map.value
         });
         const name = currentLang.value === 'ko' ? spot.name : spot.name_en;
-        const iw = new kakao.maps.InfoWindow({ content: `<div style="padding:5px;font-size:12px;color:#333;">${name}</div>` });
+        const iw = new kakao.maps.InfoWindow({ content: `<div style="padding:5px;font-size:12px;color:#333;border:none;">${name}</div>` });
         kakao.maps.event.addListener(marker, 'click', () => iw.open(map.value, marker));
         markers.value.push(marker);
       });
     };
 
-    const handleLangChange = () => {
-      renderMarkers();
-    };
-
     onMounted(() => {
       initMap();
-      window.addEventListener('lang-changed', handleLangChange);
+      window.addEventListener('lang-changed', renderMarkers);
     });
 
     onUnmounted(() => {
-      window.removeEventListener('lang-changed', handleLangChange);
+      window.removeEventListener('lang-changed', renderMarkers);
     });
 
-    watch(currentLang, () => {
-        renderMarkers();
-    });
+    watch(currentLang, () => renderMarkers());
 
     return { currentLang, theme, t, freePlaces, paidPlaces };
   }
@@ -150,34 +143,120 @@ export default {
 </script>
 
 <style scoped>
-.container {
-  position: relative;
+.apple-page {
+  padding-bottom: 100px;
+}
+
+.hero-section {
+  padding: 80px 22px 40px;
   text-align: center;
-  background: var(--container-bg);
-  padding: 40px 20px;
-  border-radius: 20px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  width: 95%;
-  max-width: 1000px;
+  max-width: 800px;
   margin: 0 auto;
-  transition: background 0.3s;
 }
-h1 { margin-bottom: 10px; color: var(--accent-color); }
-.criteria-box {
-  background: rgba(255,255,255,0.5); padding: 15px; border-radius: 15px; margin-bottom: 30px;
-  font-size: 0.9rem; border: 1px dashed var(--accent-color); text-align: left;
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin-bottom: 12px;
 }
-#map { width: 100%; height: 450px; border-radius: 15px; margin-bottom: 30px; background: #eee; }
-.sections-container { display: flex; gap: 30px; flex-wrap: wrap; }
-.section { flex: 1; min-width: 300px; text-align: left; }
-.section h2 { text-align: center; padding: 10px; border-radius: 10px; margin-bottom: 20px; font-size: 1.3rem; }
-.free-header { background: var(--free-color); color: white; }
-.paid-header { background: var(--paid-color); color: white; }
-.spot-card {
-  background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px;
-  border: 1px solid var(--input-border); transition: transform 0.2s;
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  font-weight: 400;
 }
-.spot-card:hover { transform: translateY(-3px); }
-.spot-info { font-size: 0.85rem; margin-bottom: 4px; }
+
+.map-section {
+  max-width: 1024px;
+  margin: 0 auto 80px;
+  padding: 0 22px;
+}
+
+.glass-card {
+  background: var(--card-bg);
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+#map {
+  width: 100%;
+  height: 500px;
+  filter: grayscale(0.2);
+}
+
+.content-section {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 0 22px;
+}
+
+.section-header {
+  margin-bottom: 30px;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.mt-80 { margin-top: 80px; }
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.apple-card {
+  background: var(--card-bg);
+  border-radius: 22px;
+  padding: 30px;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 200px;
+  border: 1px solid transparent;
+}
+
+.apple-card:hover {
+  transform: scale(1.02);
+  border: 1px solid var(--accent);
+}
+
+.card-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.card-tag.free { color: var(--accent); }
+.card-tag.paid { color: #ff3b30; }
+
+.apple-card h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.address {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.price {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+@media (max-width: 734px) {
+  .hero-title { font-size: 2.5rem; }
+  .hero-subtitle { font-size: 1.2rem; }
+  .bento-grid { grid-template-columns: 1fr; }
+}
 </style>
