@@ -103,6 +103,15 @@
         "address": "경기도 화성시 동탄지성로 102",
         "menu": "야채죽, 전복죽",
         "menu_en": "Veggie Porridge"
+      },
+      {
+        "name": "스타벅스 동탄역점",
+        "name_en": "Starbucks Dongtan Stn.",
+        "lat": 37.2008,
+        "lng": 127.0955,
+        "address": "경기도 화성시 동탄역로 150",
+        "menu": "샌드위치, 커피",
+        "menu_en": "Sandwich, Coffee"
       }
     ],
     "lunch": [
@@ -123,6 +132,15 @@
         "address": "경기도 화성시 동탄공원로2길 33-9",
         "menu": "쌀국수",
         "menu_en": "Pho / Rice Noodle"
+      },
+      {
+        "name": "스시코호시",
+        "name_en": "Sushi Kohoshi",
+        "lat": 37.2028,
+        "lng": 127.0805,
+        "address": "경기도 화성시 노작로 161",
+        "menu": "런치 오마카세",
+        "menu_en": "Lunch Omakase"
       }
     ],
     "dinner": [
@@ -143,6 +161,15 @@
         "address": "경기도 화성시 동탄대로 181 레이크꼬모",
         "menu": "슈퍼잭슨 피자",
         "menu_en": "Super Jackson Pizza"
+      },
+      {
+        "name": "삼다도횟집",
+        "name_en": "Samdado Sashimi",
+        "lat": 37.2032,
+        "lng": 127.0795,
+        "address": "경기도 화성시 노작로 153",
+        "menu": "모듬회",
+        "menu_en": "Sashimi Platter"
       }
     ]
   }

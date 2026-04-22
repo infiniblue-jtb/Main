@@ -1,7 +1,7 @@
 <template>
   <div class="apple-page">
     <header class="hero-section">
-      <h1 class="hero-title">{{ t.title }}</h1>
+      <h1 class="hero-title clickable" @click="searchOnNaver(t.title)">{{ t.title }}</h1>
       <p class="hero-subtitle">{{ t.desc }}</p>
     </header>
 
@@ -155,13 +155,26 @@ export default {
 
     watch(currentLang, () => renderMarkers());
 
-    return { currentLang, theme, t, breakfastItems, lunchItems, dinnerItems };
+    const searchOnNaver = (query) => {
+      const url = `https://search.naver.com/search.naver?query=${encodeURIComponent(query)}`;
+      window.open(url, '_blank');
+    };
+
+    return { currentLang, theme, t, breakfastItems, lunchItems, dinnerItems, searchOnNaver };
   }
 }
 </script>
 
 <style scoped>
 .apple-page { padding-bottom: 100px; }
+.clickable {
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+.clickable:hover {
+  opacity: 0.7;
+  text-decoration: underline;
+}
 .hero-section { padding: 80px 22px 40px; text-align: center; max-width: 800px; margin: 0 auto; }
 .hero-title { font-size: 3.5rem; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 12px; }
 .hero-subtitle { font-size: 1.5rem; color: var(--text-secondary); font-weight: 400; }
