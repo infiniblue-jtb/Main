@@ -16,9 +16,19 @@ async function updateData() {
   });
 
   const prompt = `
-    Generate a JSON object containing recommendations for families with kids in Seoul/Gyeonggi area.
-    Provide 10 free places, 10 paid places, and 3 recommendations for each meal (breakfast, lunch, dinner).
-    Include name, name_en, lat, lng, address, and either price/price_en or menu/menu_en.
+    Generate a JSON object with the following EXACT structure:
+    {
+      "kids": {
+        "free": [ { "name": "", "name_en": "", "lat": 0.0, "lng": 0.0, "address": "", "price": "", "price_en": "" }, ... (10 items) ],
+        "paid": [ { "name": "", "name_en": "", "lat": 0.0, "lng": 0.0, "address": "", "price": "", "price_en": "" }, ... (10 items) ]
+      },
+      "food": {
+        "breakfast": [ { "name": "", "name_en": "", "lat": 0.0, "lng": 0.0, "address": "", "menu": "", "menu_en": "" }, ... (3 items) ],
+        "lunch": [ { "name": "", "name_en": "", "lat": 0.0, "lng": 0.0, "address": "", "menu": "", "menu_en": "" }, ... (3 items) ],
+        "dinner": [ { "name": "", "name_en": "", "lat": 0.0, "lng": 0.0, "address": "", "menu": "", "menu_en": "" }, ... (3 items) ]
+      }
+    }
+    Recommendations should be for families with kids in Seoul/Gyeonggi area, Korea.
   `;
 
   try {
