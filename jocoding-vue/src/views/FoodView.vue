@@ -18,7 +18,7 @@
           <h2 class="section-title">{{ t.breakfastTitle }}</h2>
         </div>
         <div class="bento-grid">
-          <div v-for="item in breakfastItems" :key="item.name" class="apple-card food-card">
+          <div v-for="item in breakfastItems" :key="item.name" class="apple-card food-card clickable" @click="searchOnNaver(currentLang === 'ko' ? item.name : item.name_en)">
             <div class="card-content">
               <span class="card-tag morning">{{ currentLang === 'ko' ? '아침' : 'Breakfast' }}</span>
               <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>
@@ -35,7 +35,7 @@
           <h2 class="section-title">{{ t.lunchTitle }}</h2>
         </div>
         <div class="bento-grid">
-          <div v-for="item in lunchItems" :key="item.name" class="apple-card food-card">
+          <div v-for="item in lunchItems" :key="item.name" class="apple-card food-card clickable" @click="searchOnNaver(currentLang === 'ko' ? item.name : item.name_en)">
             <div class="card-content">
               <span class="card-tag afternoon">{{ currentLang === 'ko' ? '점심' : 'Lunch' }}</span>
               <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>
@@ -52,7 +52,7 @@
           <h2 class="section-title">{{ t.dinnerTitle }}</h2>
         </div>
         <div class="bento-grid">
-          <div v-for="item in dinnerItems" :key="item.name" class="apple-card food-card">
+          <div v-for="item in dinnerItems" :key="item.name" class="apple-card food-card clickable" @click="searchOnNaver(currentLang === 'ko' ? item.name : item.name_en)">
             <div class="card-content">
               <span class="card-tag evening">{{ currentLang === 'ko' ? '저녁' : 'Dinner' }}</span>
               <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>

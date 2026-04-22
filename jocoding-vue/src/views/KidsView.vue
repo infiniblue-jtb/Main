@@ -16,7 +16,7 @@
         <h2 class="section-title">{{ t.freeTitle }}</h2>
       </div>
       <div class="bento-grid">
-        <div v-for="spot in freePlaces" :key="spot.name" class="apple-card">
+        <div v-for="spot in freePlaces" :key="spot.name" class="apple-card clickable" @click="searchOnNaver(currentLang === 'ko' ? spot.name : spot.name_en)">
           <div class="card-content">
             <span class="card-tag free">{{ currentLang === 'ko' ? '무료' : 'Free' }}</span>
             <h3>{{ currentLang === 'ko' ? spot.name : spot.name_en }}</h3>
@@ -30,7 +30,7 @@
         <h2 class="section-title">{{ t.paidTitle }}</h2>
       </div>
       <div class="bento-grid">
-        <div v-for="spot in paidPlaces" :key="spot.name" class="apple-card">
+        <div v-for="spot in paidPlaces" :key="spot.name" class="apple-card clickable" @click="searchOnNaver(currentLang === 'ko' ? spot.name : spot.name_en)">
           <div class="card-content">
             <span class="card-tag paid">{{ currentLang === 'ko' ? '유료' : 'Paid' }}</span>
             <h3>{{ currentLang === 'ko' ? spot.name : spot.name_en }}</h3>
