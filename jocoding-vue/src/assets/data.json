@@ -1,274 +1,148 @@
 {
   "free_places": [
     {
-      "name": "서울어린이대공원",
-      "name_en": "Seoul Children's Grand Park",
-      "lat": 37.5494,
-      "lng": 127.0801,
-      "address": "서울특별시 광진구 능동로 216",
+      "name": "동탄호수공원",
+      "name_en": "Dongtan Lake Park",
+      "lat": 37.1783,
+      "lng": 127.1012,
+      "address": "경기도 화성시 동탄대로 181",
       "price": "무료",
       "price_en": "Free"
     },
     {
-      "name": "서울숲",
-      "name_en": "Seoul Forest",
-      "lat": 37.5444,
-      "lng": 127.0374,
-      "address": "서울특별시 성동구 뚝섬로 273",
+      "name": "동탄여울공원 (물놀이장)",
+      "name_en": "Dongtan Yeoul Park",
+      "lat": 37.1994,
+      "lng": 127.0864,
+      "address": "경기도 화성시 오산동 1060",
       "price": "무료",
       "price_en": "Free"
     },
     {
-      "name": "국립중앙박물관",
-      "name_en": "National Museum of Korea",
-      "lat": 37.5239,
-      "lng": 126.9798,
-      "address": "서울특별시 용산구 서빙고로 137",
+      "name": "동탄센트럴파크",
+      "name_en": "Dongtan Central Park",
+      "lat": 37.2038,
+      "lng": 127.0691,
+      "address": "경기도 화성시 동탄지성로 92",
       "price": "무료",
       "price_en": "Free"
     },
     {
-      "name": "반포한강공원",
-      "name_en": "Banpo Hangang Park",
-      "lat": 37.5098,
-      "lng": 126.9946,
-      "address": "서울특별시 서초구 신반포로11길 40",
+      "name": "반석산 근린공원",
+      "name_en": "Banseoksan Neighborhood Park",
+      "lat": 37.2015,
+      "lng": 127.0785,
+      "address": "경기도 화성시 노작로 226-26",
       "price": "무료",
       "price_en": "Free"
     },
     {
-      "name": "전쟁기념관",
-      "name_en": "War Memorial of Korea",
-      "lat": 37.5366,
-      "lng": 126.9771,
-      "address": "서울특별시 용산구 이태원로 29",
-      "price": "무료",
-      "price_en": "Free"
-    },
-    {
-      "name": "북촌한옥마을",
-      "name_en": "Bukchon Hanok Village",
-      "lat": 37.5829,
-      "lng": 126.9835,
-      "address": "서울특별시 종로구 계동길 37",
-      "price": "무료",
-      "price_en": "Free"
-    },
-    {
-      "name": "청계천",
-      "name_en": "Cheonggyecheon Stream",
-      "lat": 37.5694,
-      "lng": 126.9781,
-      "address": "서울특별시 종로구 창신동",
-      "price": "무료",
-      "price_en": "Free"
-    },
-    {
-      "name": "파주 출판도시",
-      "name_en": "Paju Book City",
-      "lat": 37.7088,
-      "lng": 126.6851,
-      "address": "경기도 파주시 문발동",
-      "price": "무료",
-      "price_en": "Free"
-    },
-    {
-      "name": "미사경정공원",
-      "name_en": "Misari Motorboat Racing Park",
-      "lat": 37.5614,
-      "lng": 127.2052,
-      "address": "경기도 하남시 미사동 15",
-      "price": "무료",
-      "price_en": "Free"
-    },
-    {
-      "name": "광화문광장",
-      "name_en": "Gwanghwamun Square",
-      "lat": 37.5721,
-      "lng": 126.9769,
-      "address": "서울특별시 종로구 세종대로 172",
+      "name": "노작홍사용문학관",
+      "name_en": "Nojak Literature Center",
+      "lat": 37.2012,
+      "lng": 127.0768,
+      "address": "경기도 화성시 노작로 206",
       "price": "무료",
       "price_en": "Free"
     }
   ],
   "paid_places": [
     {
-      "name": "롯데월드 어드벤처",
-      "name_en": "Lotte World Adventure",
-      "lat": 37.5111,
-      "lng": 127.0982,
-      "address": "서울특별시 송파구 올림픽로 240",
-      "price": "성인 62,000원",
-      "price_en": "Adult 62,000 KRW"
+      "name": "롯데백화점 동탄점 (디아이레)",
+      "name_en": "Lotte Dept. Dongtan (D.Aire)",
+      "lat": 37.2005,
+      "lng": 127.0965,
+      "address": "경기도 화성시 동탄역로 160",
+      "price": "전시별 상이",
+      "price_en": "Varies by exhibit"
     },
     {
-      "name": "에버랜드",
-      "name_en": "Everland",
-      "lat": 37.2939,
-      "lng": 127.2026,
-      "address": "경기도 용인시 처인구 포곡읍 에버랜드로 199",
-      "price": "변동",
-      "price_en": "Variable"
-    },
-    {
-      "name": "코엑스 아쿠아리움",
-      "name_en": "COEX Aquarium",
-      "lat": 37.5131,
-      "lng": 127.0586,
-      "address": "서울특별시 강남구 영동대로 513",
-      "price": "성인 33,000원",
-      "price_en": "Adult 33,000 KRW"
-    },
-    {
-      "name": "서울랜드",
-      "name_en": "Seoul Land",
-      "lat": 37.4341,
-      "lng": 127.0203,
-      "address": "경기도 과천시 광명로 181",
-      "price": "성인 49,000원",
-      "price_en": "Adult 49,000 KRW"
-    },
-    {
-      "name": "키자니아 서울",
-      "name_en": "KidZania Seoul",
-      "lat": 37.5101,
-      "lng": 127.0997,
-      "address": "서울특별시 송파구 올림픽로 240",
-      "price": "어린이 45,000원",
-      "price_en": "Child 45,000 KRW"
-    },
-    {
-      "name": "아쿠아플라넷 일산",
-      "name_en": "Aqua Planet Ilsan",
-      "lat": 37.6631,
-      "lng": 126.7554,
-      "address": "경기도 고양시 일산서구 대화동 2606-1",
-      "price": "성인 31,000원",
-      "price_en": "Adult 31,000 KRW"
-    },
-    {
-      "name": "안성팜랜드",
-      "name_en": "Anseong Farmland",
-      "lat": 37.0125,
-      "lng": 127.1558,
-      "address": "경기도 안성시 공도읍 대신두길 28",
-      "price": "성인 15,000원",
+      "name": "쥬라리움 동탄점",
+      "name_en": "Zooroarium Dongtan",
+      "lat": 37.2215,
+      "lng": 127.0754,
+      "address": "경기도 화성시 동탄대로 14길 5",
+      "price": "대인 15,000원",
       "price_en": "Adult 15,000 KRW"
     },
     {
-      "name": "서울스카이",
-      "name_en": "Seoul Sky",
-      "lat": 37.5126,
-      "lng": 127.1025,
-      "address": "서울특별시 송파구 올림픽로 300",
-      "price": "성인 29,000원",
-      "price_en": "Adult 29,000 KRW"
+      "name": "바운스 트램폴린 파크 동탄",
+      "name_en": "Vaunce Trampoline Park",
+      "lat": 37.1775,
+      "lng": 127.1065,
+      "address": "경기도 화성시 동탄대로 181 레이크꼬모",
+      "price": "2시간 20,000원",
+      "price_en": "2h 20,000 KRW"
     },
     {
-      "name": "포천 아트밸리",
-      "name_en": "Pocheon Art Valley",
-      "lat": 37.9254,
-      "lng": 127.2458,
-      "address": "경기도 포천시 신북면 아트밸리로 234",
-      "price": "성인 5,000원",
-      "price_en": "Adult 5,000 KRW"
-    },
-    {
-      "name": "국립과천과학관",
-      "name_en": "National Gwacheon Science Museum",
-      "lat": 37.4385,
-      "lng": 127.0175,
-      "address": "경기도 과천시 상하벌로 110",
-      "price": "성인 4,000원",
-      "price_en": "Adult 4,000 KRW"
+      "name": "아르티스 테마파크",
+      "name_en": "Artis Theme Park",
+      "lat": 37.2035,
+      "lng": 127.0985,
+      "address": "경기도 화성시 동탄대로 537",
+      "price": "성인 18,000원",
+      "price_en": "Adult 18,000 KRW"
     }
   ],
   "meals": {
     "breakfast": [
       {
-        "name": "이삭토스트 명동점",
-        "name_en": "Isaac Toast Myeongdong",
-        "lat": 37.5607,
-        "lng": 126.9862,
-        "address": "서울특별시 중구 퇴계로 105",
-        "menu": "햄치즈 토스트",
-        "menu_en": "Ham Cheese Toast"
+        "name": "파리바게뜨 동탄역점",
+        "name_en": "Paris Baguette Dongtan Stn.",
+        "lat": 37.2015,
+        "lng": 127.0945,
+        "address": "경기도 화성시 동탄오산로 82",
+        "menu": "샌드위치, 커피",
+        "menu_en": "Sandwich, Coffee"
       },
       {
-        "name": "에그드랍 강남역점",
-        "name_en": "Egg Drop Gangnam Station",
-        "lat": 37.4988,
-        "lng": 127.0284,
-        "address": "서울특별시 강남구 강남대로78길 22",
-        "menu": "미스터 에그",
-        "menu_en": "Mr. Egg"
-      },
-      {
-        "name": "파리바게뜨 서울역점",
-        "name_en": "Paris Baguette Seoul Station",
-        "lat": 37.5559,
-        "lng": 126.9723,
-        "address": "서울특별시 용산구 한강대로 405",
-        "menu": "샌드위치 및 빵",
-        "menu_en": "Sandwiches and Bread"
+        "name": "본죽 동탄센트럴파크점",
+        "name_en": "Bonjuk Dongtan Central Park",
+        "lat": 37.2045,
+        "lng": 127.0685,
+        "address": "경기도 화성시 동탄지성로 102",
+        "menu": "야채죽, 전복죽",
+        "menu_en": "Veggie Porridge"
       }
     ],
     "lunch": [
       {
-        "name": "명동교자 본점",
-        "name_en": "Myeongdong Kyoja Main Store",
-        "lat": 37.5625,
-        "lng": 126.9856,
-        "address": "서울특별시 중구 명동10길 29",
-        "menu": "칼국수, 만두",
-        "menu_en": "Kalguksu (Noodle Soup), Mandu"
+        "name": "농우본갈비 동탄점",
+        "name_en": "Nongwoo Bon Galbi",
+        "lat": 37.2025,
+        "lng": 127.0782,
+        "address": "경기도 화성시 노작로 147",
+        "menu": "양념갈비 정식",
+        "menu_en": "Marinated Galbi"
       },
       {
-        "name": "토속촌 삼계탕",
-        "name_en": "Tosokchon Samgyetang",
-        "lat": 37.5777,
-        "lng": 126.9718,
-        "address": "서울특별시 종로구 자하문로5길 5",
-        "menu": "삼계탕",
-        "menu_en": "Ginseng Chicken Soup"
-      },
-      {
-        "name": "광장시장 먹자골목",
-        "name_en": "Gwangjang Market Food Alley",
-        "lat": 37.5701,
-        "lng": 126.9994,
-        "address": "서울특별시 종로구 창경궁로 88",
-        "menu": "빈대떡, 마약김밥",
-        "menu_en": "Bindaetteok, Mayak Gimbap"
+        "name": "포레스트 동탄본점",
+        "name_en": "Pho Rest (Rice Noodle)",
+        "lat": 37.2052,
+        "lng": 127.0675,
+        "address": "경기도 화성시 동탄공원로2길 33-9",
+        "menu": "쌀국수",
+        "menu_en": "Pho / Rice Noodle"
       }
     ],
     "dinner": [
       {
-        "name": "왕비집 명동본점",
-        "name_en": "Wangbijib Myeongdong Main",
-        "lat": 37.5623,
-        "lng": 126.9845,
-        "address": "서울특별시 중구 명동8가길 26",
-        "menu": "돼지갈비, 소갈비",
-        "menu_en": "Pork Galbi, Beef Galbi"
+        "name": "동탄 곤드레밥집",
+        "name_en": "Gondre Rice House",
+        "lat": 37.1852,
+        "lng": 127.1085,
+        "address": "경기도 화성시 동탄대로 14길 10",
+        "menu": "곤드레 정식",
+        "menu_en": "Gondre Rice Set"
       },
       {
-        "name": "홍콩반점0410",
-        "name_en": "Hong Kong Banjum 0410",
-        "lat": 37.5023,
-        "lng": 127.0267,
-        "address": "서울특별시 강남구 봉은사로2길 21",
-        "menu": "짜장면, 탕수육",
-        "menu_en": "Jjajangmyeon, Sweet and Sour Pork"
-      },
-      {
-        "name": "단풍나무집 삼청점",
-        "name_en": "Maple Tree House Samcheong",
-        "lat": 37.5833,
-        "lng": 126.9818,
-        "address": "서울특별시 종로구 삼청로 130",
-        "menu": "프리미엄 구이",
-        "menu_en": "Premium Korean BBQ"
+        "name": "잭슨피자 동탄점",
+        "name_en": "Jackson Pizza Dongtan",
+        "lat": 37.1785,
+        "lng": 127.1025,
+        "address": "경기도 화성시 동탄대로 181 레이크꼬모",
+        "menu": "슈퍼잭슨 피자",
+        "menu_en": "Super Jackson Pizza"
       }
     ]
   }

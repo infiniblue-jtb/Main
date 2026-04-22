@@ -94,12 +94,13 @@ const TRANSLATIONS = {
 export default {
   name: 'FoodView',
   setup() {
-    const currentLang = inject('currentLang');
-    const theme = inject('theme');
+    const currentLang = inject('currentLang', ref('ko'));
+    const theme = inject('theme', ref('light'));
     const map = ref(null);
     const markers = ref([]);
     const t = computed(() => {
-      const trans = TRANSLATIONS[currentLang.value] || TRANSLATIONS['ko'];
+      const lang = currentLang.value || 'ko';
+      const trans = TRANSLATIONS[lang] || TRANSLATIONS['ko'];
       return {
         title: trans.title || '',
         desc: trans.desc || '',
@@ -109,9 +110,9 @@ export default {
       };
     });
 
-    const breakfastItems = ref(data.food?.breakfast || data.meals?.breakfast || []);
-    const lunchItems = ref(data.food?.lunch || data.meals?.lunch || []);
-    const dinnerItems = ref(data.food?.dinner || data.meals?.dinner || []);
+    const breakfastItems = ref(data?.food?.breakfast || data?.meals?.breakfast || []);
+    const lunchItems = ref(data?.food?.lunch || data?.meals?.lunch || []);
+    const dinnerItems = ref(data?.food?.dinner || data?.meals?.dinner || []);
 
     const initMap = () => {
       if (typeof kakao === 'undefined') {
@@ -121,7 +122,7 @@ export default {
       kakao.maps.load(() => {
         const container = document.getElementById('map');
         if(!container) return;
-        const options = { center: new kakao.maps.LatLng(37.53, 127.02), level: 9 };
+        const options = { center: new kakao.maps.LatLng(37.197, 127.085), level: 7 };
         map.value = new kakao.maps.Map(container, options);
         renderMarkers();
       });

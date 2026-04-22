@@ -67,12 +67,13 @@ const TRANSLATIONS = {
 export default {
   name: 'KidsView',
   setup() {
-    const currentLang = inject('currentLang');
-    const theme = inject('theme');
+    const currentLang = inject('currentLang', ref('ko'));
+    const theme = inject('theme', ref('light'));
     const map = ref(null);
     const markers = ref([]);
     const t = computed(() => {
-      const trans = TRANSLATIONS[currentLang.value] || TRANSLATIONS['ko'];
+      const lang = currentLang.value || 'ko';
+      const trans = TRANSLATIONS[lang] || TRANSLATIONS['ko'];
       return {
         title: trans.title || '',
         desc: trans.desc || '',
@@ -81,8 +82,8 @@ export default {
       };
     });
 
-    const freePlaces = ref(data.kids?.free || data.free_places || []);
-    const paidPlaces = ref(data.kids?.paid || data.paid_places || []);
+    const freePlaces = ref(data?.kids?.free || data?.free_places || []);
+    const paidPlaces = ref(data?.kids?.paid || data?.paid_places || []);
 
     const initMap = () => {
       if (typeof kakao === 'undefined') {
@@ -92,7 +93,7 @@ export default {
       kakao.maps.load(() => {
         const container = document.getElementById('map');
         if(!container) return;
-        const options = { center: new kakao.maps.LatLng(37.5, 127.0), level: 10 };
+        const options = { center: new kakao.maps.LatLng(37.197, 127.085), level: 7 };
         map.value = new kakao.maps.Map(container, options);
         renderMarkers();
       });

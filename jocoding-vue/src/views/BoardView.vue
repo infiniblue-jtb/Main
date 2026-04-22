@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { inject, computed, onMounted } from 'vue';
+import { ref, inject, computed, onMounted } from 'vue';
 
 const TRANSLATIONS = {
   ko: {
@@ -71,8 +71,11 @@ const TRANSLATIONS = {
 export default {
   name: 'BoardView',
   setup() {
-    const currentLang = inject('currentLang');
-    const t = computed(() => TRANSLATIONS[currentLang.value]);
+    const currentLang = inject('currentLang', ref('ko'));
+    const t = computed(() => {
+      const lang = currentLang.value || 'ko';
+      return TRANSLATIONS[lang] || TRANSLATIONS['ko'];
+    });
 
     const initDisqus = () => {
       // Reset Disqus if already loaded
