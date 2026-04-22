@@ -98,11 +98,20 @@ export default {
     const theme = inject('theme');
     const map = ref(null);
     const markers = ref([]);
-    const t = computed(() => TRANSLATIONS[currentLang.value]);
+    const t = computed(() => {
+      const trans = TRANSLATIONS[currentLang.value] || TRANSLATIONS['ko'];
+      return {
+        title: trans.title || '',
+        desc: trans.desc || '',
+        breakfastTitle: trans.breakfastTitle || '',
+        lunchTitle: trans.lunchTitle || '',
+        dinnerTitle: trans.dinnerTitle || ''
+      };
+    });
 
-    const breakfastItems = ref(data.food.breakfast);
-    const lunchItems = ref(data.food.lunch);
-    const dinnerItems = ref(data.food.dinner);
+    const breakfastItems = ref(data.food?.breakfast || data.meals?.breakfast || []);
+    const lunchItems = ref(data.food?.lunch || data.meals?.lunch || []);
+    const dinnerItems = ref(data.food?.dinner || data.meals?.dinner || []);
 
     const initMap = () => {
       if (typeof kakao === 'undefined') {

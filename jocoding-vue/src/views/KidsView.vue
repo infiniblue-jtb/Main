@@ -71,10 +71,18 @@ export default {
     const theme = inject('theme');
     const map = ref(null);
     const markers = ref([]);
-    const t = computed(() => TRANSLATIONS[currentLang.value]);
+    const t = computed(() => {
+      const trans = TRANSLATIONS[currentLang.value] || TRANSLATIONS['ko'];
+      return {
+        title: trans.title || '',
+        desc: trans.desc || '',
+        freeTitle: trans.freeTitle || '',
+        paidTitle: trans.paidTitle || ''
+      };
+    });
 
-    const freePlaces = ref(data.kids.free);
-    const paidPlaces = ref(data.kids.paid);
+    const freePlaces = ref(data.kids?.free || data.free_places || []);
+    const paidPlaces = ref(data.kids?.paid || data.paid_places || []);
 
     const initMap = () => {
       if (typeof kakao === 'undefined') {
