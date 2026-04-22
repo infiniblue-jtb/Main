@@ -72,6 +72,25 @@ import { ref, onMounted, computed, inject, onUnmounted, watch } from 'vue';
 
 import data from '../assets/data.json';
 
+const TRANSLATIONS = {
+  ko: {
+    title: '오늘 뭐 먹지?',
+    desc: '아이와 함께 가기 좋은 식당들을 시간대별로 추천해드려요.',
+    breakfastTitle: '아침식사 추천',
+    lunchTitle: '점심식사 추천',
+    dinnerTitle: '저녁식사 추천',
+    mapTitle: '주변 식당 지도'
+  },
+  en: {
+    title: 'What to Eat?',
+    desc: 'Recommended restaurants for kids by meal time.',
+    breakfastTitle: 'Breakfast',
+    lunchTitle: 'Lunch',
+    dinnerTitle: 'Dinner',
+    mapTitle: 'Nearby Restaurants'
+  }
+};
+
 export default {
   name: 'FoodView',
   setup() {

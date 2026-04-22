@@ -14,13 +14,13 @@
     ],
     "paid": [
       { "name": "에버랜드", "name_en": "Everland", "lat": 37.294, "lng": 127.203, "address": "경기 용인시 처인구 포곡읍 에버랜드로 199", "price": "50,000원~", "price_en": "50,000 KRW~" },
-      { "name": "롯데월드 어드벤처", "name_en": "Lotte World Adventure", "lat": 37.511, "lng: 127.098, "address": "서울 송파구 올림픽로 240", "price": "47,000원~", "price_en": "47,000 KRW~" },
+      { "name": "롯데월드 어드벤처", "name_en": "Lotte World Adventure", "lat": 37.511, "lng": 127.098, "address": "서울 송파구 올림픽로 240", "price": "47,000원~", "price_en": "47,000 KRW~" },
       { "name": "키자니아 서울", "name_en": "KidZania Seoul", "lat": 37.513, "lng": 127.102, "address": "서울 송파구 올림픽로 240", "price": "40,000원~", "price_en": "40,000 KRW~" },
       { "name": "코엑스 아쿠아리움", "name_en": "COEX Aquarium", "lat": 37.513, "lng": 127.059, "address": "서울 강남구 영동대로 513", "price": "30,000원~", "price_en": "30,000 KRW~" },
       { "name": "안성팜랜드", "name_en": "Anseong Farmland", "lat": 37.014, "lng": 127.151, "address": "경기 안성시 공도읍 대신두길 28", "price": "12,000원~", "price_en": "12,000 KRW~" },
       { "name": "아쿠아플라넷 일산", "name_en": "Aqua Planet Ilsan", "lat": 37.664, "lng": 126.758, "address": "경기 고양시 일산서구 한류월드로 282", "price": "29,000원~", "price_en": "29,000 KRW~" },
       { "name": "한국민속촌", "name_en": "Korean Folk Village", "lat": 37.258, "lng": 127.116, "address": "경기 용인시 기흥구 민속촌로 90", "price": "30,000원~", "price_en": "30,000 KRW~" },
-      { "name": "광명동굴", "name_en: "Gwangmyeong Cave", "lat": 37.426, "lng": 126.866, "address": "경기 광명시 가학로85번길 142", "price": "6,000원~", "price_en": "6,000 KRW~" },
+      { "name": "광명동굴", "name_en": "Gwangmyeong Cave", "lat": 37.426, "lng": 126.866, "address": "경기 광명시 가학로85번길 142", "price": "6,000원~", "price_en": "6,000 KRW~" },
       { "name": "파주 하니랜드", "name_en": "Paju Honey Land", "lat": 37.765, "lng": 126.837, "address": "경기 파주시 조리읍 장곡로 218", "price": "15,000원~", "price_en": "15,000 KRW~" },
       { "name": "일산 뽀로로파크", "name_en": "Ilsan Pororo Park", "lat": 37.665, "lng": 126.753, "address": "경기 고양시 일산서구 주엽로 80", "price": "25,000원~", "price_en": "25,000 KRW~" }
     ]
@@ -29,7 +29,7 @@
     "breakfast": [
       { "name": "죽이야기", "name_en": "Juk Iyagi", "lat": 37.5665, "lng": 126.9780, "address": "서울 중구 태평로1가", "menu": "야채죽, 전복죽", "menu_en": "Veggie Porridge, Abalone Porridge" },
       { "name": "파리바게뜨 시그니처", "name_en": "Paris Baguette Signature", "lat": 37.5600, "lng": 126.9800, "address": "서울 중구 명동", "menu": "샌드위치, 오므라이스", "menu_en": "Sandwich, Omurice" },
-      { "name": "본죽", "name_en": "Bonjuk", "lat": 37.5700, "lng: 126.9750, "address": "서울 종로구 세종로", "menu": "쇠고기야채죽", "menu_en": "Beef Veggie Porridge" }
+      { "name": "본죽", "name_en": "Bonjuk", "lat": 37.5700, "lng": 126.9750, "address": "서울 종로구 세종로", "menu": "쇠고기야채죽", "menu_en": "Beef Veggie Porridge" }
     ],
     "lunch": [
       { "name": "남산돈까스", "name_en": "Namsan Cutlet", "lat": 37.5550, "lng": 126.9850, "address": "서울 중구 남산동", "menu": "왕돈까스, 치즈돈까스", "menu_en": "King Cutlet, Cheese Cutlet" },
@@ -39,7 +39,7 @@
     "dinner": [
       { "name": "하남돼지집", "name_en": "Hanam Pig", "lat": 37.5100, "lng": 127.0300, "address": "서울 강남구 논현동", "menu": "삼겹살, 목살 (직접 구워줌)", "menu_en": "Grilled Pork Belly, Neck" },
       { "name": "애슐리퀸즈", "name_en": "Ashley Queens", "lat": 37.5130, "lng": 127.0580, "address": "서울 강남구 삼성동", "menu": "패밀리 뷔페", "menu_en": "Family Buffet" },
-      { "name": "빕스(VIPS)", "name_en": "VIPS", "lat": 37.5150, "lng: 127.0600, "address": "서울 강남구 대치동", "menu": "스테이크, 샐러드바", "menu_en": "Steak, Salad Bar" }
+      { "name": "빕스(VIPS)", "name_en": "VIPS", "lat": 37.5150, "lng": 127.0600, "address": "서울 강남구 대치동", "menu": "스테이크, 샐러드바", "menu_en": "Steak, Salad Bar" }
     ]
   }
 }

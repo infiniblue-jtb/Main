@@ -49,6 +49,21 @@ import { ref, onMounted, computed, inject, onUnmounted, watch } from 'vue';
 
 import data from '../assets/data.json';
 
+const TRANSLATIONS = {
+  ko: {
+    title: '아이와 뭐하지?',
+    desc: '서울/경기 근교의 아이와 가기 좋은 장소들을 모았어요.',
+    freeTitle: '부담 없는 무료 장소',
+    paidTitle: '특별한 경험, 유료 장소'
+  },
+  en: {
+    title: 'Where to go with Kids?',
+    desc: 'Best places for kids around Seoul & Gyeonggi.',
+    freeTitle: 'Free Admission',
+    paidTitle: 'Paid Experience'
+  }
+};
+
 export default {
   name: 'KidsView',
   setup() {
