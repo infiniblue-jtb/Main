@@ -1,148 +1,159 @@
 {
   "free_places": [
     {
-      "name": "서울 어린이대공원",
+      "name": "서울어린이대공원",
       "name_en": "Seoul Children's Grand Park",
-      "lat": 37.548,
+      "lat": 37.5494,
       "lng": 127.0801,
-      "address": "서울특별시 광진구 능동로 216"
+      "address": "서울특별시 광진구 능동로 216",
+      "price": "무료",
+      "price_en": "Free"
     },
     {
       "name": "서울숲",
       "name_en": "Seoul Forest",
-      "lat": 37.5443,
+      "lat": 37.5444,
       "lng": 127.0374,
-      "address": "서울특별시 성동구 뚝섬로 273"
+      "address": "서울특별시 성동구 뚝섬로 273",
+      "price": "무료",
+      "price_en": "Free"
     },
     {
-      "name": "국립중앙박물관 어린이박물관",
-      "name_en": "Children's Museum of National Museum of Korea",
-      "lat": 37.5238,
-      "lng": 126.9796,
-      "address": "서울특별시 용산구 서빙고로 137"
-    },
-    {
-      "name": "전쟁기념관 어린이박물관",
-      "name_en": "War Memorial of Korea Children's Museum",
-      "lat": 37.5366,
-      "lng": 126.9772,
-      "address": "서울특별시 용산구 이태원로 29"
+      "name": "국립중앙박물관",
+      "name_en": "National Museum of Korea",
+      "lat": 37.5239,
+      "lng": 126.9798,
+      "address": "서울특별시 용산구 서빙고로 137",
+      "price": "무료",
+      "price_en": "Free"
     },
     {
       "name": "반포한강공원",
       "name_en": "Banpo Hangang Park",
       "lat": 37.5098,
       "lng": 126.9946,
-      "address": "서울특별시 서초구 신반포로11길 40"
+      "address": "서울특별시 서초구 신반포로11길 40",
+      "price": "무료",
+      "price_en": "Free"
+    },
+    {
+      "name": "전쟁기념관",
+      "name_en": "War Memorial of Korea",
+      "lat": 37.5366,
+      "lng": 126.9771,
+      "address": "서울특별시 용산구 이태원로 29",
+      "price": "무료",
+      "price_en": "Free"
+    },
+    {
+      "name": "북촌한옥마을",
+      "name_en": "Bukchon Hanok Village",
+      "lat": 37.5829,
+      "lng": 126.9835,
+      "address": "서울특별시 종로구 계동길 37",
+      "price": "무료",
+      "price_en": "Free"
     },
     {
       "name": "청계천",
       "name_en": "Cheonggyecheon Stream",
       "lat": 37.5694,
-      "lng": 126.9784,
-      "address": "서울특별시 종로구 창신동"
+      "lng": 126.9781,
+      "address": "서울특별시 종로구 창신동",
+      "price": "무료",
+      "price_en": "Free"
     },
     {
-      "name": "송도 센트럴파크",
-      "name_en": "Songdo Central Park",
-      "lat": 37.3924,
-      "lng": 126.6358,
-      "address": "인천광역시 연수구 컨벤시아대로 160"
-    },
-    {
-      "name": "지혜의 숲 (파주 출판도시)",
-      "name_en": "Forest of Wisdom (Paju Book City)",
+      "name": "파주 출판도시",
+      "name_en": "Paju Book City",
       "lat": 37.7088,
-      "lng": 126.6852,
-      "address": "경기도 파주시 회동길 145"
+      "lng": 126.6851,
+      "address": "경기도 파주시 문발동",
+      "price": "무료",
+      "price_en": "Free"
     },
     {
-      "name": "안양예술공원",
-      "name_en": "Anyang Art Park",
-      "lat": 37.419,
-      "lng": 126.9248,
-      "address": "경기도 안양시 만안구 예술공원로 131"
+      "name": "미사경정공원",
+      "name_en": "Misari Motorboat Racing Park",
+      "lat": 37.5614,
+      "lng": 127.2052,
+      "address": "경기도 하남시 미사동 15",
+      "price": "무료",
+      "price_en": "Free"
     },
     {
       "name": "광화문광장",
       "name_en": "Gwanghwamun Square",
-      "lat": 37.5716,
-      "lng": 126.9768,
-      "address": "서울특별시 종로구 세종대로 172"
+      "lat": 37.5721,
+      "lng": 126.9769,
+      "address": "서울특별시 종로구 세종대로 172",
+      "price": "무료",
+      "price_en": "Free"
     }
   ],
   "paid_places": [
-    {
-      "name": "에버랜드",
-      "name_en": "Everland",
-      "lat": 37.2939,
-      "lng": 127.2026,
-      "address": "경기도 용인시 처인구 포곡읍 에버랜드로 199",
-      "price": "62,000원",
-      "price_en": "62,000 KRW"
-    },
     {
       "name": "롯데월드 어드벤처",
       "name_en": "Lotte World Adventure",
       "lat": 37.5111,
       "lng": 127.0982,
       "address": "서울특별시 송파구 올림픽로 240",
-      "price": "62,000원",
-      "price_en": "62,000 KRW"
+      "price": "성인 62,000원",
+      "price_en": "Adult 62,000 KRW"
+    },
+    {
+      "name": "에버랜드",
+      "name_en": "Everland",
+      "lat": 37.2939,
+      "lng": 127.2026,
+      "address": "경기도 용인시 처인구 포곡읍 에버랜드로 199",
+      "price": "변동",
+      "price_en": "Variable"
     },
     {
       "name": "코엑스 아쿠아리움",
       "name_en": "COEX Aquarium",
-      "lat": 37.5132,
-      "lng": 127.0588,
+      "lat": 37.5131,
+      "lng": 127.0586,
       "address": "서울특별시 강남구 영동대로 513",
-      "price": "33,000원",
-      "price_en": "33,000 KRW"
+      "price": "성인 33,000원",
+      "price_en": "Adult 33,000 KRW"
     },
     {
       "name": "서울랜드",
       "name_en": "Seoul Land",
       "lat": 37.4341,
-      "lng": 127.0201,
+      "lng": 127.0203,
       "address": "경기도 과천시 광명로 181",
-      "price": "49,000원",
-      "price_en": "49,000 KRW"
+      "price": "성인 49,000원",
+      "price_en": "Adult 49,000 KRW"
     },
     {
       "name": "키자니아 서울",
       "name_en": "KidZania Seoul",
-      "lat": 37.5113,
-      "lng": 127.0981,
+      "lat": 37.5101,
+      "lng": 127.0997,
       "address": "서울특별시 송파구 올림픽로 240",
-      "price": "45,000원",
-      "price_en": "45,000 KRW"
+      "price": "어린이 45,000원",
+      "price_en": "Child 45,000 KRW"
     },
     {
-      "name": "한국민속촌",
-      "name_en": "Korean Folk Village",
-      "lat": 37.259,
-      "lng": 127.121,
-      "address": "경기도 용인시 기흥구 민속촌로 90",
-      "price": "32,000원",
-      "price_en": "32,000 KRW"
+      "name": "아쿠아플라넷 일산",
+      "name_en": "Aqua Planet Ilsan",
+      "lat": 37.6631,
+      "lng": 126.7554,
+      "address": "경기도 고양시 일산서구 대화동 2606-1",
+      "price": "성인 31,000원",
+      "price_en": "Adult 31,000 KRW"
     },
     {
       "name": "안성팜랜드",
       "name_en": "Anseong Farmland",
-      "lat": 37.0135,
-      "lng": 127.155,
+      "lat": 37.0125,
+      "lng": 127.1558,
       "address": "경기도 안성시 공도읍 대신두길 28",
-      "price": "15,000원",
-      "price_en": "15,000 KRW"
-    },
-    {
-      "name": "아쿠아플라넷 63",
-      "name_en": "Aqua Planet 63",
-      "lat": 37.5194,
-      "lng": 126.9402,
-      "address": "서울특별시 영등포구 63로 50",
-      "price": "27,000원",
-      "price_en": "27,000 KRW"
+      "price": "성인 15,000원",
+      "price_en": "Adult 15,000 KRW"
     },
     {
       "name": "서울스카이",
@@ -150,47 +161,56 @@
       "lat": 37.5126,
       "lng": 127.1025,
       "address": "서울특별시 송파구 올림픽로 300",
-      "price": "29,000원",
-      "price_en": "29,000 KRW"
+      "price": "성인 29,000원",
+      "price_en": "Adult 29,000 KRW"
     },
     {
-      "name": "쁘띠프랑스",
-      "name_en": "Petite France",
-      "lat": 37.7146,
-      "lng": 127.4912,
-      "address": "경기도 가평군 청평면 호반로 1063",
-      "price": "12,000원",
-      "price_en": "12,000 KRW"
+      "name": "포천 아트밸리",
+      "name_en": "Pocheon Art Valley",
+      "lat": 37.9254,
+      "lng": 127.2458,
+      "address": "경기도 포천시 신북면 아트밸리로 234",
+      "price": "성인 5,000원",
+      "price_en": "Adult 5,000 KRW"
+    },
+    {
+      "name": "국립과천과학관",
+      "name_en": "National Gwacheon Science Museum",
+      "lat": 37.4385,
+      "lng": 127.0175,
+      "address": "경기도 과천시 상하벌로 110",
+      "price": "성인 4,000원",
+      "price_en": "Adult 4,000 KRW"
     }
   ],
   "meals": {
     "breakfast": [
       {
-        "name": "이삭토스트 명동성당점",
-        "name_en": "Isaac Toast Myeongdong Cathedral",
-        "lat": 37.5631,
-        "lng": 126.9868,
-        "address": "서울특별시 중구 명동10길 17-1",
-        "menu": "햄치즈 스페셜 토스트",
-        "menu_en": "Ham Special Toast"
+        "name": "이삭토스트 명동점",
+        "name_en": "Isaac Toast Myeongdong",
+        "lat": 37.5607,
+        "lng": 126.9862,
+        "address": "서울특별시 중구 퇴계로 105",
+        "menu": "햄치즈 토스트",
+        "menu_en": "Ham Cheese Toast"
       },
       {
-        "name": "에그드랍 신사점",
-        "name_en": "Egg Drop Sinsa",
-        "lat": 37.5193,
-        "lng": 127.0212,
-        "address": "서울특별시 강남구 도산대로13길 31",
+        "name": "에그드랍 강남역점",
+        "name_en": "Egg Drop Gangnam Station",
+        "lat": 37.4988,
+        "lng": 127.0284,
+        "address": "서울특별시 강남구 강남대로78길 22",
         "menu": "미스터 에그",
-        "menu_en": "Mr. Egg Sandwich"
+        "menu_en": "Mr. Egg"
       },
       {
-        "name": "버터핑거 팬케익스 강남점",
-        "name_en": "Butterfinger Pancakes Gangnam",
-        "lat": 37.5005,
-        "lng": 127.0257,
-        "address": "서울특별시 서초구 강남대로61길 13",
-        "menu": "스플릿 디시젼 플레이트",
-        "menu_en": "Split Decision Plate"
+        "name": "파리바게뜨 서울역점",
+        "name_en": "Paris Baguette Seoul Station",
+        "lat": 37.5559,
+        "lng": 126.9723,
+        "address": "서울특별시 용산구 한강대로 405",
+        "menu": "샌드위치 및 빵",
+        "menu_en": "Sandwiches and Bread"
       }
     ],
     "lunch": [
@@ -201,54 +221,54 @@
         "lng": 126.9856,
         "address": "서울특별시 중구 명동10길 29",
         "menu": "칼국수, 만두",
-        "menu_en": "Kalguksu (Chopped Noodles), Dumplings"
+        "menu_en": "Kalguksu (Noodle Soup), Mandu"
       },
       {
         "name": "토속촌 삼계탕",
         "name_en": "Tosokchon Samgyetang",
         "lat": 37.5777,
-        "lng": 126.9717,
+        "lng": 126.9718,
         "address": "서울특별시 종로구 자하문로5길 5",
         "menu": "삼계탕",
         "menu_en": "Ginseng Chicken Soup"
       },
       {
-        "name": "스쿨푸드 가로수길점",
-        "name_en": "School Food Garosugil",
-        "lat": 37.5204,
-        "lng": 127.0228,
-        "address": "서울특별시 강남구 도산대로13길 13",
-        "menu": "마리(김밥), 떡볶이",
-        "menu_en": "Mari (Mini Rolls), Tteokbokki"
+        "name": "광장시장 먹자골목",
+        "name_en": "Gwangjang Market Food Alley",
+        "lat": 37.5701,
+        "lng": 126.9994,
+        "address": "서울특별시 종로구 창경궁로 88",
+        "menu": "빈대떡, 마약김밥",
+        "menu_en": "Bindaetteok, Mayak Gimbap"
       }
     ],
     "dinner": [
       {
-        "name": "단풍나무집 이태원점",
-        "name_en": "Maple Tree House Itaewon",
-        "lat": 37.5348,
-        "lng": 126.9939,
-        "address": "서울특별시 용산구 이태원로27가길 26",
-        "menu": "양념 갈비, 삼겹살",
-        "menu_en": "Marinated Ribs, Pork Belly"
+        "name": "왕비집 명동본점",
+        "name_en": "Wangbijib Myeongdong Main",
+        "lat": 37.5623,
+        "lng": 126.9845,
+        "address": "서울특별시 중구 명동8가길 26",
+        "menu": "돼지갈비, 소갈비",
+        "menu_en": "Pork Galbi, Beef Galbi"
       },
       {
-        "name": "빕스 제일제당센터점",
-        "name_en": "VIPS CJ Foodworld Store",
-        "lat": 37.563,
-        "lng": 127.003,
-        "address": "서울특별시 중구 마른내로 107",
-        "menu": "스테이크 & 샐러드바",
-        "menu_en": "Steak & Salad Bar"
+        "name": "홍콩반점0410",
+        "name_en": "Hong Kong Banjum 0410",
+        "lat": 37.5023,
+        "lng": 127.0267,
+        "address": "서울특별시 강남구 봉은사로2길 21",
+        "menu": "짜장면, 탕수육",
+        "menu_en": "Jjajangmyeon, Sweet and Sour Pork"
       },
       {
-        "name": "봉피양 방이점",
-        "name_en": "Bongpiyang Bangi",
-        "lat": 37.5088,
-        "lng": 127.1218,
-        "address": "서울특별시 송파구 양재대로71길 1-4",
-        "menu": "돼지갈비, 평양냉면",
-        "menu_en": "Grilled Pork Ribs, Pyongyang Naengmyeon"
+        "name": "단풍나무집 삼청점",
+        "name_en": "Maple Tree House Samcheong",
+        "lat": 37.5833,
+        "lng": 126.9818,
+        "address": "서울특별시 종로구 삼청로 130",
+        "menu": "프리미엄 구이",
+        "menu_en": "Premium Korean BBQ"
       }
     ]
   }
