@@ -9,7 +9,7 @@
         <div class="nav-links">
           <router-link to="/" class="nav-item">{{ currentLang === 'ko' ? '아이와 뭐하지' : 'Explore' }}</router-link>
           <router-link to="/food" class="nav-item">{{ currentLang === 'ko' ? '오늘 뭐먹지' : 'Eat' }}</router-link>
-          <router-link to="/board" class="nav-item">{{ currentLang === 'ko' ? '게시판' : 'Board' }}</router-link>
+          <router-link to="/board" class="nav-item">{{ currentLang === 'ko' ? '자유게시판' : 'Board' }}</router-link>
         </div>
         <div class="control-group">
           <button class="icon-btn" @click="toggleLang" :title="currentLang === 'ko' ? 'English' : '한국어'">
@@ -31,7 +31,7 @@
     </main>
     <footer class="apple-footer">
       <div class="footer-content">
-        <p>© 2026 HappyKids. Designed for happiness.</p>
+        <p>© 2026 Designed for infiniblue with gemini</p>
       </div>
     </footer>
   </div>

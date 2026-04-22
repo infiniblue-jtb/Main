@@ -2,12 +2,21 @@
   <div class="apple-page">
     <header class="hero-section">
       <h1 class="hero-title">{{ t.title }}</h1>
-      <p class="hero-subtitle">{{ t.desc }}</p>
     </header>
 
     <section class="content-section">
+      <!-- Comments Section -->
+      <div class="time-block">
+        <div class="section-header">
+          <h2 class="section-title">{{ t.commentTitle }}</h2>
+        </div>
+        <div class="glass-card comment-container">
+          <div id="disqus_thread"></div>
+        </div>
+      </div>
+
       <!-- Contact Form -->
-      <div class="glass-card contact-container">
+      <div class="glass-card contact-container mt-80">
         <h2 class="card-title">{{ t.contactTitle }}</h2>
         <form action="https://formspree.io/f/mrerkyqp" method="POST" class="apple-form">
           <div class="form-group">
@@ -26,16 +35,6 @@
           <button type="submit" class="apple-button">{{ t.submitBtn }}</button>
         </form>
       </div>
-
-      <!-- Comments Section -->
-      <div class="time-block mt-80">
-        <div class="section-header">
-          <h2 class="section-title">{{ t.commentTitle }}</h2>
-        </div>
-        <div class="glass-card comment-container">
-          <div id="disqus_thread"></div>
-        </div>
-      </div>
     </section>
   </div>
 </template>
@@ -45,7 +44,7 @@ import { ref, inject, computed, onMounted } from 'vue';
 
 const TRANSLATIONS = {
   ko: {
-    title: "커뮤니티", desc: "함께 나누는 즐거운 육아 정보",
+    title: "자유 게시판", desc: "",
     contactTitle: "🤝 제휴 및 장소 제보",
     commentTitle: "💬 자유 게시판",
     labelCompany: "이름 또는 업체명",
@@ -56,7 +55,7 @@ const TRANSLATIONS = {
     submitBtn: "보내기"
   },
   en: {
-    title: "Board", desc: "Share your happy parenting life",
+    title: "Open Board", desc: "",
     contactTitle: "🤝 Partnership & Report",
     commentTitle: "💬 Open Board",
     labelCompany: "Name or Company",
