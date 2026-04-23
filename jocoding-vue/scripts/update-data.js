@@ -19,17 +19,17 @@ async function updateData() {
     Generate a JSON object with the following EXACT structure:
     {
       "kids": {
-        "free": [ { "name": "1. 장소명", "name_en": "1. Place Name", "lat": 0.0, "lng": 0.0, "address": "", "price": "무료", "price_en": "Free" }, ... (6 items total, numbered 1 to 6) ],
-        "paid": [ { "name": "1. 장소명", "name_en": "1. Place Name", "lat": 0.0, "lng": 0.0, "address": "", "price": "", "price_en": "" }, ... (6 items total, numbered 1 to 6) ]
+        "free": [ { "name": "장소명", "name_en": "Place Name", "lat": 0.0, "lng": 0.0, "address": "", "price": "무료", "price_en": "Free" }, ... (6 items total) ],
+        "paid": [ { "name": "장소명", "name_en": "Place Name", "lat": 0.0, "lng": 0.0, "address": "", "price": "", "price_en": "" }, ... (6 items total) ]
       },
       "food": {
-        "breakfast": [ { "name": "1. 식당명", "name_en": "1. Restaurant Name", "lat": 0.0, "lng": 0.0, "address": "", "menu": "", "menu_en": "" }, ... (3 items total, numbered 1 to 3) ],
-        "lunch": [ { "name": "1. 식당명", "name_en": "1. Restaurant Name", "lat": 0.0, "lng": 0.0, "address": "", "menu": "", "menu_en": "" }, ... (3 items total, numbered 1 to 3) ],
-        "dinner": [ { "name": "1. 식당명", "name_en": "1. Restaurant Name", "lat": 0.0, "lng": 0.0, "address": "", "menu": "", "menu_en": "" }, ... (3 items total, numbered 1 to 3) ]
+        "breakfast": [ { "name": "식당명", "name_en": "Restaurant Name", "lat": 0.0, "lng": 0.0, "address": "", "menu": "", "menu_en": "" }, ... (3 items total) ],
+        "lunch": [ { "name": "식당명", "name_en": "Restaurant Name", "lat": 0.0, "lng": 0.0, "address": "", "menu": "", "menu_en": "" }, ... (3 items total) ],
+        "dinner": [ { "name": "식당명", "name_en": "Restaurant Name", "lat": 0.0, "lng": 0.0, "address": "", "menu": "", "menu_en": "" }, ... (3 items total) ]
       }
     }
     Recommendations should be for families with kids in Seoul/Gyeonggi area, Korea. 
-    IMPORTANT: Every name must start with a number like "1. ", "2. ", etc.
+    IMPORTANT: Do NOT include any numbering (like 1., 2.) in the names.
   `;
 
   try {

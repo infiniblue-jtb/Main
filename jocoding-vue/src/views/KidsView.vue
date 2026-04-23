@@ -58,7 +58,7 @@ const TRANSLATIONS = {
   },
   en: {
     title: 'Where to go with Kids?',
-    desc: 'Best places for kids around Seoul & Gyeonggi.',
+    desc: 'Best places for kids around Dongtan.',
     freeTitle: 'Free Admission',
     paidTitle: 'Paid Experience'
   }
