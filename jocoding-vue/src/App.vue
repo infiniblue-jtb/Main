@@ -2,12 +2,12 @@
   <div id="app-wrapper" :class="{ 'dark-mode': theme === 'dark' }">
     <nav class="apple-nav">
       <div class="nav-container">
-        <div class="logo-group">
+        <router-link to="/" class="logo-group clickable-logo">
           <span class="logo-icon">✨</span>
           <span class="logo-text">Happy Dongtan</span>
-        </div>
+        </router-link>
         <div class="nav-links">
-          <router-link to="/" class="nav-item">{{ currentLang === 'ko' ? '아이와 뭐하지' : 'Explore' }}</router-link>
+          <router-link to="/kids" class="nav-item">{{ currentLang === 'ko' ? '아이와 뭐하지' : 'Explore' }}</router-link>
           <router-link to="/food" class="nav-item">{{ currentLang === 'ko' ? '오늘 뭐먹지' : 'Eat' }}</router-link>
           <router-link to="/cafe" class="nav-item">{{ currentLang === 'ko' ? '키즈 가베' : 'Cafe' }}</router-link>
           <router-link to="/board" class="nav-item">{{ currentLang === 'ko' ? '자유게시판' : 'Board' }}</router-link>
@@ -140,6 +140,16 @@ body {
   gap: 8px;
   font-weight: 600;
   font-size: 1.1rem;
+}
+
+.clickable-logo {
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: opacity 0.3s;
+}
+
+.clickable-logo:hover {
+  opacity: 0.7;
 }
 
 .nav-links {
