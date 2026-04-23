@@ -24,6 +24,7 @@
               <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>
               <p class="address">{{ item.address }}</p>
               <p class="menu-desc">{{ currentLang === 'ko' ? item.menu : item.menu_en }}</p>
+              <p class="parking-info">🚗 {{ item.parking }}</p>
             </div>
           </div>
         </div>
@@ -41,6 +42,7 @@
               <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>
               <p class="address">{{ item.address }}</p>
               <p class="menu-desc">{{ currentLang === 'ko' ? item.menu : item.menu_en }}</p>
+              <p class="parking-info">🚗 {{ item.parking }}</p>
             </div>
           </div>
         </div>
@@ -58,6 +60,7 @@
               <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>
               <p class="address">{{ item.address }}</p>
               <p class="menu-desc">{{ currentLang === 'ko' ? item.menu : item.menu_en }}</p>
+              <p class="parking-info">🚗 {{ item.parking }}</p>
             </div>
           </div>
         </div>
@@ -194,6 +197,7 @@ export default {
 .card-tag.evening { color: #34c759; }
 .apple-card h3 { font-size: 1.4rem; font-weight: 600; margin: 0 0 8px 0; }
 .address { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; }
-.menu-desc { font-size: 0.95rem; font-weight: 400; line-height: 1.4; opacity: 0.9; }
+.menu-desc { font-size: 0.95rem; font-weight: 400; line-height: 1.4; opacity: 0.9; margin-bottom: 8px; }
+.parking-info { font-size: 0.85rem; color: var(--accent); font-weight: 500; }
 @media (max-width: 734px) { .hero-title { font-size: 2.5rem; } .hero-subtitle { font-size: 1.2rem; } .bento-grid { grid-template-columns: 1fr; } }
 </style>

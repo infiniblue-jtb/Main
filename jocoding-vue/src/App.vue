@@ -9,6 +9,7 @@
         <div class="nav-links">
           <router-link to="/" class="nav-item">{{ currentLang === 'ko' ? '아이와 뭐하지' : 'Explore' }}</router-link>
           <router-link to="/food" class="nav-item">{{ currentLang === 'ko' ? '오늘 뭐먹지' : 'Eat' }}</router-link>
+          <router-link to="/cafe" class="nav-item">{{ currentLang === 'ko' ? '키즈 가베' : 'Cafe' }}</router-link>
           <router-link to="/board" class="nav-item">{{ currentLang === 'ko' ? '자유게시판' : 'Board' }}</router-link>
         </div>
         <div class="control-group">

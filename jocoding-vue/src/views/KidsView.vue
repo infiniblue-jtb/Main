@@ -22,6 +22,7 @@
             <h3>{{ currentLang === 'ko' ? spot.name : spot.name_en }}</h3>
             <p class="address">{{ spot.address }}</p>
             <p class="price">{{ currentLang === 'ko' ? spot.price : spot.price_en }}</p>
+            <p class="parking-info">🚗 {{ spot.parking }}</p>
           </div>
         </div>
       </div>
@@ -36,6 +37,7 @@
             <h3>{{ currentLang === 'ko' ? spot.name : spot.name_en }}</h3>
             <p class="address">{{ spot.address }}</p>
             <p class="price">{{ currentLang === 'ko' ? spot.price : spot.price_en }}</p>
+            <p class="parking-info">🚗 {{ spot.parking }}</p>
           </div>
         </div>
       </div>
@@ -255,6 +257,13 @@ export default {
 .price {
   font-size: 0.9rem;
   font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.parking-info {
+  font-size: 0.85rem;
+  color: var(--accent);
+  font-weight: 500;
 }
 
 @media (max-width: 734px) {

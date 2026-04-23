@@ -1,37 +1,45 @@
 {
   "kids": {
     "free": [
-      { "name": "동탄호수공원", "name_en": "Dongtan Lake Park", "lat": 37.1783, "lng": 127.1012, "address": "경기도 화성시 동탄대로 181", "price": "무료", "price_en": "Free" },
-      { "name": "동탄여울공원 물놀이장", "name_en": "Dongtan Yeoul Park", "lat": 37.1994, "lng": 127.0864, "address": "경기도 화성시 오산동 1060", "price": "무료", "price_en": "Free" },
-      { "name": "동탄센트럴파크", "name_en": "Dongtan Central Park", "lat": 37.2038, "lng": 127.0691, "address": "경기도 화성시 동탄지성로 92", "price": "무료", "price_en": "Free" },
-      { "name": "반석산 근린공원", "name_en": "Banseoksan Park", "lat": 37.2015, "lng": 127.0785, "address": "경기도 화성시 노작로 226-26", "price": "무료", "price_en": "Free" },
-      { "name": "노작홍사용문학관", "name_en": "Nojak Literature Center", "lat": 37.2012, "lng": 127.0768, "address": "경기도 화성시 노작로 206", "price": "무료", "price_en": "Free" },
-      { "name": "화성시 미디어센터", "name_en": "Hwaseong Media Center", "lat": 37.2042, "lng": 127.0792, "address": "경기도 화성시 노작로 158", "price": "무료", "price_en": "Free" }
+      { "name": "동탄호수공원", "name_en": "Dongtan Lake Park", "lat": 37.1783, "lng": 127.1012, "address": "경기도 화성시 동탄대로 181", "price": "무료", "price_en": "Free", "parking": "지하주차장 및 공영주차장 이용" },
+      { "name": "동탄여울공원 물놀이장", "name_en": "Dongtan Yeoul Park", "lat": 37.1994, "lng": 127.0864, "address": "경기도 화성시 오산동 1060", "price": "무료", "price_en": "Free", "parking": "공원 내 주차장 이용 가능" },
+      { "name": "동탄센트럴파크", "name_en": "Dongtan Central Park", "lat": 37.2038, "lng": 127.0691, "address": "경기도 화성시 동탄지성로 92", "price": "무료", "price_en": "Free", "parking": "공영주차장 1시간 무료" },
+      { "name": "반석산 근린공원", "name_en": "Banseoksan Park", "lat": 37.2015, "lng": 127.0785, "address": "경기도 화성시 노작로 226-26", "price": "무료", "price_en": "Free", "parking": "공원 인근 노상 주차장" },
+      { "name": "노작홍사용문학관", "name_en": "Nojak Literature Center", "lat": 37.2012, "lng": 127.0768, "address": "경기도 화성시 노작로 206", "price": "무료", "price_en": "Free", "parking": "자체 주차장 협소, 인근 이용" },
+      { "name": "화성시 미디어센터", "name_en": "Hwaseong Media Center", "lat": 37.2042, "lng": 127.0792, "address": "경기도 화성시 노작로 158", "price": "무료", "price_en": "Free", "parking": "지하 주차장 이용 가능" }
     ],
     "paid": [
-      { "name": "쥬라리움 동탄점", "name_en": "Zooroarium Dongtan", "lat": 37.2215, "lng": 127.0754, "address": "경기도 화성시 동탄대로 14길 5", "price": "대인 15,000원", "price_en": "Adult 15,000 KRW" },
-      { "name": "바운스 트램폴린 파크", "name_en": "Vaunce Trampoline Park", "lat": 37.1775, "lng": 127.1065, "address": "경기도 화성시 동탄대로 181 레이크꼬모", "price": "2시간 20,000원", "price_en": "2h 20,000 KRW" },
-      { "name": "아르티스 테마파크", "name_en": "Artis Theme Park", "lat": 37.2035, "lng": 127.0985, "address": "경기도 화성시 동탄대로 537", "price": "성인 18,000원", "price_en": "Adult 18,000 KRW" },
-      { "name": "롯데백화점 동탄점 디아이레", "name_en": "Lotte Dept. D.Aire", "lat": 37.2005, "lng": 127.0965, "address": "경기도 화성시 동탄역로 160", "price": "전시별 상이", "price_en": "Varies" },
-      { "name": "히어로키즈파크 동탄점", "name_en": "Hero Kids Park", "lat": 37.2085, "lng": 127.0825, "address": "경기도 화성시 동탄반석로 172", "price": "종일권 20,000원", "price_en": "All-day 20,000 KRW" },
-      { "name": "헬로방방 동탄카림점", "name_en": "Hello Bangbang", "lat": 37.2012, "lng": 127.1045, "address": "경기도 화성시 동탄대로시범길 134", "price": "2시간 15,000원", "price_en": "2h 15,000 KRW" }
+      { "name": "쥬라리움 동탄점", "name_en": "Zooroarium Dongtan", "lat": 37.2215, "lng": 127.0754, "address": "경기도 화성시 동탄대로 14길 5", "price": "대인 15,000원", "price_en": "Adult 15,000 KRW", "parking": "건물 내 무료 주차" },
+      { "name": "바운스 트램폴린 파크", "name_en": "Vaunce Trampoline Park", "lat": 37.1775, "lng": 127.1065, "address": "경기도 화성시 동탄대로 181 레이크꼬모", "price": "2시간 20,000원", "price_en": "2h 20,000 KRW", "parking": "레이크꼬모 지하주차장" },
+      { "name": "아르티스 테마파크", "name_en": "Artis Theme Park", "lat": 37.2035, "lng": 127.0985, "address": "경기도 화성시 동탄대로 537", "price": "성인 18,000원", "price_en": "Adult 18,000 KRW", "parking": "라스플로레스 지하주차장" },
+      { "name": "롯데백화점 동탄점 디아이레", "name_en": "Lotte Dept. D.Aire", "lat": 37.2005, "lng": 127.0965, "address": "경기도 화성시 동탄역로 160", "price": "전시별 상이", "price_en": "Varies", "parking": "백화점 내 주차 (영수증 합산)" },
+      { "name": "히어로키즈파크 동탄점", "name_en": "Hero Kids Park", "lat": 37.2085, "lng": 127.0825, "address": "경기도 화성시 동탄반석로 172", "price": "종일권 20,000원", "price_en": "All-day 20,000 KRW", "parking": "동탄파라곤 지하주차장" },
+      { "name": "헬로방방 동탄카림점", "name_en": "Hello Bangbang", "lat": 37.2012, "lng": 127.1045, "address": "경기도 화성시 동탄대로시범길 134", "price": "2시간 15,000원", "price_en": "2h 15,000 KRW", "parking": "카림애비뉴 상가 주차장" }
     ]
   },
   "food": {
     "breakfast": [
-      { "name": "파리바게뜨 동탄역점", "name_en": "Paris Baguette", "lat": 37.2015, "lng": 127.0945, "address": "경기도 화성시 동탄오산로 82", "menu": "샌드위치, 커피", "menu_en": "Sandwich" },
-      { "name": "본죽 동탄센트럴파크점", "name_en": "Bonjuk", "lat": 37.2045, "lng": 127.0685, "address": "경기도 화성시 동탄지성로 102", "menu": "야채죽, 전복죽", "menu_en": "Porridge" },
-      { "name": "스타벅스 동탄역점", "name_en": "Starbucks", "lat": 37.2008, "lng": 127.0955, "address": "경기도 화성시 동탄역로 150", "menu": "샌드위치, 커피", "menu_en": "Coffee" }
+      { "name": "파리바게뜨 동탄역점", "name_en": "Paris Baguette", "lat": 37.2015, "lng": 127.0945, "address": "경기도 화성시 동탄오산로 82", "menu": "샌드위치, 커피", "menu_en": "Sandwich", "parking": "지하주차장 지원" },
+      { "name": "본죽 동탄센트럴파크점", "name_en": "Bonjuk", "lat": 37.2045, "lng": 127.0685, "address": "경기도 화성시 동탄지성로 102", "menu": "야채죽, 전복죽", "menu_en": "Porridge", "parking": "인근 노상 공영주차장" },
+      { "name": "스타벅스 동탄역점", "name_en": "Starbucks", "lat": 37.2008, "lng": 127.0955, "address": "경기도 화성시 동탄역로 150", "menu": "샌드위치, 커피", "menu_en": "Coffee", "parking": "백화점 주차장 이용 가능" }
     ],
     "lunch": [
-      { "name": "농우본갈비 동탄점", "name_en": "Nongwoo Bon Galbi", "lat": 37.2025, "lng": 127.0782, "address": "경기도 화성시 노작로 147", "menu": "양념갈비 정식", "menu_en": "Galbi" },
-      { "name": "포레스트 동탄본점", "name_en": "Pho Rest", "lat": 37.2052, "lng": 127.0675, "address": "경기도 화성시 동탄공원로2길 33-9", "menu": "쌀국수", "menu_en": "Pho" },
-      { "name": "스시코호시", "name_en": "Sushi Kohoshi", "lat": 37.2028, "lng": 127.0805, "address": "경기도 화성시 노작로 161", "menu": "런치 오마카세", "menu_en": "Sushi" }
+      { "name": "농우본갈비 동탄점", "name_en": "Nongwoo Bon Galbi", "lat": 37.2025, "lng": 127.0782, "address": "경기도 화성시 노작로 147", "menu": "양념갈비 정식", "menu_en": "Galbi", "parking": "자체 주차장 완비" },
+      { "name": "포레스트 동탄본점", "name_en": "Pho Rest", "lat": 37.2052, "lng": 127.0675, "address": "경기도 화성시 동탄공원로2길 33-9", "menu": "쌀국수", "menu_en": "Pho", "parking": "센트럴파크 공영주차장" },
+      { "name": "스시코호시", "name_en": "Sushi Kohoshi", "lat": 37.2028, "lng": 127.0805, "address": "경기도 화성시 노작로 161", "menu": "런치 오마카세", "menu_en": "Sushi", "parking": "푸르지오 시티 지하주차장" }
     ],
     "dinner": [
-      { "name": "동탄 곤드레밥집", "name_en": "Gondre Rice House", "lat": 37.1852, "lng": 127.1085, "address": "경기도 화성시 동탄대로 14길 10", "menu": "곤드레 정식", "menu_en": "Gondre Rice" },
-      { "name": "잭슨피자 동탄점", "name_en": "Jackson Pizza", "lat": 37.1785, "lng": 127.1025, "address": "경기도 화성시 동탄대로 181 레이크꼬모", "menu": "슈퍼잭슨 피자", "menu_en": "Pizza" },
-      { "name": "삼다도횟집", "name_en": "Samdado Sashimi", "lat": 37.2032, "lng": 127.0795, "address": "경기도 화성시 노작로 153", "menu": "모듬회", "menu_en": "Sashimi" }
+      { "name": "동탄 곤드레밥집", "name_en": "Gondre Rice House", "lat": 37.1852, "lng": 127.1085, "address": "경기도 화성시 동탄대로 14길 10", "menu": "곤드레 정식", "menu_en": "Gondre Rice", "parking": "전용 주차장 보유" },
+      { "name": "잭슨피자 동탄점", "name_en": "Jackson Pizza", "lat": 37.1785, "lng": 127.1025, "address": "경기도 화성시 동탄대로 181 레이크꼬모", "menu": "슈퍼잭슨 피자", "menu_en": "Pizza", "parking": "상가 지하주차장" },
+      { "name": "삼다도횟집", "name_en": "Samdado Sashimi", "lat": 37.2032, "lng": 127.0795, "address": "경기도 화성시 노작로 153", "menu": "모듬회", "menu_en": "Sashimi", "parking": "인근 공영주차장 추천" }
     ]
-  }
+  },
+  "cafe": [
+    { "name": "테라로사 동탄호수점", "name_en": "Terarosa", "lat": 37.1778, "lng": 127.1022, "address": "경기도 화성시 동탄대로 181 레이크꼬모", "feature": "대형 공간, 호수 뷰", "feature_en": "Large space, Lake view", "parking": "레이크꼬모 지하주차장" },
+    { "name": "어반리st", "name_en": "Urbanri st", "lat": 37.2345, "lng": 127.1055, "address": "경기도 화성시 장지로 60-12", "feature": "노키즈존 분리, 키즈존 운영", "feature_en": "Separate Kids zone", "parking": "전용 넓은 주차장" },
+    { "name": "포레스트베이", "name_en": "Forest Bay", "lat": 37.1822, "lng": 127.0988, "address": "경기도 화성시 동탄순환대로 3길 28", "feature": "정원 테라스, 자연 친화적", "feature_en": "Garden terrace", "parking": "카페 전용 주차공간" },
+    { "name": "모여라키즈카페", "name_en": "Moyora Kids Cafe", "lat": 37.2112, "lng": 127.0855, "address": "경기도 화성시 동탄지성로 11", "feature": "베이비존 구비, 안전 위주", "feature_en": "Baby zone available", "parking": "프라자 건물 지하주차" },
+    { "name": "스타스테이", "name_en": "Star Stay", "lat": 37.1955, "lng": 127.1125, "address": "경기도 화성시 동탄대로 14길 10", "feature": "다양한 테마 룸", "feature_en": "Themed rooms", "parking": "건물 내 주차 가능" },
+    { "name": "쁘띠몽드 동탄역점", "name_en": "Petit Monde", "lat": 37.2022, "lng": 127.0988, "address": "경기도 화성시 동탄역로 124", "feature": "프리미엄 키즈카페", "feature_en": "Premium Kids Cafe", "parking": "윤정프라자 지하주차" }
+  ]
 }
