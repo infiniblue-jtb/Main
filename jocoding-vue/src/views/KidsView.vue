@@ -1,7 +1,7 @@
 <template>
   <div class="apple-page">
     <header class="hero-section">
-      <h1 class="hero-title clickable" @click="searchOnNaver(t.title)">{{ t.title }}</h1>
+      <h1 class="hero-title">{{ t.title }}</h1>
       <p class="hero-subtitle">{{ t.desc }}</p>
     </header>
 
