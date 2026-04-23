@@ -1,176 +1,37 @@
 {
-  "free_places": [
-    {
-      "name": "동탄호수공원",
-      "name_en": "Dongtan Lake Park",
-      "lat": 37.1783,
-      "lng": 127.1012,
-      "address": "경기도 화성시 동탄대로 181",
-      "price": "무료",
-      "price_en": "Free"
-    },
-    {
-      "name": "동탄여울공원 (물놀이장)",
-      "name_en": "Dongtan Yeoul Park",
-      "lat": 37.1994,
-      "lng": 127.0864,
-      "address": "경기도 화성시 오산동 1060",
-      "price": "무료",
-      "price_en": "Free"
-    },
-    {
-      "name": "동탄센트럴파크",
-      "name_en": "Dongtan Central Park",
-      "lat": 37.2038,
-      "lng": 127.0691,
-      "address": "경기도 화성시 동탄지성로 92",
-      "price": "무료",
-      "price_en": "Free"
-    },
-    {
-      "name": "반석산 근린공원",
-      "name_en": "Banseoksan Neighborhood Park",
-      "lat": 37.2015,
-      "lng": 127.0785,
-      "address": "경기도 화성시 노작로 226-26",
-      "price": "무료",
-      "price_en": "Free"
-    },
-    {
-      "name": "노작홍사용문학관",
-      "name_en": "Nojak Literature Center",
-      "lat": 37.2012,
-      "lng": 127.0768,
-      "address": "경기도 화성시 노작로 206",
-      "price": "무료",
-      "price_en": "Free"
-    }
-  ],
-  "paid_places": [
-    {
-      "name": "롯데백화점 동탄점 (디아이레)",
-      "name_en": "Lotte Dept. Dongtan (D.Aire)",
-      "lat": 37.2005,
-      "lng": 127.0965,
-      "address": "경기도 화성시 동탄역로 160",
-      "price": "전시별 상이",
-      "price_en": "Varies by exhibit"
-    },
-    {
-      "name": "쥬라리움 동탄점",
-      "name_en": "Zooroarium Dongtan",
-      "lat": 37.2215,
-      "lng": 127.0754,
-      "address": "경기도 화성시 동탄대로 14길 5",
-      "price": "대인 15,000원",
-      "price_en": "Adult 15,000 KRW"
-    },
-    {
-      "name": "바운스 트램폴린 파크 동탄",
-      "name_en": "Vaunce Trampoline Park",
-      "lat": 37.1775,
-      "lng": 127.1065,
-      "address": "경기도 화성시 동탄대로 181 레이크꼬모",
-      "price": "2시간 20,000원",
-      "price_en": "2h 20,000 KRW"
-    },
-    {
-      "name": "아르티스 테마파크",
-      "name_en": "Artis Theme Park",
-      "lat": 37.2035,
-      "lng": 127.0985,
-      "address": "경기도 화성시 동탄대로 537",
-      "price": "성인 18,000원",
-      "price_en": "Adult 18,000 KRW"
-    }
-  ],
-  "meals": {
+  "kids": {
+    "free": [
+      { "name": "1. 동탄호수공원", "name_en": "1. Dongtan Lake Park", "lat": 37.1783, "lng": 127.1012, "address": "경기도 화성시 동탄대로 181", "price": "무료", "price_en": "Free" },
+      { "name": "2. 동탄여울공원 물놀이장", "name_en": "2. Dongtan Yeoul Park", "lat": 37.1994, "lng": 127.0864, "address": "경기도 화성시 오산동 1060", "price": "무료", "price_en": "Free" },
+      { "name": "3. 동탄센트럴파크", "name_en": "3. Dongtan Central Park", "lat": 37.2038, "lng": 127.0691, "address": "경기도 화성시 동탄지성로 92", "price": "무료", "price_en": "Free" },
+      { "name": "4. 반석산 근린공원", "name_en": "4. Banseoksan Park", "lat": 37.2015, "lng": 127.0785, "address": "경기도 화성시 노작로 226-26", "price": "무료", "price_en": "Free" },
+      { "name": "5. 노작홍사용문학관", "name_en": "5. Nojak Literature Center", "lat": 37.2012, "lng": 127.0768, "address": "경기도 화성시 노작로 206", "price": "무료", "price_en": "Free" },
+      { "name": "6. 화성시 미디어센터", "name_en": "6. Hwaseong Media Center", "lat": 37.2042, "lng": 127.0792, "address": "경기도 화성시 노작로 158", "price": "무료", "price_en": "Free" }
+    ],
+    "paid": [
+      { "name": "1. 쥬라리움 동탄점", "name_en": "1. Zooroarium Dongtan", "lat": 37.2215, "lng": 127.0754, "address": "경기도 화성시 동탄대로 14길 5", "price": "대인 15,000원", "price_en": "Adult 15,000 KRW" },
+      { "name": "2. 바운스 트램폴린 파크", "name_en": "2. Vaunce Trampoline Park", "lat": 37.1775, "lng": 127.1065, "address": "경기도 화성시 동탄대로 181 레이크꼬모", "price": "2시간 20,000원", "price_en": "2h 20,000 KRW" },
+      { "name": "3. 아르티스 테마파크", "name_en": "3. Artis Theme Park", "lat": 37.2035, "lng": 127.0985, "address": "경기도 화성시 동탄대로 537", "price": "성인 18,000원", "price_en": "Adult 18,000 KRW" },
+      { "name": "4. 롯데백화점 동탄점 디아이레", "name_en": "4. Lotte Dept. D.Aire", "lat": 37.2005, "lng": 127.0965, "address": "경기도 화성시 동탄역로 160", "price": "전시별 상이", "price_en": "Varies" },
+      { "name": "5. 히어로키즈파크 동탄점", "name_en": "5. Hero Kids Park", "lat": 37.2085, "lng": 127.0825, "address": "경기도 화성시 동탄반석로 172", "price": "종일권 20,000원", "price_en": "All-day 20,000 KRW" },
+      { "name": "6. 헬로방방 동탄카림점", "name_en": "6. Hello Bangbang", "lat": 37.2012, "lng": 127.1045, "address": "경기도 화성시 동탄대로시범길 134", "price": "2시간 15,000원", "price_en": "2h 15,000 KRW" }
+    ]
+  },
+  "food": {
     "breakfast": [
-      {
-        "name": "파리바게뜨 동탄역점",
-        "name_en": "Paris Baguette Dongtan Stn.",
-        "lat": 37.2015,
-        "lng": 127.0945,
-        "address": "경기도 화성시 동탄오산로 82",
-        "menu": "샌드위치, 커피",
-        "menu_en": "Sandwich, Coffee"
-      },
-      {
-        "name": "본죽 동탄센트럴파크점",
-        "name_en": "Bonjuk Dongtan Central Park",
-        "lat": 37.2045,
-        "lng": 127.0685,
-        "address": "경기도 화성시 동탄지성로 102",
-        "menu": "야채죽, 전복죽",
-        "menu_en": "Veggie Porridge"
-      },
-      {
-        "name": "스타벅스 동탄역점",
-        "name_en": "Starbucks Dongtan Stn.",
-        "lat": 37.2008,
-        "lng": 127.0955,
-        "address": "경기도 화성시 동탄역로 150",
-        "menu": "샌드위치, 커피",
-        "menu_en": "Sandwich, Coffee"
-      }
+      { "name": "1. 파리바게뜨 동탄역점", "name_en": "1. Paris Baguette", "lat": 37.2015, "lng": 127.0945, "address": "경기도 화성시 동탄오산로 82", "menu": "샌드위치, 커피", "menu_en": "Sandwich" },
+      { "name": "2. 본죽 동탄센트럴파크점", "name_en": "2. Bonjuk", "lat": 37.2045, "lng": 127.0685, "address": "경기도 화성시 동탄지성로 102", "menu": "야채죽, 전복죽", "menu_en": "Porridge" },
+      { "name": "3. 스타벅스 동탄역점", "name_en": "3. Starbucks", "lat": 37.2008, "lng": 127.0955, "address": "경기도 화성시 동탄역로 150", "menu": "샌드위치, 커피", "menu_en": "Coffee" }
     ],
     "lunch": [
-      {
-        "name": "농우본갈비 동탄점",
-        "name_en": "Nongwoo Bon Galbi",
-        "lat": 37.2025,
-        "lng": 127.0782,
-        "address": "경기도 화성시 노작로 147",
-        "menu": "양념갈비 정식",
-        "menu_en": "Marinated Galbi"
-      },
-      {
-        "name": "포레스트 동탄본점",
-        "name_en": "Pho Rest (Rice Noodle)",
-        "lat": 37.2052,
-        "lng": 127.0675,
-        "address": "경기도 화성시 동탄공원로2길 33-9",
-        "menu": "쌀국수",
-        "menu_en": "Pho / Rice Noodle"
-      },
-      {
-        "name": "스시코호시",
-        "name_en": "Sushi Kohoshi",
-        "lat": 37.2028,
-        "lng": 127.0805,
-        "address": "경기도 화성시 노작로 161",
-        "menu": "런치 오마카세",
-        "menu_en": "Lunch Omakase"
-      }
+      { "name": "1. 농우본갈비 동탄점", "name_en": "1. Nongwoo Bon Galbi", "lat": 37.2025, "lng": 127.0782, "address": "경기도 화성시 노작로 147", "menu": "양념갈비 정식", "menu_en": "Galbi" },
+      { "name": "2. 포레스트 동탄본점", "name_en": "2. Pho Rest", "lat": 37.2052, "lng": 127.0675, "address": "경기도 화성시 동탄공원로2길 33-9", "menu": "쌀국수", "menu_en": "Pho" },
+      { "name": "3. 스시코호시", "name_en": "3. Sushi Kohoshi", "lat": 37.2028, "lng": 127.0805, "address": "경기도 화성시 노작로 161", "menu": "런치 오마카세", "menu_en": "Sushi" }
     ],
     "dinner": [
-      {
-        "name": "동탄 곤드레밥집",
-        "name_en": "Gondre Rice House",
-        "lat": 37.1852,
-        "lng": 127.1085,
-        "address": "경기도 화성시 동탄대로 14길 10",
-        "menu": "곤드레 정식",
-        "menu_en": "Gondre Rice Set"
-      },
-      {
-        "name": "잭슨피자 동탄점",
-        "name_en": "Jackson Pizza Dongtan",
-        "lat": 37.1785,
-        "lng": 127.1025,
-        "address": "경기도 화성시 동탄대로 181 레이크꼬모",
-        "menu": "슈퍼잭슨 피자",
-        "menu_en": "Super Jackson Pizza"
-      },
-      {
-        "name": "삼다도횟집",
-        "name_en": "Samdado Sashimi",
-        "lat": 37.2032,
-        "lng": 127.0795,
-        "address": "경기도 화성시 노작로 153",
-        "menu": "모듬회",
-        "menu_en": "Sashimi Platter"
-      }
+      { "name": "1. 동탄 곤드레밥집", "name_en": "1. Gondre Rice House", "lat": 37.1852, "lng": 127.1085, "address": "경기도 화성시 동탄대로 14길 10", "menu": "곤드레 정식", "menu_en": "Gondre Rice" },
+      { "name": "2. 잭슨피자 동탄점", "name_en": "2. Jackson Pizza", "lat": 37.1785, "lng": 127.1025, "address": "경기도 화성시 동탄대로 181 레이크꼬모", "menu": "슈퍼잭슨 피자", "menu_en": "Pizza" },
+      { "name": "3. 삼다도횟집", "name_en": "3. Samdado Sashimi", "lat": 37.2032, "lng": 127.0795, "address": "경기도 화성시 노작로 153", "menu": "모듬회", "menu_en": "Sashimi" }
     ]
   }
 }
