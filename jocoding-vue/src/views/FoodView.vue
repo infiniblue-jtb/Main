@@ -76,9 +76,9 @@ const TRANSLATIONS = {
   ko: {
     title: '오늘 뭐 먹지?',
     desc: '아이와 함께 가기 좋은 식당들을 시간대별로 추천해드려요.',
-    breakfastTitle: '아침',
-    lunchTitle: '점심',
-    dinnerTitle: '저녁',
+    breakfastTitle: '아침식사',
+    lunchTitle: '점심식사',
+    dinnerTitle: '저녁식사',
     mapTitle: '주변 식당 지도'
   },
   en: {

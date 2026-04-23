@@ -19,16 +19,17 @@ async function updateData() {
     Generate a JSON object with the following EXACT structure:
     {
       "kids": {
-        "free": [ { "name": "", "name_en": "", "lat": 0.0, "lng": 0.0, "address": "", "price": "", "price_en": "" }, ... (10 items) ],
-        "paid": [ { "name": "", "name_en": "", "lat": 0.0, "lng": 0.0, "address": "", "price": "", "price_en": "" }, ... (10 items) ]
+        "free": [ { "name": "1. 장소명", "name_en": "1. Place Name", "lat": 0.0, "lng": 0.0, "address": "", "price": "무료", "price_en": "Free" }, ... (6 items total, numbered 1 to 6) ],
+        "paid": [ { "name": "1. 장소명", "name_en": "1. Place Name", "lat": 0.0, "lng": 0.0, "address": "", "price": "", "price_en": "" }, ... (6 items total, numbered 1 to 6) ]
       },
       "food": {
-        "breakfast": [ { "name": "", "name_en": "", "lat": 0.0, "lng": 0.0, "address": "", "menu": "", "menu_en": "" }, ... (3 items) ],
-        "lunch": [ { "name": "", "name_en": "", "lat": 0.0, "lng": 0.0, "address": "", "menu": "", "menu_en": "" }, ... (3 items) ],
-        "dinner": [ { "name": "", "name_en": "", "lat": 0.0, "lng": 0.0, "address": "", "menu": "", "menu_en": "" }, ... (3 items) ]
+        "breakfast": [ { "name": "1. 식당명", "name_en": "1. Restaurant Name", "lat": 0.0, "lng": 0.0, "address": "", "menu": "", "menu_en": "" }, ... (3 items total, numbered 1 to 3) ],
+        "lunch": [ { "name": "1. 식당명", "name_en": "1. Restaurant Name", "lat": 0.0, "lng": 0.0, "address": "", "menu": "", "menu_en": "" }, ... (3 items total, numbered 1 to 3) ],
+        "dinner": [ { "name": "1. 식당명", "name_en": "1. Restaurant Name", "lat": 0.0, "lng": 0.0, "address": "", "menu": "", "menu_en": "" }, ... (3 items total, numbered 1 to 3) ]
       }
     }
-    Recommendations should be for families with kids in Seoul/Gyeonggi area, Korea.
+    Recommendations should be for families with kids in Seoul/Gyeonggi area, Korea. 
+    IMPORTANT: Every name must start with a number like "1. ", "2. ", etc.
   `;
 
   try {
