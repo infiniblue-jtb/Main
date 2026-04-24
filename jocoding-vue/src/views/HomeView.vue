@@ -6,28 +6,9 @@
         <h1 class="main-title">Happy Dongtan</h1>
         <p class="main-subtitle">아이와 함께하는 동탄 생활의 모든 것</p>
         <div class="cta-group">
-          <router-link to="/kids" class="apple-button primary">아이와 뭐하지</router-link>
-          <router-link to="/food" class="apple-button secondary">오늘 뭐먹지</router-link>
-        </div>
-      </div>
-    </section>
-
-    <section class="feature-section">
-      <div class="feature-grid">
-        <div class="feature-card" @click="$router.push('/kids')">
-          <div class="card-icon">🎠</div>
-          <h3>장소 추천</h3>
-          <p>무료 공원부터 키즈 카페까지</p>
-        </div>
-        <div class="feature-card" @click="$router.push('/food')">
-          <div class="card-icon">🍱</div>
-          <h3>맛집 정보</h3>
-          <p>아이 식기 완비, 주차 편한 곳</p>
-        </div>
-        <div class="feature-card" @click="$router.push('/cafe')">
-          <div class="card-icon">☕</div>
-          <h3>키즈 가베</h3>
-          <p>엄마 아빠의 여유로운 티타임</p>
+          <router-link to="/kids" class="apple-button primary">🎠 아이와 뭐하지</router-link>
+          <router-link to="/food" class="apple-button secondary">🍱 오늘 뭐먹지</router-link>
+          <router-link to="/cafe" class="apple-button secondary">☕ 키즈 가베</router-link>
         </div>
       </div>
     </section>
@@ -47,7 +28,7 @@ export default {
 
 .hero-full {
   position: relative;
-  height: 90vh;
+  height: 100vh;
   min-height: 600px;
   background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'); /* 고퀄리티 자연 이미지 */
   background-size: cover;
@@ -126,49 +107,6 @@ export default {
   transform: scale(1.05);
 }
 
-.feature-section {
-  max-width: 1024px;
-  margin: -100px auto 100px;
-  position: relative;
-  z-index: 2;
-  padding: 0 22px;
-}
-
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
-}
-
-.feature-card {
-  background: var(--card-bg);
-  backdrop-filter: blur(20px);
-  padding: 40px;
-  border-radius: 28px;
-  text-align: center;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-  transition: transform 0.3s;
-  cursor: pointer;
-}
-
-.feature-card:hover {
-  transform: translateY(-10px);
-}
-
-.card-icon {
-  font-size: 3rem;
-  margin-bottom: 20px;
-}
-
-.feature-card h3 {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
-}
-
-.feature-card p {
-  color: var(--text-secondary);
-}
-
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
@@ -177,7 +115,8 @@ export default {
 @media (max-width: 734px) {
   .main-title { font-size: 3rem; }
   .main-subtitle { font-size: 1.2rem; }
-  .feature-grid { grid-template-columns: 1fr; }
-  .hero-full { height: 70vh; }
+  .cta-group { flex-direction: column; align-items: center; }
+  .apple-button { width: 100%; max-width: 280px; }
+  .hero-full { height: 100vh; }
 }
 </style>
