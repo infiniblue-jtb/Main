@@ -77,6 +77,28 @@ export default {
         if(!container) return;
         const options = { center: new kakao.maps.LatLng(37.197, 127.085), level: 7 };
         map.value = new kakao.maps.Map(container, options);
+
+        // 내 위치 가져오기
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition((position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const locPosition = new kakao.maps.LatLng(lat, lng);
+            
+            // 내 위치 마커 표시
+            const imageSize = new kakao.maps.Size(24, 24);
+            const markerImage = new kakao.maps.MarkerImage('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png', imageSize);
+            new kakao.maps.Marker({
+              map: map.value,
+              position: locPosition,
+              image: markerImage,
+              title: "내 위치"
+            });
+            
+            map.value.setCenter(locPosition);
+          });
+        }
+
         renderMarkers();
       });
     };
