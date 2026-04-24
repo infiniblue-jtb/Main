@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import KidsView from '../views/KidsView.vue'
 import FoodView from '../views/FoodView.vue'
 import CafeView from '../views/CafeView.vue'
+import HealthView from '../views/HealthView.vue'
 import BoardView from '../views/BoardView.vue'
 
 const routes = [
@@ -10,6 +11,7 @@ const routes = [
   { path: '/kids', name: 'Kids', component: KidsView },
   { path: '/food', name: 'Food', component: FoodView },
   { path: '/cafe', name: 'Cafe', component: CafeView },
+  { path: '/health', name: 'Health', component: HealthView },
   { path: '/board', name: 'Board', component: BoardView }
 ]
 

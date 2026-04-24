@@ -9,6 +9,7 @@
           <router-link to="/kids" class="apple-button primary">🎠 아이와 뭐하지</router-link>
           <router-link to="/food" class="apple-button secondary">🍱 오늘 뭐먹지</router-link>
           <router-link to="/cafe" class="apple-button secondary">☕ 키즈 가베</router-link>
+          <router-link to="/health" class="apple-button secondary">🏥 병원/약국</router-link>
         </div>
       </div>
     </section>
