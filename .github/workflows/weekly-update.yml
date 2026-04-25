@@ -29,8 +29,17 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          cd jocoding-vue
+          cd dongtan
           node scripts/update-data.js
+          
+      - name: Update News for D1 using Gemini API
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          WORKER_API_URL: ${{ secrets.WORKER_API_URL }}
+          API_SECRET: ${{ secrets.API_SECRET }}
+        run: |
+          cd dongtan
+          node scripts/update-news.js
           
       - name: Commit and push changes
         run: |
