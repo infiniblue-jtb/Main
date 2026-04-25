@@ -59,32 +59,12 @@ export default {
     const fetchPosts = async () => {
       loading.value = true;
       try {
-        // 향후 Cloudflare Worker API URL로 교체 예정
-        // const response = await fetch('https://your-worker-url.workers.dev/api/posts');
-        // posts.value = await response.json();
-        
-        // 임시 더미 데이터
-        setTimeout(() => {
-          posts.value = [
-            {
-              id: 1,
-              title: '동탄 호수공원 주차 꿀팁',
-              content: '호수공원 방문 시 무료로 주차할 수 있는 구역과 시간대를 정리했습니다.',
-              image_url: '',
-              created_at: '2026-04-20T10:00:00Z'
-            },
-            {
-              id: 2,
-              title: '이번 주말 키즈 카페 할인 정보',
-              content: '동탄 내 주요 키즈 카페들의 할인 쿠폰과 이벤트 소식을 확인하세요.',
-              image_url: '',
-              created_at: '2026-04-22T14:30:00Z'
-            }
-          ];
-          loading.value = false;
-        }, 800);
+        const response = await fetch('https://dongtan-api.infiniblue.workers.dev/api/posts');
+        if (!response.ok) throw new Error('Network response was not ok');
+        posts.value = await response.json();
       } catch (error) {
         console.error('Failed to fetch posts:', error);
+      } finally {
         loading.value = false;
       }
     };
