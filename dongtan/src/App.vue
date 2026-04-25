@@ -36,7 +36,7 @@
         <div class="footer-links">
           <router-link to="/about">About</router-link>
           <router-link to="/privacy">Privacy Policy</router-link>
-          <a href="mailto:infiniblue@example.com">Contact</a>
+          <a href="#" @click.prevent="goToContact">Contact</a>
         </div>
         <p class="copyright">© 2026 Happy Dongtan. Designed for families in Dongtan.</p>
       </div>
@@ -46,12 +46,26 @@
 
 <script>
 import { ref, provide, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'App',
   setup() {
+    const router = useRouter();
     const currentLang = ref(localStorage.getItem('lang') || 'ko');
     const theme = ref(localStorage.getItem('theme') || 'light');
+
+    const goToContact = async () => {
+      if (router.currentRoute.value.path !== '/board') {
+        await router.push('/board');
+      }
+      setTimeout(() => {
+        const el = document.getElementById('contact-section');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    };
 
     const toggleLang = () => {
       currentLang.value = currentLang.value === 'ko' ? 'en' : 'ko';
@@ -74,7 +88,7 @@ export default {
       document.documentElement.lang = currentLang.value;
     });
 
-    return { currentLang, theme, toggleLang, toggleTheme };
+    return { currentLang, theme, toggleLang, toggleTheme, goToContact };
   }
 }
 </script>

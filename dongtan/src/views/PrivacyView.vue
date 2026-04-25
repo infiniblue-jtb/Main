@@ -24,7 +24,7 @@
       <p>본 사이트는 외부 웹사이트로의 링크를 포함할 수 있습니다. 링크된 사이트의 개인정보처리방침은 해당 사이트의 규정을 따릅니다.</p>
 
       <h2>5. 개인정보 보호책임자</h2>
-      <p>문의사항이 있으시면 아래 이메일로 연락 주시기 바랍니다.<br>Email: infiniblue@example.com</p>
+      <p>문의사항이 있으시면 아래 이메일로 연락 주시기 바랍니다.<br>Email: infiniblue@naver.com</p>
     </section>
   </div>
 </template>
