@@ -45,7 +45,7 @@ import { ref, inject, computed, onMounted } from 'vue';
 const TRANSLATIONS = {
   ko: {
     title: "자유 게시판", desc: "",
-    contactTitle: "🤝 제휴 및 장소 제보",
+    contactTitle: "🤝 문의",
     commentTitle: "💬 자유 게시판",
     labelCompany: "이름 또는 업체명",
     labelEmail: "이메일 주소",
