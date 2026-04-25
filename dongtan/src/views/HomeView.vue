@@ -13,6 +13,35 @@
         </div>
       </div>
     </section>
+
+    <section class="info-sections">
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="card-icon">🏘️</div>
+          <h3>신도시 라이프스타일</h3>
+          <p>동탄 신도시는 아이 키우기 가장 좋은 인프라를 갖추고 있습니다. 넓은 공원과 안전한 보행로, 그리고 다양한 교육 시설이 완비되어 있습니다.</p>
+        </div>
+        <div class="info-card">
+          <div class="card-icon">🌿</div>
+          <h3>자연과 함께하는 일상</h3>
+          <p>동탄호수공원과 센트럴파크는 가족들의 휴식처입니다. 계절마다 변하는 아름다운 풍경 속에서 아이와 함께 잊지 못할 추억을 만들어보세요.</p>
+        </div>
+        <div class="info-card">
+          <div class="card-icon">🍎</div>
+          <h3>스마트한 건강 관리</h3>
+          <p>갑자기 아이가 아플 때 당황하지 마세요. 우리 사이트에서는 동탄 내 달빛어린이병원과 휴일 운영 약국 정보를 실시간으로 제공합니다.</p>
+        </div>
+      </div>
+
+      <div class="welcome-text">
+        <h2>Welcome to Happy Dongtan</h2>
+        <p>
+          Happy Dongtan은 단순한 정보 나열을 넘어, 동탄에 거주하는 부모님들의 실제 목소리를 담고자 노력합니다. 
+          매주 업데이트되는 맛집 리스트와 키즈카페 정보를 통해 여러분의 주말 고민을 덜어드립니다. 
+          지금 바로 다양한 카테고리를 탐색하고 동탄의 매력을 발견해보세요!
+        </p>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -24,14 +53,14 @@ export default {
 
 <style scoped>
 .home-container {
-  margin-top: -48px; /* Nav bar overlap */
+  margin-top: -48px;
 }
 
 .hero-full {
   position: relative;
   height: 100vh;
   min-height: 600px;
-  background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'); /* 고퀄리티 자연 이미지 */
+  background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
   background-size: cover;
   background-position: center;
   display: flex;
@@ -108,6 +137,64 @@ export default {
   transform: scale(1.05);
 }
 
+.info-sections {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 80px 22px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-bottom: 80px;
+}
+
+.info-card {
+  background: var(--card-bg);
+  padding: 40px 30px;
+  border-radius: 20px;
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.info-card:hover {
+  transform: translateY(-10px);
+}
+
+.card-icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.info-card h3 {
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+}
+
+.info-card p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.welcome-text {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.welcome-text h2 {
+  font-size: 2.5rem;
+  margin-bottom: 25px;
+}
+
+.welcome-text p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
@@ -118,6 +205,7 @@ export default {
   .main-subtitle { font-size: 1.2rem; }
   .cta-group { flex-direction: column; align-items: center; }
   .apple-button { width: 100%; max-width: 280px; }
-  .hero-full { height: 100vh; }
+  .info-grid { grid-template-columns: 1fr; }
+  .welcome-text h2 { font-size: 1.8rem; }
 }
 </style>

@@ -33,7 +33,12 @@
     </main>
     <footer class="apple-footer">
       <div class="footer-content">
-        <p>© 2026 Designed for infiniblue with gemini</p>
+        <div class="footer-links">
+          <router-link to="/about">About</router-link>
+          <router-link to="/privacy">Privacy Policy</router-link>
+          <a href="mailto:infiniblue@example.com">Contact</a>
+        </div>
+        <p class="copyright">© 2026 Happy Dongtan. Designed for families in Dongtan.</p>
       </div>
     </footer>
   </div>
@@ -209,11 +214,39 @@ body {
 }
 
 .apple-footer {
-  padding: 60px 22px;
+  padding: 40px 22px;
   background: var(--card-bg);
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.footer-content {
+  max-width: 1024px;
+  margin: 0 auto;
   text-align: center;
-  font-size: 0.8rem;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.footer-links a {
+  text-decoration: none;
   color: var(--text-secondary);
+  font-size: 0.8rem;
+  transition: color 0.3s;
+}
+
+.footer-links a:hover {
+  color: var(--accent);
+}
+
+.copyright {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  opacity: 0.8;
 }
 
 /* Animations */
@@ -236,4 +269,3 @@ body {
   .logo-text { display: none; }
 }
 </style>
-
