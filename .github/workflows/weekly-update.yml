@@ -25,6 +25,13 @@ jobs:
           cd dongtan
           npm install
           
+      - name: List Available Gemini Models
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          cd dongtan
+          node scripts/list-models.js
+          
       - name: Update data using Gemini API
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
