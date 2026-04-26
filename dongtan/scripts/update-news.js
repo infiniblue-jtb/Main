@@ -2,11 +2,12 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 async function updateNews() {
   const apiKey = process.env.GEMINI_API_KEY;
-  let workerApiUrl = process.env.WORKER_API_URL ? process.env.WORKER_API_URL.trim() : null; // 공백 제거
-  const apiSecret = process.env.API_SECRET ? process.env.API_SECRET.trim() : null; // 공백 제거
+  let workerApiUrl = process.env.WORKER_API_URL ? process.env.WORKER_API_URL.trim() : null;
+  // 모든 종류의 공백(줄바꿈 포함)을 제거하여 순수한 시크릿 키만 추출
+  const apiSecret = process.env.API_SECRET ? process.env.API_SECRET.replace(/\s/g, '') : null;
 
-  if (!apiKey || !workerApiUrl) {
-    console.error('ERROR: Missing environment variables.');
+  if (!apiKey || !workerApiUrl || !apiSecret) {
+    console.error('ERROR: Missing environment variables (API_KEY, WORKER_URL, or API_SECRET).');
     process.exit(1);
   }
 
