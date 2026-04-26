@@ -7,6 +7,7 @@ import HealthView from '../views/HealthView.vue'
 import BoardView from '../views/BoardView.vue'
 import InfoView from '../views/InfoView.vue'
 import AboutView from '../views/AboutView.vue'
+import PrivacyView from '../views/PrivacyView.vue'
 
 const routes = [
   { path: '/', name: 'Home', component: HomeView },
