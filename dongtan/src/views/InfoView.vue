@@ -59,11 +59,12 @@ export default {
     const fetchPosts = async () => {
       loading.value = true;
       try {
-        const response = await fetch('https://dongtan-api.infiniblue.workers.dev/api/posts');
-        if (!response.ok) throw new Error('Network response was not ok');
-        posts.value = await response.json();
+        // API 대신 로컬 JSON 파일 로드
+        const newsData = await import('../assets/news.json');
+        posts.value = newsData.default || newsData;
       } catch (error) {
-        console.error('Failed to fetch posts:', error);
+        console.error('Failed to load news:', error);
+        posts.value = [];
       } finally {
         loading.value = false;
       }
