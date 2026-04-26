@@ -11,9 +11,8 @@ async function updateNews() {
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  console.log('Using model: gemini-2.0-flash');
   const model = genAI.getGenerativeModel({ 
-    model: "gemini-2.0-flash", 
+    model: "gemini-2.5-flash", 
   });
 
   const prompt = `
