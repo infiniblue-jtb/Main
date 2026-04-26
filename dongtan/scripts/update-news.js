@@ -3,7 +3,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 async function updateNews() {
   const apiKey = process.env.GEMINI_API_KEY;
   let workerApiUrl = process.env.WORKER_API_URL ? process.env.WORKER_API_URL.trim() : null; // 공백 제거
-  const apiSecret = process.env.API_SECRET;
+  const apiSecret = process.env.API_SECRET ? process.env.API_SECRET.trim() : null; // 공백 제거
 
   if (!apiKey || !workerApiUrl) {
     console.error('ERROR: Missing environment variables.');
