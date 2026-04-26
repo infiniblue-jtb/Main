@@ -11,9 +11,9 @@ async function updateNews() {
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  console.log('Using model: gemini-3.1-flash');
+  console.log('Using model: gemini-2.0-flash');
   const model = genAI.getGenerativeModel({ 
-    model: "gemini-3.1-flash", // 2026년 최신 모델로 변경
+    model: "gemini-2.0-flash", 
   });
 
   const prompt = `
