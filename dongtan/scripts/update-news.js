@@ -2,13 +2,21 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 async function updateNews() {
   const apiKey = process.env.GEMINI_API_KEY;
-  const workerApiUrl = process.env.WORKER_API_URL; // Cloudflare Worker 주소
-  const apiSecret = process.env.API_SECRET; // 보안용 시크릿 키
+  let workerApiUrl = process.env.WORKER_API_URL ? process.env.WORKER_API_URL.trim() : null; // 공백 제거
+  const apiSecret = process.env.API_SECRET;
 
   if (!apiKey || !workerApiUrl) {
     console.error('ERROR: Missing environment variables.');
     process.exit(1);
   }
+
+  // URL 프로토콜 확인 및 수정
+  if (!workerApiUrl.startsWith('http')) {
+    workerApiUrl = `https://${workerApiUrl}`;
+  }
+  
+  // 끝에 슬래시가 있다면 제거하여 중복 방지
+  workerApiUrl = workerApiUrl.replace(/\/$/, '');
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ 
