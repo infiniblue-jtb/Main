@@ -12,7 +12,7 @@ async function updateNews() {
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ 
-    model: "gemini-pro", // 텍스트 생성에 최적화
+    model: "gemini-1.5-flash", // 최신 모델로 변경
   });
 
   const prompt = `
