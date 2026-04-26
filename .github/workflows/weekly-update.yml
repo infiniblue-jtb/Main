@@ -22,8 +22,8 @@ jobs:
           
       - name: Install dependencies
         run: |
-          cd jocoding-vue
-          npm install @google/generative-ai
+          cd dongtan
+          npm install
           
       - name: Update data using Gemini API
         env:
@@ -45,12 +45,12 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add jocoding-vue/src/assets/data.json
+          git add dongtan/src/assets/data.json
           git diff --quiet && git diff --staged --quiet || (git commit -m "auto: weekly data update from Gemini API" && git push)
 
       - name: Deploy to GitHub Pages
         run: |
-          cd jocoding-vue
+          cd dongtan
           npm run deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
