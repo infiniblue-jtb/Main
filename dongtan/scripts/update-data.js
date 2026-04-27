@@ -12,8 +12,8 @@ async function updateData() {
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ 
     model: "gemini-1.5-flash",
-    generationConfig: { responseMimeType: "application/json" } // JSON 응답 강제
-  });
+    generationConfig: { responseMimeType: "application/json" }
+  }, { apiVersion: 'v1' });
 
   const prompt = `
     Generate a JSON object with the following EXACT structure:

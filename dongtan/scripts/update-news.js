@@ -19,7 +19,7 @@ async function updateNews() {
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ 
     model: "gemini-1.5-flash", 
-  });
+  }, { apiVersion: 'v1' });
 
   const prompt = `
     2026년 4월 현재, 대한민국 경기도 '화성시 동탄' 지역의 최신 뉴스나 생활 정보를 바탕으로 블로그 포스트를 작성해줘.
