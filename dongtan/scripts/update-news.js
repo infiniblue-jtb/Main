@@ -54,6 +54,9 @@ async function updateNews() {
       console.log('Successfully saved to D1 Database');
     } else {
       const errorText = await apiResponse.text();
+      console.error('Status:', apiResponse.status);
+      console.error('Response:', errorText);
+      console.error('URL used:', `${workerApiUrl}/api/posts`);
       throw new Error(`API failed: ${errorText}`);
     }
 
