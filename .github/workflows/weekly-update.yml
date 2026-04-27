@@ -33,7 +33,7 @@ jobs:
           node scripts/update-data.js
 
       - name: Wait for API Quota (Cooldown)
-        run: sleep 30
+        run: sleep 5
           
       - name: Update News for D1 using Gemini API
         env:
