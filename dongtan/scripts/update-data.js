@@ -11,12 +11,12 @@ async function updateData() {
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ 
-    model: "gemini-1.5-flash",
-    generationConfig: { responseMimeType: "application/json" }
+    model: "gemini-1.5-flash"
   }, { apiVersion: 'v1' });
 
   const prompt = `
-    Generate a JSON object with the following EXACT structure:
+    Generate a JSON object with the following EXACT structure. 
+    Return ONLY the raw JSON without any markdown formatting or backticks.
     {
       "kids": {
         "free": [ { "name": "장소명", "name_en": "Place Name", "lat": 0.0, "lng": 0.0, "address": "", "price": "무료", "price_en": "Free", "parking": "주차 가능 여부 요약" }, ... (6 items total) ],
@@ -39,7 +39,7 @@ async function updateData() {
   try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text();
+    const text = response.text().replace(/```json|```/g, '').trim();
     
     if (!text) {
       throw new Error("Gemini returned an empty response.");
