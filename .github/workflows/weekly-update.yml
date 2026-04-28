@@ -54,6 +54,7 @@ jobs:
       - name: Deploy to GitHub Pages
         run: |
           cd dongtan
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           npm run deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
