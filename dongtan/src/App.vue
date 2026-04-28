@@ -264,6 +264,75 @@ body {
   opacity: 0.8;
 }
 
+/* Common UI Components */
+.intro-card {
+  margin-bottom: 80px;
+  background: var(--card-bg);
+  border-radius: 28px;
+  padding: 40px;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+[data-theme="dark"] .intro-card {
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.intro-card h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 15px 0;
+}
+
+.intro-card p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  background: var(--accent);
+  color: white;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 30px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] .tips-grid {
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.tip-item {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+}
+
+.tip-item .icon {
+  font-size: 1.5rem;
+}
+
+.tip-item p {
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.mb-80 { margin-bottom: 80px; }
+
 /* Animations */
 .apple-fade-enter-active, .apple-fade-leave-active {
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);

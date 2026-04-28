@@ -2,6 +2,7 @@
   <div class="apple-page">
     <header class="hero-section">
       <h1 class="hero-title">{{ t.title }}</h1>
+      <p class="hero-subtitle">{{ t.desc }}</p>
     </header>
 
     <section class="content-section">
@@ -44,7 +45,8 @@ import { ref, inject, computed, onMounted } from 'vue';
 
 const TRANSLATIONS = {
   ko: {
-    title: "자유 게시판", desc: "",
+    title: "자유 게시판", 
+    desc: "동탄 부모님들과 자유롭게 정보를 나누고 소통하는 공간입니다. 궁금한 점이 있다면 무엇이든 물어보세요.",
     contactTitle: "🤝 문의",
     commentTitle: "💬 자유 게시판",
     labelCompany: "이름 또는 업체명",

@@ -10,8 +10,12 @@
       <h2>2. 구글 애드센스 및 쿠키 사용</h2>
       <p>
         본 사이트는 Google에서 제공하는 광고 서비스인 '구글 애드센스'를 이용합니다. 
-        Google을 포함한 제3자 제공업체는 쿠키를 사용하여 사용자의 이전 방문 기록을 바탕으로 광고를 게재합니다. 
-        사용자는 <a href="https://adssettings.google.com/authenticated" target="_blank">Google 광고 설정</a>을 통해 맞춤형 광고를 해제할 수 있습니다.
+        Google을 포함한 제3자 제공업체는 쿠키를 사용하여 사용자의 이전 웹사이트 방문 기록을 바탕으로 광고를 게재합니다. 
+        Google의 광고 쿠키를 사용함으로써 Google과 파트너는 사용자의 본 사이트 및 다른 사이트 방문 기록을 토대로 적절한 광고를 게재할 수 있습니다.
+      </p>
+      <p>
+        사용자는 <a href="https://adssettings.google.com/authenticated" target="_blank">Google 광고 설정</a>을 통해 맞춤형 광고를 해제할 수 있습니다. 
+        또는 <a href="https://www.aboutads.info/choices" target="_blank">www.aboutads.info</a>를 방문하여 맞춤형 광고를 위해 제3자 제공업체가 사용하는 쿠키를 차단할 수 있습니다.
       </p>
 
       <h2>3. 쿠키(Cookie)의 운용 및 거부</h2>

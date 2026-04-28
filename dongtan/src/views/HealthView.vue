@@ -12,6 +12,32 @@
     </section>
 
     <section class="content-section">
+      <!-- Editor's Introduction Card -->
+      <div class="glass-card intro-card mb-80">
+        <div class="card-body">
+          <span class="badge">Medical Guide</span>
+          <h2>안심할 수 있는 동탄의 야간 및 비상 의료 인프라</h2>
+          <p>
+            부모로서 가장 당황스러운 순간은 늦은 밤이나 공휴일에 아이가 갑자기 아플 때입니다. 
+            동탄 신도시는 다행히 <strong>달빛어린이병원</strong>(보건복지부 지정 야간 진료 기관)과 연중무휴 약국들이 잘 갖춰져 있어 빠른 대처가 가능합니다.
+          </p>
+          <p>
+            응급실은 대기 시간이 길고 비용 부담이 클 수 있으므로, 경증 환자의 경우 오후 11시까지 운영하는 소아과 전문의 진료 기관을 먼저 확인하는 것이 현명합니다. 
+            아래 리스트를 미리 숙지하시거나 즐겨찾기 해두시면 비상 상황에서 큰 도움이 됩니다.
+          </p>
+          <div class="tips-grid">
+            <div class="tip-item">
+              <span class="icon">🏥</span>
+              <p>달빛어린이병원은 늦은 시간까지 운영하지만, 접수 마감 시간이 진료 종료 시간보다 빠를 수 있으니 출발 전 전화 확인은 필수입니다.</p>
+            </div>
+            <div class="tip-item">
+              <span class="icon">💊</span>
+              <p>'처방전 없이 살 수 있는 상비약'과 '야간 약국'의 위치를 미리 파악해 두는 것이 좋습니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="section-header">
         <h2 class="section-title">{{ t.hospitalTitle }}</h2>
       </div>

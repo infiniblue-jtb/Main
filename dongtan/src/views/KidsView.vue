@@ -12,6 +12,33 @@
     </section>
 
     <section class="content-section">
+      <!-- Editor's Introduction Card -->
+      <div class="glass-card intro-card mb-80">
+        <div class="card-body">
+          <span class="badge">Editor's Guide</span>
+          <h2>동탄에서 아이와 함께하는 완벽한 주말</h2>
+          <p>
+            동탄 신도시는 '아이 키우기 좋은 도시'라는 명성답게 방대한 녹지 공간과 체계적인 놀이 시설을 갖추고 있습니다. 
+            단순히 공원을 걷는 것 이상으로, 동탄의 각 공원들은 저마다의 특색을 가지고 있습니다. 
+            예를 들어, <strong>동탄호수공원</strong>은 경관과 산책로가 일품이며, <strong>센트럴파크</strong>는 활동적인 스포츠와 바닥 분수로 유명합니다.
+          </p>
+          <p>
+            무료로 이용 가능한 공공 시설부터, 프리미엄 서비스를 제공하는 유료 체험관까지 상황에 맞는 선택이 가능합니다. 
+            주말 나들이를 계획하신다면, 오전에는 무료 공원에서 에너지를 발산하고, 오후에는 근처의 유료 체험관이나 키즈카페에서 창의적인 활동을 즐기는 코스를 추천드립니다.
+          </p>
+          <div class="tips-grid">
+            <div class="tip-item">
+              <span class="icon">🅿️</span>
+              <p>주말 오후 공영주차장은 매우 혼잡합니다. 오전 11시 이전 방문을 권장합니다.</p>
+            </div>
+            <div class="tip-item">
+              <span class="icon">🧺</span>
+              <p>피크닉 시 지정된 장소 외 텐트 설치는 금지되어 있으니 돗자리를 준비하세요.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="section-header">
         <h2 class="section-title">{{ t.freeTitle }}</h2>
       </div>

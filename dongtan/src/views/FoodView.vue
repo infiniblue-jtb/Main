@@ -12,6 +12,32 @@
     </section>
 
     <section class="content-section">
+      <!-- Editor's Introduction Card -->
+      <div class="glass-card intro-card mb-80">
+        <div class="card-body">
+          <span class="badge">Local's Pick</span>
+          <h2>아이와 함께하는 맛있는 동탄 미식 여행</h2>
+          <p>
+            동탄 신도시는 젊은 부부들이 많이 거주하는 특성상, 대부분의 식당이 아이 친화적인(Kid-friendly) 환경을 갖추고 있습니다. 
+            하지만 그 중에서도 특히 <strong>아기 의자 구비 여부</strong>, <strong>유모차 진입 가능성</strong>, 그리고 <strong>자극적이지 않은 메뉴 구성</strong>을 기준으로 엄선한 리스트를 공유합니다.
+          </p>
+          <p>
+            점심 시간에는 센트럴파크 인근의 브런치 카페나 쌀국수 전문점을 추천하며, 저녁에는 호수공원 근처의 한식 정식이나 이탈리안 레스토랑에서 여유로운 식사를 즐기실 수 있습니다. 
+            식사 후에는 바로 인근 산책로를 이용할 수 있는 동선으로 구성했으니 참고해 보세요.
+          </p>
+          <div class="tips-grid">
+            <div class="tip-item">
+              <span class="icon">🍱</span>
+              <p>대부분의 식당에 아기 의자가 준비되어 있지만, 주말에는 미리 전화로 확인하는 것이 좋습니다.</p>
+            </div>
+            <div class="tip-item">
+              <span class="icon">🤱</span>
+              <p>레이크꼬모나 롯데백화점 내 식당들은 수유실과 기저귀 교환대가 가까워 매우 편리합니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 아침 -->
       <div class="time-block">
         <div class="section-header">

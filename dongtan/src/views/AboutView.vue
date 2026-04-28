@@ -25,12 +25,20 @@
         </ul>
       </div>
 
-      <div class="content-card">
-        <h2>신뢰할 수 있는 데이터</h2>
-        <p>
-          우리는 실제 방문 후기와 최신 정보를 바탕으로 데이터를 관리합니다. 
-          사용자들에게 정확하고 가치 있는 정보를 제공하기 위해 정기적으로 업데이트를 수행하고 있습니다.
-        </p>
+      <div class="content-card faq-section">
+        <h2>자주 묻는 질문 (FAQ)</h2>
+        <div class="faq-item">
+          <h3>Q: 정보는 얼마나 자주 업데이트되나요?</h3>
+          <p>A: 맛집 및 키즈 시설 정보는 매주 정기적인 업데이트를 수행하며, 병원 및 약국 데이터는 상시 최신 상태를 유지하기 위해 노력하고 있습니다.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Q: 추천하고 싶은 장소가 있는데 제보가 가능한가요?</h3>
+          <p>A: 네, 언제든지 '정보 광장' 또는 '문의하기' 섹션을 통해 소중한 정보를 공유해 주시면 검토 후 사이트에 반영하고 있습니다.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Q: 동탄 이외의 지역 정보도 제공하나요?</h3>
+          <p>A: 현재는 동탄 1, 2신도시에 집중하여 가장 정확하고 깊이 있는 로컬 정보를 제공하는 것을 목표로 하고 있습니다.</p>
+        </div>
       </div>
     </section>
   </div>
@@ -61,6 +69,9 @@
 .content-card {
   margin-bottom: 40px;
   line-height: 1.8;
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: 20px;
 }
 .content-card h2 {
   font-size: 1.8rem;
@@ -68,6 +79,14 @@
   border-bottom: 2px solid var(--accent);
   display: inline-block;
   padding-bottom: 5px;
+}
+.faq-item {
+  margin-bottom: 20px;
+}
+.faq-item h3 {
+  font-size: 1.1rem;
+  color: var(--accent);
+  margin-bottom: 8px;
 }
 .content-card ul {
   list-style: none;

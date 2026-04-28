@@ -16,6 +16,20 @@
     </section>
 
     <section class="info-sections">
+      <div class="welcome-text mb-80">
+        <span class="badge">Welcome to Happy Dongtan</span>
+        <h2>동탄 부모님들을 위한 가장 스마트한 생활 가이드</h2>
+        <p>
+          아이를 키우는 것은 축복이지만, 매 주말마다 "어디를 가야 할까?", "무엇을 먹어야 할까?"를 고민하는 것은 결코 쉬운 일이 아닙니다. 
+          Happy Dongtan은 동탄 1, 2신도시에 거주하시는 부모님들의 이러한 고민을 해결해 드리기 위해 탄생했습니다.
+        </p>
+        <p>
+          단순한 정보 나열을 넘어, <strong>로컬 에디터들이 직접 검증한 장소</strong>들만을 엄선하여 소개합니다. 
+          동탄호수공원의 숨겨진 피크닉 명소부터, 야간에도 운영하는 달빛어린이병원 정보까지, 
+          동탄 생활에 꼭 필요한 모든 정보를 지금 확인해 보세요.
+        </p>
+      </div>
+
       <div class="info-grid">
         <div class="info-card">
           <div class="card-icon">🏘️</div>
@@ -34,13 +48,12 @@
         </div>
       </div>
 
-      <div class="welcome-text">
-        <h2>Welcome to Happy Dongtan</h2>
-        <p>
-          Happy Dongtan은 단순한 정보 나열을 넘어, 동탄에 거주하는 부모님들의 실제 목소리를 담고자 노력합니다. 
-          매주 업데이트되는 맛집 리스트와 키즈카페 정보를 통해 여러분의 주말 고민을 덜어드립니다. 
-          지금 바로 다양한 카테고리를 탐색하고 동탄의 매력을 발견해보세요!
-        </p>
+      <div class="promotion-banner">
+        <div class="banner-content">
+          <h3>매주 업데이트되는 동탄 생활 소식</h3>
+          <p>정보 광장에서 동탄의 최신 축제 정보와 육아 팁을 확인하세요.</p>
+          <router-link to="/info" class="text-link">정보 광장 바로가기 →</router-link>
+        </div>
       </div>
     </section>
   </div>
@@ -56,6 +69,34 @@ export default {
 .home-container {
   margin-top: -48px;
 }
+
+.promotion-banner {
+  background: var(--card-bg);
+  border-radius: 28px;
+  padding: 60px 40px;
+  text-align: center;
+  margin-top: 80px;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+[data-theme="dark"] .promotion-banner {
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.banner-content h3 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.text-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 20px;
+}
+
+.mb-80 { margin-bottom: 80px; }
 
 .hero-full {
   position: relative;

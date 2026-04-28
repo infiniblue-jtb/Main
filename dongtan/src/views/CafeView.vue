@@ -12,6 +12,32 @@
     </section>
 
     <section class="content-section">
+      <!-- Editor's Introduction Card -->
+      <div class="glass-card intro-card mb-80">
+        <div class="card-body">
+          <span class="badge">Parents' Oasis</span>
+          <h2>동탄의 키즈 카페와 가베, 육아의 쉼표가 되는 공간</h2>
+          <p>
+            동탄 신도시는 아이들의 창의력을 자극하는 다양한 '가베(Gabe)' 체험 공간과 테마형 키즈 카페가 밀집해 있습니다. 
+            단순히 뛰어노는 공간을 넘어, 부모님들에게는 편안한 커피 한 잔의 여유를, 아이들에게는 안전한 탐색의 기회를 제공하는 곳들을 소개합니다.
+          </p>
+          <p>
+            최근에는 <strong>노키즈존(No Kids Zone)</strong>이 늘어나는 추세지만, 이곳에 소개된 장소들은 모두 아이들을 환영하는 '웰컴 키즈' 존입니다. 
+            특히 넓은 층고와 쾌적한 환기 시스템을 갖춘 대형 카페부터, 소수 정예로 운영되는 프라이빗 키즈룸까지 다양한 선택지를 확인해 보세요.
+          </p>
+          <div class="tips-grid">
+            <div class="tip-item">
+              <span class="icon">☕</span>
+              <p>주말 키즈 카페는 입장 인원 제한이 있을 수 있으니 네이버 예약을 활용하세요.</p>
+            </div>
+            <div class="tip-item">
+              <span class="icon">🧦</span>
+              <p>대부분의 키즈 카페는 보호자와 아이 모두 양말 착용이 필수입니다. 미리 챙겨가시면 좋습니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="section-header">
         <h2 class="section-title">{{ t.listTitle }}</h2>
       </div>
