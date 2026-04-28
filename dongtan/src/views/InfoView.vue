@@ -3,19 +3,57 @@
     <header class="hero-section">
       <h1 class="hero-title">{{ t.title }}</h1>
       <p class="hero-subtitle">{{ t.desc }}</p>
+      
+      <!-- 글쓰기 버튼 -->
+      <div class="admin-controls">
+        <button v-if="!showEditor" @click="showEditor = true" class="write-btn">
+          <span>✍️</span> {{ currentLang === 'ko' ? '글 작성하기' : 'Write Post' }}
+        </button>
+        <button v-else @click="showEditor = false" class="cancel-btn">
+          {{ currentLang === 'ko' ? '취소' : 'Cancel' }}
+        </button>
+      </div>
     </header>
 
     <section class="content-section">
+      <!-- 글쓰기 에디터 폼 -->
+      <transition name="apple-fade">
+        <div v-if="showEditor" class="editor-container glass-card">
+          <h2>{{ currentLang === 'ko' ? '새로운 정보 작성' : 'Write New Info' }}</h2>
+          <form @submit.prevent="submitPost" class="apple-form">
+            <div class="form-group">
+              <label>{{ currentLang === 'ko' ? '제목' : 'Title' }}</label>
+              <input v-model="newPost.title" required placeholder="글 제목을 입력하세요">
+            </div>
+            <div class="form-group">
+              <label>{{ currentLang === 'ko' ? '요약' : 'Excerpt' }}</label>
+              <input v-model="newPost.excerpt" placeholder="목록에 표시될 짧은 요약">
+            </div>
+            <div class="form-group">
+              <label>{{ currentLang === 'ko' ? '이미지 URL' : 'Image URL' }}</label>
+              <input v-model="newPost.image_url" placeholder="https://example.com/image.jpg">
+            </div>
+            <div class="form-group">
+              <label>{{ currentLang === 'ko' ? '본문 내용' : 'Content' }}</label>
+              <textarea v-model="newPost.content" required rows="10" placeholder="상세 내용을 입력하세요"></textarea>
+            </div>
+            <div class="form-group admin-key">
+              <label>{{ currentLang === 'ko' ? '관리자 비밀번호' : 'Admin Key' }}</label>
+              <input v-model="adminKey" type="password" required placeholder="D1 저장용 API SECRET 입력">
+            </div>
+            <button type="submit" class="submit-btn" :disabled="submitting">
+              {{ submitting ? (currentLang === 'ko' ? '저장 중...' : 'Saving...') : (currentLang === 'ko' ? 'D1 데이터베이스에 저장' : 'Save to D1') }}
+            </button>
+          </form>
+        </div>
+      </transition>
+
       <div v-if="loading" class="loading-state">
         <div class="spinner"></div>
       </div>
       
-      <div v-else-if="posts.length === 0" class="empty-state">
-        <p>{{ currentLang === 'ko' ? '새로운 정보가 곧 업데이트될 예정입니다.' : 'New information will be updated soon.' }}</p>
-      </div>
-
       <div v-else class="blog-grid">
-        <article v-for="post in posts" :key="post.id" class="blog-card" @click="viewPost(post.id)">
+        <article v-for="post in posts" :key="post.id" class="blog-card" @click="viewPost(post)">
           <div class="card-image" :style="post.image_url ? { backgroundImage: `url(${post.image_url})` } : {}">
             <div v-if="!post.image_url" class="placeholder-image">✨</div>
           </div>
@@ -30,6 +68,21 @@
         </article>
       </div>
     </section>
+
+    <!-- 포스트 상세 모달 -->
+    <transition name="apple-fade">
+      <div v-if="selectedPost" class="modal-overlay" @click="selectedPost = null">
+        <div class="modal-content glass-card" @click.stop>
+          <button class="close-btn" @click="selectedPost = null">✕</button>
+          <div v-if="selectedPost.image_url" class="modal-image" :style="{ backgroundImage: `url(${selectedPost.image_url})` }"></div>
+          <div class="modal-body">
+            <span class="modal-date">{{ formatDate(selectedPost.created_at) }}</span>
+            <h1>{{ selectedPost.title }}</h1>
+            <div class="modal-text">{{ selectedPost.content }}</div>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -39,11 +92,11 @@ import { ref, computed, inject, onMounted } from 'vue';
 const TRANSLATIONS = {
   ko: {
     title: '정보 광장',
-    desc: '동탄 생활에 도움이 되는 유용한 정보와 소식을 전해드립니다.',
+    desc: '동탄 생활에 도움이 되는 유용한 정보와 소식을 직접 공유하세요.',
   },
   en: {
     title: 'Info Hub',
-    desc: 'Useful information and news for life in Dongtan.',
+    desc: 'Share and explore useful information for life in Dongtan.',
   }
 };
 
@@ -53,71 +106,65 @@ export default {
     const currentLang = inject('currentLang', ref('ko'));
     const posts = ref([]);
     const loading = ref(true);
+    const showEditor = ref(false);
+    const submitting = ref(false);
+    const selectedPost = ref(null);
+    const adminKey = ref(localStorage.getItem('admin_key') || '');
+
+    const newPost = ref({
+      title: '',
+      excerpt: '',
+      image_url: '',
+      content: ''
+    });
 
     const t = computed(() => TRANSLATIONS[currentLang.value] || TRANSLATIONS['ko']);
-
-    const STATIC_POSTS = {
-      ko: [
-        {
-          id: 'guide-1',
-          title: '동탄호수공원 주말 나들이 완벽 가이드',
-          excerpt: '주차 팁부터 피크닉 명소, 그리고 아이와 함께 가기 좋은 근처 카페까지 동탄호수공원을 제대로 즐기는 방법을 소개합니다.',
-          content: '동탄호수공원은 동탄2신도시의 랜드마크로, 가족 단위 나들이객에게 최고의 장소입니다. 주말에는 주차가 어려울 수 있으니 레이크꼬모나 지하 주차장을 일찍 이용하시는 것을 추천드립니다. 또한, 루나쇼 일정에 맞춰 방문하시면 야간의 아름다운 분수쇼도 감상하실 수 있습니다.',
-          created_at: '2026-04-20',
-          image_url: 'https://images.unsplash.com/photo-1590604537905-1a84f4705030?auto=format&fit=crop&w=800&q=80'
-        },
-        {
-          id: 'guide-2',
-          title: '동탄 어린이 병원 및 야간 진료 약국 총정리',
-          excerpt: '아이가 갑자기 아플 때 당황하지 마세요. 동탄 내 달빛어린이병원과 연중무휴 야간 운영 약국 리스트를 정리해 드립니다.',
-          content: '동탄에는 베스트아이들병원과 같은 달빛어린이병원이 있어 야간에도 안심하고 진료를 볼 수 있습니다. 365일 운영되는 약국 위치를 미리 파악해 두시면 비상 상황에서 큰 도움이 됩니다. 본 사이트의 병원/약국 메뉴에서도 실시간 정보를 확인하실 수 있습니다.',
-          created_at: '2026-04-22',
-          image_url: 'https://images.unsplash.com/photo-1586773860418-d3b97978c65a?auto=format&fit=crop&w=800&q=80'
-        },
-        {
-          id: 'guide-3',
-          title: '동탄에서 아이와 함께 가기 좋은 카페 BEST 5',
-          excerpt: '노키즈존 걱정 없는, 넓은 잔디밭이나 놀이 공간이 마련된 동탄 인근 대형 카페들을 엄선했습니다.',
-          content: '어반리st, 테라로사 동탄호수점 등 아이와 함께 방문해도 부담 없는 대형 카페들이 동탄에는 많습니다. 특히 유모차 이동이 편리한 경사로와 수유실 인근 시설을 갖춘 곳들을 위주로 방문해 보세요. 주말 오후에는 대기 시간이 길 수 있으니 오전 방문을 추천합니다.',
-          created_at: '2026-04-25',
-          image_url: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80'
-        }
-      ],
-      en: [
-        {
-          id: 'guide-1',
-          title: 'Dongtan Lake Park Weekend Guide',
-          excerpt: 'Learn about parking tips, picnic spots, and kid-friendly cafes near Dongtan Lake Park.',
-          content: 'Dongtan Lake Park is the landmark of Dongtan 2 City. We recommend arriving early for parking. Don\'t miss the Luna Show (fountain show) at night!',
-          created_at: '2026-04-20',
-          image_url: 'https://images.unsplash.com/photo-1590604537905-1a84f4705030?auto=format&fit=crop&w=800&q=80'
-        }
-      ]
-    };
 
     const fetchPosts = async () => {
       loading.value = true;
       try {
         const response = await fetch('https://dongtan-api.infiniblue.workers.dev/api/posts');
         if (!response.ok) throw new Error('Network response was not ok');
-        const data = await response.json();
-        
-        // Combine static and dynamic posts, or use static if dynamic is empty
-        if (data && data.length > 0) {
-          posts.value = [...data, ...(STATIC_POSTS[currentLang.value] || [])];
-        } else {
-          posts.value = STATIC_POSTS[currentLang.value] || STATIC_POSTS['ko'];
-        }
+        posts.value = await response.json();
       } catch (error) {
-        console.error('Failed to fetch posts, using static content:', error);
-        posts.value = STATIC_POSTS[currentLang.value] || STATIC_POSTS['ko'];
+        console.error('Failed to fetch posts:', error);
       } finally {
         loading.value = false;
       }
     };
 
+    const submitPost = async () => {
+      submitting.value = true;
+      localStorage.setItem('admin_key', adminKey.value);
+      
+      try {
+        const response = await fetch('https://dongtan-api.infiniblue.workers.dev/api/posts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${adminKey.value}`
+          },
+          body: JSON.stringify(newPost.value)
+        });
+
+        if (response.ok) {
+          alert('성공적으로 저장되었습니다!');
+          newPost.value = { title: '', excerpt: '', image_url: '', content: '' };
+          showEditor.value = false;
+          await fetchPosts();
+        } else {
+          const err = await response.json();
+          alert('저장 실패: ' + (err.error || '알 수 없는 오류'));
+        }
+      } catch (error) {
+        alert('네트워크 오류: ' + error.message);
+      } finally {
+        submitting.value = false;
+      }
+    };
+
     const formatDate = (dateStr) => {
-      const date = new Date(dateStr);
+      const date = dateStr ? new Date(dateStr) : new Date();
       return date.toLocaleDateString(currentLang.value === 'ko' ? 'ko-KR' : 'en-US', {
         year: 'numeric',
         month: 'long',
@@ -125,14 +172,16 @@ export default {
       });
     };
 
-    const viewPost = (id) => {
-      console.log('View post:', id);
-      // 상세 페이지 이동 로직 추가 예정
+    const viewPost = (post) => {
+      selectedPost.value = post;
     };
 
     onMounted(fetchPosts);
 
-    return { currentLang, t, posts, loading, formatDate, viewPost };
+    return { 
+      currentLang, t, posts, loading, formatDate, viewPost,
+      showEditor, newPost, submitPost, submitting, adminKey, selectedPost
+    };
   }
 }
 </script>
@@ -154,6 +203,84 @@ export default {
 .hero-subtitle {
   font-size: 1.5rem;
   color: var(--text-secondary);
+  margin-bottom: 30px;
+}
+
+.admin-controls {
+  margin-top: 20px;
+}
+
+.write-btn, .cancel-btn {
+  padding: 12px 24px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+}
+
+.write-btn {
+  background: var(--accent);
+  color: white;
+}
+
+.cancel-btn {
+  background: var(--card-bg);
+  color: var(--text-primary);
+}
+
+.editor-container {
+  max-width: 800px;
+  margin: 0 auto 60px;
+  padding: 40px;
+}
+
+.apple-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: left;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.form-group input, .form-group textarea {
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: var(--page-bg);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.admin-key input {
+  border-color: var(--accent);
+}
+
+.submit-btn {
+  background: var(--accent);
+  color: white;
+  padding: 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
 }
 
 .content-section {
@@ -208,7 +335,6 @@ export default {
   font-size: 0.8rem;
   color: var(--text-secondary);
   margin-bottom: 8px;
-  display: block;
 }
 
 .card-title {
@@ -229,20 +355,70 @@ export default {
   line-height: 1.5;
 }
 
-.card-footer {
-  margin-top: auto;
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(5px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
-.read-more {
-  color: var(--accent);
-  font-weight: 600;
+.modal-content {
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  background: var(--page-bg);
+  padding: 0;
+}
+
+.close-btn {
+  position: absolute;
+  top: 20px; right: 20px;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  border: none;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.modal-image {
+  height: 400px;
+  background-size: cover;
+  background-position: center;
+}
+
+.modal-body {
+  padding: 40px;
+}
+
+.modal-date {
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
-.loading-state, .empty-state {
+.modal-body h1 {
+  font-size: 2.5rem;
+  margin: 10px 0 25px;
+}
+
+.modal-text {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.loading-state {
   text-align: center;
   padding: 100px 0;
-  color: var(--text-secondary);
 }
 
 .spinner {
@@ -261,6 +437,7 @@ export default {
 
 @media (max-width: 734px) {
   .hero-title { font-size: 2.5rem; }
-  .hero-subtitle { font-size: 1.2rem; }
+  .modal-image { height: 250px; }
+  .modal-body h1 { font-size: 1.8rem; }
 }
 </style>
