@@ -51,7 +51,7 @@ async function updateData() {
   try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text().replace(/```json|```/g, '').trim();
+    const text = response.text().trim();
     
     if (!text) {
       throw new Error("Gemini returned an empty response.");

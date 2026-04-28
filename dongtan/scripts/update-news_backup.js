@@ -44,7 +44,7 @@ async function updateNews() {
   try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text().trim();
+    const text = response.text().replace(/```json|```/g, '').trim();
     const newsArray = JSON.parse(text);
 
     if (!Array.isArray(newsArray)) {
