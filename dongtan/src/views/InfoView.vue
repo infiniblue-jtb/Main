@@ -39,7 +39,7 @@
             </div>
             <div class="form-group admin-key">
               <label>{{ currentLang === 'ko' ? '관리자 비밀번호' : 'Admin Key' }}</label>
-              <input v-model="adminKey" type="password" required placeholder="D1 저장용 API SECRET 입력">
+              <input v-model="adminKey" type="password" required placeholder="D1 저장/삭제용 API SECRET 입력">
             </div>
             <button type="submit" class="submit-btn" :disabled="submitting">
               {{ submitting ? (currentLang === 'ko' ? '저장 중...' : 'Saving...') : (currentLang === 'ko' ? 'D1 데이터베이스에 저장' : 'Save to D1') }}
@@ -56,6 +56,10 @@
         <article v-for="post in posts" :key="post.id" class="blog-card" @click="viewPost(post)">
           <div class="card-image" :style="post.image_url ? { backgroundImage: `url(${post.image_url})` } : {}">
             <div v-if="!post.image_url" class="placeholder-image">✨</div>
+            <!-- 삭제 버튼 -->
+            <button class="delete-icon-btn" @click.stop="confirmDelete(post.id, post.title)" :title="currentLang === 'ko' ? '삭제' : 'Delete'">
+              ✕
+            </button>
           </div>
           <div class="card-body">
             <span class="card-date">{{ formatDate(post.created_at) }}</span>
@@ -76,7 +80,12 @@
           <button class="close-btn" @click="selectedPost = null">✕</button>
           <div v-if="selectedPost.image_url" class="modal-image" :style="{ backgroundImage: `url(${selectedPost.image_url})` }"></div>
           <div class="modal-body">
-            <span class="modal-date">{{ formatDate(selectedPost.created_at) }}</span>
+            <div class="modal-header">
+              <span class="modal-date">{{ formatDate(selectedPost.created_at) }}</span>
+              <button class="delete-text-btn" @click="confirmDelete(selectedPost.id, selectedPost.title)">
+                {{ currentLang === 'ko' ? '이 글 삭제하기' : 'Delete this post' }}
+              </button>
+            </div>
             <h1>{{ selectedPost.title }}</h1>
             <div class="modal-text">{{ selectedPost.content }}</div>
           </div>
@@ -154,12 +163,43 @@ export default {
           await fetchPosts();
         } else {
           const err = await response.json();
-          alert('저장 실패: ' + (err.error || '알 수 없는 오류'));
+          alert('저장 실패: ' + (err.error || '알 수 없는 오류. 비밀번호를 확인하세요.'));
         }
       } catch (error) {
         alert('네트워크 오류: ' + error.message);
       } finally {
         submitting.value = false;
+      }
+    };
+
+    const confirmDelete = async (id, title) => {
+      if (!adminKey.value) {
+        alert('삭제를 위해 관리자 비밀번호를 먼저 입력해주세요. (글쓰기 폼 하단)');
+        showEditor.value = true;
+        return;
+      }
+
+      const ok = confirm(`'${title}' 글을 정말 삭제하시겠습니까?`);
+      if (!ok) return;
+
+      try {
+        const response = await fetch(`https://dongtan-api.infiniblue.workers.dev/api/posts/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${adminKey.value}`
+          }
+        });
+
+        if (response.ok) {
+          alert('삭제되었습니다.');
+          selectedPost.value = null;
+          await fetchPosts();
+        } else {
+          const err = await response.json();
+          alert('삭제 실패: ' + (err.error || '알 수 없는 오류. 비밀번호를 확인하세요.'));
+        }
+      } catch (error) {
+        alert('삭제 중 오류 발생: ' + error.message);
       }
     };
 
@@ -180,7 +220,7 @@ export default {
 
     return { 
       currentLang, t, posts, loading, formatDate, viewPost,
-      showEditor, newPost, submitPost, submitting, adminKey, selectedPost
+      showEditor, newPost, submitPost, submitting, adminKey, selectedPost, confirmDelete
     };
   }
 }
@@ -303,6 +343,7 @@ export default {
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .blog-card:hover {
@@ -318,6 +359,33 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+}
+
+.delete-icon-btn {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.3);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 10;
+}
+
+.blog-card:hover .delete-icon-btn {
+  opacity: 1;
+}
+
+.delete-icon-btn:hover {
+  background: #ff3b30;
+  transform: scale(1.1);
 }
 
 .placeholder-image {
@@ -355,6 +423,12 @@ export default {
   line-height: 1.5;
 }
 
+.read-more {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
 /* Modal Styles */
 .modal-overlay {
   position: fixed;
@@ -376,6 +450,7 @@ export default {
   position: relative;
   background: var(--page-bg);
   padding: 0;
+  border-radius: 28px;
 }
 
 .close-btn {
@@ -387,7 +462,7 @@ export default {
   width: 32px; height: 32px;
   border-radius: 50%;
   cursor: pointer;
-  z-index: 1;
+  z-index: 11;
 }
 
 .modal-image {
@@ -400,14 +475,36 @@ export default {
   padding: 40px;
 }
 
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 .modal-date {
   color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
+.delete-text-btn {
+  background: none;
+  border: none;
+  color: #ff3b30;
+  font-size: 0.85rem;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.delete-text-btn:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
 .modal-body h1 {
   font-size: 2.5rem;
-  margin: 10px 0 25px;
+  margin: 0 0 25px;
 }
 
 .modal-text {
@@ -439,5 +536,6 @@ export default {
   .hero-title { font-size: 2.5rem; }
   .modal-image { height: 250px; }
   .modal-body h1 { font-size: 1.8rem; }
+  .modal-header { flex-direction: column; align-items: flex-start; gap: 10px; }
 }
 </style>

@@ -39,4 +39,23 @@ app.post('/api/posts', async (c) => {
   }
 });
 
+// 게시글 삭제
+app.delete('/api/posts/:id', async (c) => {
+  const authHeader = c.req.header('Authorization');
+  if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+
+  const id = c.req.param('id');
+
+  try {
+    await c.env.DB.prepare(
+      "DELETE FROM posts WHERE id = ?"
+    ).bind(id).run();
+    return c.json({ success: true });
+  } catch (e) {
+    return c.json({ error: e.message }, 500);
+  }
+});
+
 export default app

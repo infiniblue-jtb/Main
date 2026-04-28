@@ -11,8 +11,8 @@
           <router-link to="/food" class="nav-item">{{ currentLang === 'ko' ? '오늘 뭐먹지' : 'Eat' }}</router-link>
           <router-link to="/cafe" class="nav-item">{{ currentLang === 'ko' ? '키즈 가베' : 'Cafe' }}</router-link>
           <router-link to="/health" class="nav-item">{{ currentLang === 'ko' ? '병원/약국' : 'Health' }}</router-link>
-          <router-link to="/board" class="nav-item">{{ currentLang === 'ko' ? '자유게시판' : 'Board' }}</router-link>
           <router-link to="/info" class="nav-item">{{ currentLang === 'ko' ? '정보' : 'Info' }}</router-link>
+          <router-link to="/board" class="nav-item">{{ currentLang === 'ko' ? '자유게시판' : 'Board' }}</router-link>
         </div>
         <div class="control-group">
           <button class="icon-btn" @click="toggleLang" :title="currentLang === 'ko' ? 'English' : '한국어'">
