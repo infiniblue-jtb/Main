@@ -6,20 +6,20 @@
       
       <!-- 글쓰기 버튼 -->
       <div class="admin-controls">
-        <button v-if="!showEditor" @click="showEditor = true" class="write-btn">
+        <button v-if="!showEditor" @click="openEditor()" class="write-btn">
           <span>✍️</span> {{ currentLang === 'ko' ? '글 작성하기' : 'Write Post' }}
         </button>
-        <button v-else @click="showEditor = false" class="cancel-btn">
+        <button v-else @click="closeEditor" class="cancel-btn">
           {{ currentLang === 'ko' ? '취소' : 'Cancel' }}
         </button>
       </div>
     </header>
 
     <section class="content-section">
-      <!-- 글쓰기 에디터 폼 -->
+      <!-- 글쓰기/수정 에디터 폼 -->
       <transition name="apple-fade">
         <div v-if="showEditor" class="editor-container glass-card">
-          <h2>{{ currentLang === 'ko' ? '새로운 정보 작성' : 'Write New Info' }}</h2>
+          <h2>{{ isEditing ? (currentLang === 'ko' ? '정보 수정하기' : 'Edit Info') : (currentLang === 'ko' ? '새로운 정보 작성' : 'Write New Info') }}</h2>
           <form @submit.prevent="submitPost" class="apple-form">
             <div class="form-group">
               <label>{{ currentLang === 'ko' ? '제목' : 'Title' }}</label>
@@ -39,10 +39,10 @@
             </div>
             <div class="form-group admin-key">
               <label>{{ currentLang === 'ko' ? '관리자 비밀번호' : 'Admin Key' }}</label>
-              <input v-model="adminKey" type="password" required placeholder="D1 저장/삭제용 API SECRET 입력">
+              <input v-model="adminKey" type="password" required placeholder="API SECRET 입력 (저장 후 자동 삭제)">
             </div>
             <button type="submit" class="submit-btn" :disabled="submitting">
-              {{ submitting ? (currentLang === 'ko' ? '저장 중...' : 'Saving...') : (currentLang === 'ko' ? 'D1 데이터베이스에 저장' : 'Save to D1') }}
+              {{ submitting ? (currentLang === 'ko' ? '처리 중...' : 'Processing...') : (currentLang === 'ko' ? '정보 저장' : 'Save Info') }}
             </button>
           </form>
         </div>
@@ -82,9 +82,14 @@
           <div class="modal-body">
             <div class="modal-header">
               <span class="modal-date">{{ formatDate(selectedPost.created_at) }}</span>
-              <button class="delete-text-btn" @click="confirmDelete(selectedPost.id, selectedPost.title)">
-                {{ currentLang === 'ko' ? '이 글 삭제하기' : 'Delete this post' }}
-              </button>
+              <div class="modal-admin-btns">
+                <button class="edit-btn" @click="startEdit(selectedPost)">
+                  {{ currentLang === 'ko' ? '수정하기' : 'Edit' }}
+                </button>
+                <button class="delete-pill-btn" @click="confirmDelete(selectedPost.id, selectedPost.title)">
+                  {{ currentLang === 'ko' ? '삭제하기' : 'Delete' }}
+                </button>
+              </div>
             </div>
             <h1>{{ selectedPost.title }}</h1>
             <div class="modal-text">{{ selectedPost.content }}</div>
@@ -116,9 +121,11 @@ export default {
     const posts = ref([]);
     const loading = ref(true);
     const showEditor = ref(false);
+    const isEditing = ref(false);
+    const editId = ref(null);
     const submitting = ref(false);
     const selectedPost = ref(null);
-    const adminKey = ref(localStorage.getItem('admin_key') || '');
+    const adminKey = ref('');
 
     const newPost = ref({
       title: '',
@@ -142,13 +149,37 @@ export default {
       }
     };
 
+    const openEditor = () => {
+      isEditing.value = false;
+      newPost.value = { title: '', excerpt: '', image_url: '', content: '' };
+      showEditor.value = true;
+    };
+
+    const closeEditor = () => {
+      showEditor.value = false;
+      isEditing.value = false;
+      editId.value = null;
+    };
+
+    const startEdit = (post) => {
+      isEditing.value = true;
+      editId.value = post.id;
+      newPost.value = { ...post };
+      selectedPost.value = null;
+      showEditor.value = true;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     const submitPost = async () => {
       submitting.value = true;
-      localStorage.setItem('admin_key', adminKey.value);
+      const method = isEditing.value ? 'PUT' : 'POST';
+      const url = isEditing.value 
+        ? `https://dongtan-api.infiniblue.workers.dev/api/posts/${editId.value}`
+        : 'https://dongtan-api.infiniblue.workers.dev/api/posts';
       
       try {
-        const response = await fetch('https://dongtan-api.infiniblue.workers.dev/api/posts', {
-          method: 'POST',
+        const response = await fetch(url, {
+          method: method,
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${adminKey.value}`
@@ -157,13 +188,15 @@ export default {
         });
 
         if (response.ok) {
-          alert('성공적으로 저장되었습니다!');
+          alert(isEditing.value ? '수정되었습니다!' : '성공적으로 저장되었습니다!');
           newPost.value = { title: '', excerpt: '', image_url: '', content: '' };
+          adminKey.value = ''; // 비밀번호 자동 삭제
           showEditor.value = false;
+          isEditing.value = false;
           await fetchPosts();
         } else {
           const err = await response.json();
-          alert('저장 실패: ' + (err.error || '알 수 없는 오류. 비밀번호를 확인하세요.'));
+          alert('저장 실패: ' + (err.error || '비밀번호를 확인하세요.'));
         }
       } catch (error) {
         alert('네트워크 오류: ' + error.message);
@@ -174,9 +207,9 @@ export default {
 
     const confirmDelete = async (id, title) => {
       if (!adminKey.value) {
-        alert('삭제를 위해 관리자 비밀번호를 먼저 입력해주세요. (글쓰기 폼 하단)');
-        showEditor.value = true;
-        return;
+        const key = prompt('삭제를 위해 관리자 비밀번호를 입력해주세요:');
+        if (!key) return;
+        adminKey.value = key;
       }
 
       const ok = confirm(`'${title}' 글을 정말 삭제하시겠습니까?`);
@@ -192,11 +225,13 @@ export default {
 
         if (response.ok) {
           alert('삭제되었습니다.');
+          adminKey.value = ''; // 비밀번호 자동 삭제
           selectedPost.value = null;
           await fetchPosts();
         } else {
           const err = await response.json();
-          alert('삭제 실패: ' + (err.error || '알 수 없는 오류. 비밀번호를 확인하세요.'));
+          alert('삭제 실패: ' + (err.error || '비밀번호를 확인하세요.'));
+          adminKey.value = ''; // 실패 시에도 보안을 위해 삭제
         }
       } catch (error) {
         alert('삭제 중 오류 발생: ' + error.message);
@@ -220,7 +255,8 @@ export default {
 
     return { 
       currentLang, t, posts, loading, formatDate, viewPost,
-      showEditor, newPost, submitPost, submitting, adminKey, selectedPost, confirmDelete
+      showEditor, newPost, submitPost, submitting, adminKey, selectedPost, 
+      confirmDelete, isEditing, startEdit, openEditor, closeEditor
     };
   }
 }
@@ -305,7 +341,7 @@ export default {
 }
 
 .admin-key input {
-  border-color: var(--accent);
+  border: 1px solid var(--accent);
 }
 
 .submit-btn {
@@ -479,7 +515,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .modal-date {
@@ -487,19 +523,42 @@ export default {
   font-size: 0.9rem;
 }
 
-.delete-text-btn {
-  background: none;
-  border: none;
-  color: #ff3b30;
-  font-size: 0.85rem;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.3s;
+.modal-admin-btns {
+  display: flex;
+  gap: 12px;
 }
 
-.delete-text-btn:hover {
-  opacity: 1;
-  text-decoration: underline;
+.edit-btn {
+  background: var(--card-bg);
+  border: 1px solid rgba(0,0,0,0.1);
+  padding: 6px 16px;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.edit-btn:hover {
+  background: #e5e5e7;
+}
+
+.delete-pill-btn {
+  background: #fff1f0;
+  color: #ff3b30;
+  border: 1px solid #ffccc7;
+  padding: 6px 16px;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.delete-pill-btn:hover {
+  background: #ff3b30;
+  color: white;
+  border-color: #ff3b30;
 }
 
 .modal-body h1 {
@@ -536,6 +595,6 @@ export default {
   .hero-title { font-size: 2.5rem; }
   .modal-image { height: 250px; }
   .modal-body h1 { font-size: 1.8rem; }
-  .modal-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .modal-header { flex-direction: column; align-items: flex-start; gap: 15px; }
 }
 </style>

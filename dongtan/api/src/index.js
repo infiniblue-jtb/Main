@@ -58,4 +58,25 @@ app.delete('/api/posts/:id', async (c) => {
   }
 });
 
+// 게시글 수정
+app.put('/api/posts/:id', async (c) => {
+  const authHeader = c.req.header('Authorization');
+  if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+
+  const id = c.req.param('id');
+  const body = await c.req.json();
+  const { title, content, excerpt, image_url } = body;
+
+  try {
+    await c.env.DB.prepare(
+      "UPDATE posts SET title = ?, content = ?, excerpt = ?, image_url = ? WHERE id = ?"
+    ).bind(title, content, excerpt, image_url, id).run();
+    return c.json({ success: true });
+  } catch (e) {
+    return c.json({ error: e.message }, 500);
+  }
+});
+
 export default app
