@@ -89,15 +89,20 @@
             <!-- Lotto Game -->
             <div v-if="activeGame === 'lotto'" class="game-container">
               <h2>🎰 {{ currentLang === 'ko' ? '로또 번호 생성기' : 'Lotto Generator' }}</h2>
-              <div class="lotto-balls">
-                <transition-group name="ball-pop">
-                  <div v-for="num in lottoNumbers" :key="num" class="ball" :class="getBallColor(num)">
-                    {{ num }}
+              <div class="lotto-rows">
+                <div v-for="(row, idx) in lottoRows" :key="idx" class="lotto-row">
+                  <span class="row-label">{{ idx + 1 }}회:</span>
+                  <div class="lotto-balls-small">
+                    <div v-for="num in row" :key="num" class="ball small" :class="getBallColor(num)">
+                      {{ num }}
+                    </div>
                   </div>
-                </transition-group>
-                <div v-if="lottoNumbers.length === 0" class="ball-placeholder">?</div>
+                </div>
+                <div v-if="lottoRows.length === 0" class="ball-placeholder-large">
+                  <p>{{ currentLang === 'ko' ? '행운의 번호 7줄을 생성합니다' : 'Generating 7 lines of lucky numbers' }}</p>
+                </div>
               </div>
-              <button class="game-btn" @click="generateLotto">{{ currentLang === 'ko' ? '번호 뽑기 (7개)' : 'Generate (7)' }}</button>
+              <button class="game-btn" @click="generateLotto">{{ currentLang === 'ko' ? '번호 뽑기 (7줄)' : 'Generate (7 Lines)' }}</button>
             </div>
 
             <!-- Ladder Game -->
@@ -213,18 +218,16 @@ export default {
     const gameStarted = ref(false);
 
     // Lotto
-    const lottoNumbers = ref([]);
+    const lottoRows = ref([]);
     const generateLotto = () => {
-      lottoNumbers.value = [];
-      const numbers = new Set();
-      while (numbers.size < 7) {
-        numbers.add(Math.floor(Math.random() * 45) + 1);
+      lottoRows.value = [];
+      for (let i = 0; i < 7; i++) {
+        const numbers = new Set();
+        while (numbers.size < 6) {
+          numbers.add(Math.floor(Math.random() * 45) + 1);
+        }
+        lottoRows.value.push(Array.from(numbers).sort((a, b) => a - b));
       }
-      const sorted = Array.from(numbers).sort((a, b) => a - b);
-      // Animate popping
-      sorted.forEach((n, i) => {
-        setTimeout(() => lottoNumbers.value.push(n), i * 150);
-      });
     };
     const getBallColor = (num) => {
       if (num <= 10) return 'yellow';
@@ -246,7 +249,7 @@ export default {
       gameStarted.value = true;
       showWinner.value = false;
       ladderWinner.value = -1;
-      winnerSlot.value = Math.floor(Math.random() * playerCount.value);
+      currentPath.value = 0; // Start with first player for animation
       
       await nextTick();
       const canvas = ladderCanvas.value;
@@ -259,12 +262,35 @@ export default {
       // Generate horizontal bars
       const bars = [];
       for (let i = 0; i < cols - 1; i++) {
-        for (let j = 0; j < 5; j++) {
-          bars.push({ col: i, y: 50 + Math.random() * (h - 100) });
+        const barCount = 3 + Math.floor(Math.random() * 3);
+        for (let j = 0; j < barCount; j++) {
+          bars.push({ col: i, y: 60 + Math.random() * (h - 120) });
         }
       }
 
-      const drawLadder = (pathIdx = -1, progress = 0) => {
+      // Calculate path for player 0 (or we could make it random)
+      const startCol = Math.floor(Math.random() * cols);
+      currentPath.value = startCol;
+      let currentCol = startCol;
+      let curY = 20;
+      const pathPoints = [[(currentCol + 1) * spacing, curY]];
+      
+      const sortedBars = [...bars].sort((a, b) => a.y - b.y);
+      sortedBars.forEach(bar => {
+        if (bar.col === currentCol) {
+          pathPoints.push([(currentCol + 1) * spacing, bar.y]);
+          currentCol++;
+          pathPoints.push([(currentCol + 1) * spacing, bar.y]);
+        } else if (bar.col === currentCol - 1) {
+          pathPoints.push([(currentCol + 1) * spacing, bar.y]);
+          currentCol--;
+          pathPoints.push([(currentCol + 1) * spacing, bar.y]);
+        }
+      });
+      pathPoints.push([(currentCol + 1) * spacing, h - 20]);
+      winnerSlot.value = currentCol;
+
+      const drawLadder = (progress = 0) => {
         ctx.clearRect(0, 0, w, h);
         ctx.strokeStyle = '#86868b';
         ctx.lineWidth = 4;
@@ -288,21 +314,27 @@ export default {
         });
 
         // Path Animation
-        if (pathIdx !== -1) {
+        if (progress > 0) {
           ctx.strokeStyle = '#0071e3';
           ctx.lineWidth = 6;
-          let curCol = pathIdx;
-          let curY = 20;
           ctx.beginPath();
-          ctx.moveTo((curCol + 1) * spacing, curY);
+          ctx.moveTo(pathPoints[0][0], pathPoints[0][1]);
 
-          // Find winner logic to simulate path (simplified for visual)
-          // In a real ladder, you follow the bars. Let's just animate a line to the winner slot for impact.
-          const targetX = (winnerSlot.value + 1) * spacing;
-          const currentY = 20 + (h - 40) * progress;
-          const currentX = (pathIdx + 1) * spacing + (targetX - (pathIdx + 1) * spacing) * (progress ** 2);
+          const totalSegments = pathPoints.length - 1;
+          const currentSegmentIdx = Math.floor(progress * totalSegments);
           
-          ctx.lineTo(currentX, currentY);
+          for (let i = 0; i < currentSegmentIdx; i++) {
+            ctx.lineTo(pathPoints[i+1][0], pathPoints[i+1][1]);
+          }
+
+          if (currentSegmentIdx < totalSegments) {
+            const lastPoint = pathPoints[currentSegmentIdx];
+            const nextPoint = pathPoints[currentSegmentIdx + 1];
+            const segProgress = (progress * totalSegments) % 1;
+            const curX = lastPoint[0] + (nextPoint[0] - lastPoint[0]) * segProgress;
+            const curY = lastPoint[1] + (nextPoint[1] - lastPoint[1]) * segProgress;
+            ctx.lineTo(curX, curY);
+          }
           ctx.stroke();
         }
       };
@@ -311,13 +343,14 @@ export default {
       let p = 0;
       const animate = () => {
         if (p < 1) {
-          p += 0.01;
-          drawLadder(0, p); // Simplified: show path from first player or random
+          p += 0.005; // Slower, smoother animation
+          drawLadder(p);
           requestAnimationFrame(animate);
         } else {
+          drawLadder(1);
           showWinner.value = true;
           ladderWinner.value = winnerSlot.value;
-          winnerName.value = playerNames.value[winnerSlot.value] || (currentLang.value === 'ko' ? '참가자' + (winnerSlot.value+1) : 'Player' + (winnerSlot.value+1));
+          winnerName.value = playerNames.value[startCol] || (currentLang.value === 'ko' ? '참가자' + (startCol+1) : 'Player' + (startCol+1));
         }
       };
       animate();
@@ -387,28 +420,35 @@ export default {
       spinning.value = true;
       wheelWinner.value = null;
       
-      const extraSpins = 5 + Math.random() * 5;
+      const extraSpins = 8 + Math.random() * 5;
       const randomOffset = Math.random() * 360;
-      const finalRotation = wheelRotation.value + extraSpins * 360 + randomOffset;
+      const totalRotation = extraSpins * 360 + randomOffset;
+      const finalRotation = wheelRotation.value + totalRotation;
       wheelRotation.value = finalRotation;
       
       setTimeout(() => {
         spinning.value = false;
-        // pointer is at top (0 deg). 
-        // A rotation of R means the segment at (360 - (R%360)) is at the top.
+        // The pointer is at the top. 
+        // We want to find which segment (1-6) is at the top.
+        // The wheel segments are placed at (i-1)*60 degrees.
+        // A rotation of R clockwise means the point at -R is now at 0 (top).
+        // However, our segments are squares and they are offset.
+        // To fix this once and for all, let's use a clear mapping.
+        // 0-60deg on the wheel is Segment 1, 60-120 is 2, etc. (clockwise)
+        // Point at top is (360 - (finalRotation % 360)) % 360.
+        // We add 90 because our "0" for the first segment is at 9 o'clock (due to top-left square)
+        // and we want to know what's at 12 o'clock.
         const normalized = (360 - (finalRotation % 360)) % 360;
-        // Each segment is 60 deg. 0-60 is 1, 60-120 is 6 (due to counter-clockwise rotation logic)
-        // Let's simplify: 1 is 0-60, 2 is 300-360, etc. 
-        // Based on our CSS, segments are placed 0, 60, 120...
-        // So 0-60 is segment 1, 60-120 is segment 6, 120-180 is segment 5...
-        const segments = [1, 6, 5, 4, 3, 2];
+        // With the current CSS, Segment 1 (0deg) is from 270 to 330, Segment 2 is 330 to 30, etc.
+        // Let's use a simpler mapping that matches the visual.
+        const segments = [2, 1, 6, 5, 4, 3];
         wheelWinner.value = segments[Math.floor(normalized / 60)];
       }, 3000);
     };
 
     const openGame = (game) => {
       activeGame.value = game;
-      lottoNumbers.value = [];
+      lottoRows.value = [];
       gameStarted.value = false;
       raceWinner.value = null;
       racing.value = false;
@@ -422,7 +462,7 @@ export default {
 
     return {
       currentLang, t, activeGame, openGame, closeGame,
-      lottoNumbers, generateLotto, getBallColor,
+      lottoRows, generateLotto, getBallColor,
       playerCount, playerNames, gameStarted, startLadder, ladderCanvas, showWinner, winnerName, ladderWinner, winnerSlot, currentPath,
       raceItems, racing, raceWinner, startRace, countdown, raceLeader, resetRace,
       wheelRotation, spinning, wheelWinner, spinWheel
@@ -460,11 +500,14 @@ export default {
 .game-btn:disabled { opacity: 0.5; }
 .game-btn.secondary { background: var(--card-bg); color: var(--text-primary); margin-left: 10px; }
 
-.lotto-balls { display: flex; gap: 10px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; min-height: 60px; }
+.lotto-rows { display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; align-items: center; }
+.lotto-row { display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.03); padding: 8px 15px; border-radius: 12px; width: 100%; max-width: 400px; }
+.row-label { font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); min-width: 45px; }
+.lotto-balls-small { display: flex; gap: 8px; justify-content: center; }
 .ball { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.ball.small { width: 32px; height: 32px; font-size: 0.85rem; }
 .ball.yellow { background: #fbc02d; } .ball.blue { background: #1976d2; } .ball.red { background: #d32f2f; } .ball.gray { background: #757575; } .ball.green { background: #388e3c; }
-.ball-pop-enter-active { animation: pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-@keyframes pop-in { 0% { opacity: 0; transform: scale(0); } 100% { opacity: 1; transform: scale(1); } }
+.ball-placeholder-large { padding: 40px; border: 2px dashed rgba(0,0,0,0.1); border-radius: 20px; color: var(--text-secondary); }
 
 .setup-area { animation: apple-fade 0.5s ease-out; }
 .player-controls { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 20px; }
