@@ -2,16 +2,18 @@
   <div id="app-wrapper" :class="{ 'dark-mode': theme === 'dark' }">
     <nav class="apple-nav">
       <div class="nav-container">
-        <router-link to="/" class="logo-group clickable-logo">
-          <span class="logo-icon">✨</span>
-          <span class="logo-text">Happy Dongtan</span>
-        </router-link>
+        <div class="nav-left">
+          <router-link to="/" class="logo-group clickable-logo">
+            <span class="logo-icon">✨</span>
+            <span class="logo-text">Happy Dongtan</span>
+          </router-link>
 
-        <button class="mobile-menu-btn" @click="isMenuOpen = !isMenuOpen" :aria-label="isMenuOpen ? 'Close menu' : 'Open menu'">
-          <span class="hamburger-line" :class="{ 'open': isMenuOpen }"></span>
-          <span class="hamburger-line" :class="{ 'open': isMenuOpen }"></span>
-          <span class="hamburger-line" :class="{ 'open': isMenuOpen }"></span>
-        </button>
+          <button class="mobile-menu-btn" @click="isMenuOpen = !isMenuOpen" :aria-label="isMenuOpen ? 'Close menu' : 'Open menu'">
+            <span class="hamburger-line" :class="{ 'open': isMenuOpen }"></span>
+            <span class="hamburger-line" :class="{ 'open': isMenuOpen }"></span>
+            <span class="hamburger-line" :class="{ 'open': isMenuOpen }"></span>
+          </button>
+        </div>
 
         <div class="nav-links" :class="{ 'is-open': isMenuOpen }">
           <router-link to="/kids" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '아이와 뭐하지' : 'Explore' }}</router-link>
@@ -162,6 +164,12 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 0 22px;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .logo-group {
@@ -390,29 +398,35 @@ body {
 }
 
 @media (max-width: 834px) {
+  .nav-container {
+    padding: 0 16px;
+  }
+
   .mobile-menu-btn {
     display: block;
+    padding: 8px;
   }
 
   .nav-links {
     position: fixed;
     top: 48px;
     left: 0;
-    right: 0;
-    bottom: 0;
+    width: 100%;
+    height: calc(100vh - 48px);
     background: var(--nav-bg);
     backdrop-filter: var(--blur);
     -webkit-backdrop-filter: var(--blur);
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 40px;
+    gap: 30px;
     padding: 40px;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    transform: translateY(-20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(-10px);
     z-index: 10000;
+    overflow-y: auto;
   }
 
   .nav-links.is-open {
@@ -422,10 +436,23 @@ body {
   }
 
   .nav-item {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 600;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
   }
 
+  .logo-text { 
+    font-size: 0.95rem;
+  }
+  
+  .control-group {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
   .logo-text { display: none; }
 }
 </style>
