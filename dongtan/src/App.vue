@@ -25,7 +25,13 @@
           <router-link to="/board" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '자유게시판' : 'Board' }}</router-link>
         </div>
         <div class="control-group">
-          <span class="nav-time">{{ currentTime }}</span>
+          <div class="status-pill">
+            <span class="weather-info" v-if="weather">
+              <span class="weather-icon">{{ weather.icon }}</span>
+              <span class="weather-temp">{{ weather.temp }}°</span>
+            </span>
+            <span class="nav-time">{{ currentTime }}</span>
+          </div>
           <button class="icon-btn" @click="toggleLang" :title="currentLang === 'ko' ? 'English' : '한국어'">
             {{ currentLang === 'ko' ? 'EN' : 'KO' }}
           </button>
@@ -68,18 +74,43 @@ export default {
     const theme = ref(localStorage.getItem('theme') || 'light');
     const isMenuOpen = ref(false);
     const currentTime = ref('');
+    const weather = ref(null);
+
+    const getWeatherIcon = (code) => {
+      if (code === 0) return '☀️';
+      if (code <= 3) return '🌤️';
+      if (code <= 48) return '☁️';
+      if (code <= 67) return '🌧️';
+      if (code <= 77) return '❄️';
+      if (code <= 82) return '🌦️';
+      if (code <= 99) return '⛈️';
+      return '🌡️';
+    };
+
+    const fetchWeather = async () => {
+      try {
+        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=37.2022&longitude=127.1088&current_weather=true');
+        const data = await res.json();
+        weather.value = {
+          temp: Math.round(data.current_weather.temperature),
+          icon: getWeatherIcon(data.current_weather.weathercode)
+        };
+      } catch (e) {
+        console.error('Weather fetch failed', e);
+      }
+    };
 
     const updateTime = () => {
       const now = new Date();
       currentTime.value = now.toLocaleTimeString('ko-KR', {
         hour12: false,
         hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
+        minute: '2-digit'
       });
     };
 
     let timer;
+    let weatherTimer;
 
     const goToContact = async () => {
       if (router.currentRoute.value.path !== '/board') {
@@ -113,14 +144,17 @@ export default {
       document.documentElement.setAttribute('data-theme', theme.value);
       document.documentElement.lang = currentLang.value;
       updateTime();
+      fetchWeather();
       timer = setInterval(updateTime, 1000);
+      weatherTimer = setInterval(fetchWeather, 600000); // 10분마다 날씨 업데이트
     });
 
     onUnmounted(() => {
       if (timer) clearInterval(timer);
+      if (weatherTimer) clearInterval(weatherTimer);
     });
 
-    return { currentLang, theme, isMenuOpen, currentTime, toggleLang, toggleTheme, goToContact };
+    return { currentLang, theme, isMenuOpen, currentTime, weather, toggleLang, toggleTheme, goToContact };
   }
 }
 </script>
@@ -272,13 +306,43 @@ body {
 }
 
 .nav-time {
-  font-family: 'SF Mono', 'Courier New', monospace;
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-variant-numeric: tabular-nums;
   font-size: 0.8rem;
-  font-weight: 500;
-  opacity: 0.7;
-  letter-spacing: 0.05em;
-  min-width: 65px;
-  text-align: center;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0,0,0,0.04);
+  padding: 5px 12px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .status-pill {
+  background: rgba(255,255,255,0.08);
+}
+
+.weather-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-right: 1px solid rgba(0,0,0,0.1);
+  padding-right: 10px;
+}
+
+[data-theme="dark"] .weather-info {
+  border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+.weather-icon {
+  font-size: 1rem;
 }
 
 .icon-btn {
