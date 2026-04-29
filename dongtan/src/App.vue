@@ -25,6 +25,7 @@
           <router-link to="/board" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '자유게시판' : 'Board' }}</router-link>
         </div>
         <div class="control-group">
+          <span class="nav-time">{{ currentTime }}</span>
           <button class="icon-btn" @click="toggleLang" :title="currentLang === 'ko' ? 'English' : '한국어'">
             {{ currentLang === 'ko' ? 'EN' : 'KO' }}
           </button>
@@ -56,7 +57,7 @@
 </template>
 
 <script>
-import { ref, provide, onMounted } from 'vue';
+import { ref, provide, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 export default {
@@ -66,6 +67,19 @@ export default {
     const currentLang = ref(localStorage.getItem('lang') || 'ko');
     const theme = ref(localStorage.getItem('theme') || 'light');
     const isMenuOpen = ref(false);
+    const currentTime = ref('');
+
+    const updateTime = () => {
+      const now = new Date();
+      currentTime.value = now.toLocaleTimeString('ko-KR', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    };
+
+    let timer;
 
     const goToContact = async () => {
       if (router.currentRoute.value.path !== '/board') {
@@ -98,9 +112,15 @@ export default {
     onMounted(() => {
       document.documentElement.setAttribute('data-theme', theme.value);
       document.documentElement.lang = currentLang.value;
+      updateTime();
+      timer = setInterval(updateTime, 1000);
     });
 
-    return { currentLang, theme, isMenuOpen, toggleLang, toggleTheme, goToContact };
+    onUnmounted(() => {
+      if (timer) clearInterval(timer);
+    });
+
+    return { currentLang, theme, isMenuOpen, currentTime, toggleLang, toggleTheme, goToContact };
   }
 }
 </script>
@@ -247,7 +267,18 @@ body {
 
 .control-group {
   display: flex;
+  align-items: center;
   gap: 15px;
+}
+
+.nav-time {
+  font-family: 'SF Mono', 'Courier New', monospace;
+  font-size: 0.8rem;
+  font-weight: 500;
+  opacity: 0.7;
+  letter-spacing: 0.05em;
+  min-width: 65px;
+  text-align: center;
 }
 
 .icon-btn {
