@@ -423,7 +423,7 @@ export default {
     return {
       currentLang, t, activeGame, openGame, closeGame,
       lottoNumbers, generateLotto, getBallColor,
-      playerCount, playerNames, gameStarted, startLadder, ladderCanvas, showWinner, winnerName, ladderWinner, winnerSlot,
+      playerCount, playerNames, gameStarted, startLadder, ladderCanvas, showWinner, winnerName, ladderWinner, winnerSlot, currentPath,
       raceItems, racing, raceWinner, startRace, countdown, raceLeader, resetRace,
       wheelRotation, spinning, wheelWinner, spinWheel
     };
