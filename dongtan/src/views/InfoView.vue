@@ -52,24 +52,60 @@
         <div class="spinner"></div>
       </div>
       
-      <div v-else class="blog-grid">
-        <article v-for="post in posts" :key="post.id" class="blog-card" @click="viewPost(post)">
-          <div class="card-image" :style="post.image_url ? { backgroundImage: `url(${post.image_url})` } : {}">
-            <div v-if="!post.image_url" class="placeholder-image">✨</div>
-            <!-- 삭제 버튼 -->
-            <button class="delete-icon-btn" @click.stop="confirmDelete(post.id, post.title)" :title="currentLang === 'ko' ? '삭제' : 'Delete'">
-              ✕
-            </button>
-          </div>
-          <div class="card-body">
-            <span class="card-date">{{ formatDate(post.created_at) }}</span>
-            <h3 class="card-title">{{ post.title }}</h3>
-            <p class="card-excerpt">{{ post.excerpt || post.content.substring(0, 100) + '...' }}</p>
-            <div class="card-footer">
-              <span class="read-more">{{ currentLang === 'ko' ? '자세히 보기' : 'Read More' }} →</span>
+      <div v-else>
+        <!-- 상단 4개 카드 -->
+        <div class="blog-grid">
+          <article v-for="post in posts.slice(0, 4)" :key="post.id" class="blog-card" @click="viewPost(post)">
+            <div class="card-image" :style="post.image_url ? { backgroundImage: `url(${post.image_url})` } : {}">
+              <div v-if="!post.image_url" class="placeholder-image">✨</div>
+              <!-- 삭제 버튼 -->
+              <button class="delete-icon-btn" @click.stop="confirmDelete(post.id, post.title)" :title="currentLang === 'ko' ? '삭제' : 'Delete'">
+                ✕
+              </button>
             </div>
+            <div class="card-body">
+              <span class="card-date">{{ formatDate(post.created_at) }}</span>
+              <h3 class="card-title">{{ post.title }}</h3>
+              <p class="card-excerpt">{{ post.excerpt || post.content.substring(0, 100) + '...' }}</p>
+              <div class="card-footer">
+                <span class="read-more">{{ currentLang === 'ko' ? '자세히 보기' : 'Read More' }} →</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- 나머지 정보 테이블 -->
+        <div v-if="posts.length > 4" class="other-posts-section">
+          <h2 class="section-title">{{ currentLang === 'ko' ? '이전 소식' : 'Previous News' }}</h2>
+          <div class="table-container glass-card">
+            <table class="info-table">
+              <thead>
+                <tr>
+                  <th class="col-date">{{ currentLang === 'ko' ? '날짜' : 'Date' }}</th>
+                  <th class="col-title">{{ currentLang === 'ko' ? '제목' : 'Title' }}</th>
+                  <th class="col-action"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="post in posts.slice(4)" :key="post.id" @click="viewPost(post)">
+                  <td class="col-date">{{ formatDate(post.created_at) }}</td>
+                  <td class="col-title">
+                    <div class="title-wrapper">
+                      <span class="title-text">{{ post.title }}</span>
+                      <span class="excerpt-hint">{{ post.excerpt || post.content.substring(0, 50) + '...' }}</span>
+                    </div>
+                  </td>
+                  <td class="col-action">
+                    <div class="action-btns">
+                      <button class="table-delete-btn" @click.stop="confirmDelete(post.id, post.title)">✕</button>
+                      <span class="arrow">→</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        </article>
+        </div>
       </div>
     </section>
 
@@ -591,10 +627,127 @@ export default {
   to { transform: rotate(360deg); }
 }
 
+/* 추가된 테이블 스타일 */
+.other-posts-section {
+  margin-top: 60px;
+  animation: apple-fade 0.8s ease-out;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.table-container {
+  overflow: hidden;
+  padding: 0;
+}
+
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.info-table th {
+  padding: 16px 24px;
+  background: rgba(0,0,0,0.02);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.info-table td {
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.info-table tr:last-child td {
+  border-bottom: none;
+}
+
+.info-table tr:hover td {
+  background: rgba(0,0,0,0.01);
+}
+
+.col-date {
+  width: 150px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.title-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title-text {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.excerpt-hint {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: block;
+}
+
+.col-action {
+  width: 80px;
+  text-align: right;
+}
+
+.action-btns {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.table-delete-btn {
+  background: none;
+  border: none;
+  color: #ff3b30;
+  font-size: 1.1rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s;
+}
+
+tr:hover .table-delete-btn {
+  opacity: 0.6;
+}
+
+.table-delete-btn:hover {
+  opacity: 1 !important;
+  transform: scale(1.2);
+}
+
+.arrow {
+  color: var(--accent);
+  font-weight: 600;
+  transition: transform 0.2s;
+}
+
+tr:hover .arrow {
+  transform: translateX(5px);
+}
+
 @media (max-width: 734px) {
   .hero-title { font-size: 2.5rem; }
   .modal-image { height: 250px; }
   .modal-body h1 { font-size: 1.8rem; }
   .modal-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+  
+  .col-date { width: 100px; font-size: 0.8rem; }
+  .title-text { font-size: 1rem; }
+  .excerpt-hint { display: none; }
+  .info-table td, .info-table th { padding: 16px; }
 }
 </style>
