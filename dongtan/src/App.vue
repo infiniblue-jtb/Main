@@ -6,14 +6,21 @@
           <span class="logo-icon">✨</span>
           <span class="logo-text">Happy Dongtan</span>
         </router-link>
-        <div class="nav-links">
-          <router-link to="/kids" class="nav-item">{{ currentLang === 'ko' ? '아이와 뭐하지' : 'Explore' }}</router-link>
-          <router-link to="/food" class="nav-item">{{ currentLang === 'ko' ? '오늘 뭐먹지' : 'Eat' }}</router-link>
-          <router-link to="/cafe" class="nav-item">{{ currentLang === 'ko' ? '키즈 가베' : 'Cafe' }}</router-link>
-          <router-link to="/health" class="nav-item">{{ currentLang === 'ko' ? '병원/약국' : 'Health' }}</router-link>
-          <router-link to="/info" class="nav-item">{{ currentLang === 'ko' ? '정보' : 'Info' }}</router-link>
-          <router-link to="/fun" class="nav-item">{{ currentLang === 'ko' ? '놀이터' : 'Fun' }}</router-link>
-          <router-link to="/board" class="nav-item">{{ currentLang === 'ko' ? '자유게시판' : 'Board' }}</router-link>
+
+        <button class="mobile-menu-btn" @click="isMenuOpen = !isMenuOpen" :aria-label="isMenuOpen ? 'Close menu' : 'Open menu'">
+          <span class="hamburger-line" :class="{ 'open': isMenuOpen }"></span>
+          <span class="hamburger-line" :class="{ 'open': isMenuOpen }"></span>
+          <span class="hamburger-line" :class="{ 'open': isMenuOpen }"></span>
+        </button>
+
+        <div class="nav-links" :class="{ 'is-open': isMenuOpen }">
+          <router-link to="/kids" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '아이와 뭐하지' : 'Explore' }}</router-link>
+          <router-link to="/food" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '오늘 뭐먹지' : 'Eat' }}</router-link>
+          <router-link to="/cafe" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '키즈 가베' : 'Cafe' }}</router-link>
+          <router-link to="/health" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '병원/약국' : 'Health' }}</router-link>
+          <router-link to="/info" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '정보' : 'Info' }}</router-link>
+          <router-link to="/fun" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '놀이터' : 'Fun' }}</router-link>
+          <router-link to="/board" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '자유게시판' : 'Board' }}</router-link>
         </div>
         <div class="control-group">
           <button class="icon-btn" @click="toggleLang" :title="currentLang === 'ko' ? 'English' : '한국어'">
@@ -56,6 +63,7 @@ export default {
     const router = useRouter();
     const currentLang = ref(localStorage.getItem('lang') || 'ko');
     const theme = ref(localStorage.getItem('theme') || 'light');
+    const isMenuOpen = ref(false);
 
     const goToContact = async () => {
       if (router.currentRoute.value.path !== '/board') {
@@ -90,7 +98,7 @@ export default {
       document.documentElement.lang = currentLang.value;
     });
 
-    return { currentLang, theme, toggleLang, toggleTheme, goToContact };
+    return { currentLang, theme, isMenuOpen, toggleLang, toggleTheme, goToContact };
   }
 }
 </script>
@@ -190,6 +198,38 @@ body {
 
 .nav-item:hover {
   opacity: 1;
+}
+
+/* Mobile Menu Button */
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  z-index: 10001;
+}
+
+.hamburger-line {
+  display: block;
+  width: 20px;
+  height: 2px;
+  margin: 4px 0;
+  background-color: var(--text-primary);
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.hamburger-line.open:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.hamburger-line.open:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-line.open:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
 }
 
 .router-link-active {
@@ -349,8 +389,43 @@ body {
   transform: translateY(-20px);
 }
 
-@media (max-width: 734px) {
-  .nav-links { gap: 15px; }
+@media (max-width: 834px) {
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  .nav-links {
+    position: fixed;
+    top: 48px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--nav-bg);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 40px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(-20px);
+    z-index: 10000;
+  }
+
+  .nav-links.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .nav-item {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
   .logo-text { display: none; }
 }
 </style>
