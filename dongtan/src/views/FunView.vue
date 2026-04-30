@@ -186,8 +186,10 @@
                       :style="{ left: `calc(${racer.progress}% - 10px)` }"
                       :class="{ running: raceActive }"
                     >
-                      <span class="racer-emoji">{{ activeGame === 'horse' ? '🐎' : '🏎️' }}</span>
                       <span v-if="raceActive" class="racer-dust">💨</span>
+<span class="racer-emoji">
+  {{ activeGame === 'horse' ? '🐎' : '🏎️' }}
+</span>
                     </div>
                     <div class="finish-flag">🏁</div>
                   </div>
@@ -763,10 +765,25 @@ export default {
   position: absolute; top: 50%; left: 5%; right: 10%; height: 1px;
   background: repeating-linear-gradient(90deg,rgba(255,255,255,0.1) 0,rgba(255,255,255,0.1) 10px,transparent 10px,transparent 20px);
 }
-.racer { position: absolute; top: 50%; transform: translateY(-50%); display: flex; align-items: center; font-size: 1.6rem; transition: left 0.06s linear; }
-.racer.running .racer-emoji { animation: racer-bounce 0.18s infinite; }
+.racer {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-block;
+}
+.racer-emoji {
+  position: relative;
+  z-index: 2;
+  font-size: 28px;
+}
 @keyframes racer-bounce { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
-.racer-dust { font-size: 0.9rem; margin-left: -4px; opacity: 0.7; animation: dust-fade 0.3s infinite; }
+.racer-dust {
+  position: absolute;
+  left: -22px;   /* 캐릭터 뒤쪽 */
+  top: 2px;
+  font-size: 18px;
+  opacity: 0.8;
+}
 @keyframes dust-fade { 0%,100%{ opacity:0.7; } 50%{ opacity:0.2; } }
 .finish-flag { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 1.3rem; }
 .place-badge { font-size: 0.7rem; font-weight: 700; color: #ffd93d; width: 28px; text-align: right; flex-shrink: 0; }
