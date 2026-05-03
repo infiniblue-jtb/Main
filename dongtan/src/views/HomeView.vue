@@ -10,7 +10,7 @@
           <router-link to="/food" class="apple-button secondary">🍱 오늘 뭐먹지</router-link>
           <router-link to="/cafe" class="apple-button secondary">☕ 키즈 가베</router-link>
           <router-link to="/health" class="apple-button secondary">🏥 병원/약국</router-link>
-          <router-link to="/info" class="apple-button secondary">📰 정보 광장</router-link>
+          <router-link to="/blog" class="apple-button secondary">📰 blog</router-link>
         </div>
       </div>
     </section>
@@ -54,8 +54,8 @@
       <div class="promotion-banner">
         <div class="banner-content">
           <h3>매주 업데이트되는 동탄 생활 소식</h3>
-          <p>정보 광장에서 동탄의 최신 축제 정보와 육아 팁을 확인하세요.</p>
-          <router-link to="/info" class="text-link">정보 광장 바로가기 →</router-link>
+          <p>blog에서 동탄의 최신 축제 정보와 육아 팁을 확인하세요.</p>
+          <router-link to="/blog" class="text-link">blog 바로가기 →</router-link>
         </div>
       </div>
     </section>

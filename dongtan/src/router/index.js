@@ -5,7 +5,7 @@ import FoodView from '../views/FoodView.vue'
 import CafeView from '../views/CafeView.vue'
 import HealthView from '../views/HealthView.vue'
 import BoardView from '../views/BoardView.vue'
-import InfoView from '../views/InfoView.vue'
+import BlogView from '../views/BlogView.vue'
 import FunView from '../views/FunView.vue'
 import AboutView from '../views/AboutView.vue'
 import PrivacyView from '../views/PrivacyView.vue'
@@ -16,7 +16,7 @@ const routes = [
   { path: '/food', name: 'Food', component: FoodView },
   { path: '/cafe', name: 'Cafe', component: CafeView },
   { path: '/health', name: 'Health', component: HealthView },
-  { path: '/info', name: 'Info', component: InfoView },
+  { path: '/blog', name: 'Blog', component: BlogView },
   { path: '/fun', name: 'Fun', component: FunView },
   { path: '/board', name: 'Board', component: BoardView },
   { path: '/about', name: 'About', component: AboutView },

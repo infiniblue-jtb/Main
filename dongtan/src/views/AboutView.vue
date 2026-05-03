@@ -22,7 +22,7 @@
           <li><strong>오늘 뭐먹지:</strong> 아이와 함께 가기 좋은 검증된 맛집 리스트</li>
           <li><strong>키즈 가베/카페:</strong> 부모님과 아이 모두가 즐거운 테마 공간</li>
           <li><strong>병원/약국:</strong> 야간 진료 병원 및 공휴일 운영 약국 정보</li>
-          <li><strong>정보 광장:</strong> 생활에 도움이 되는 다양한 로컬 뉴스 및 팁</li>
+          <li><strong>blog:</strong> 생활에 도움이 되는 다양한 로컬 뉴스 및 팁</li>
           <li><strong>놀이터:</strong> 아이들이 마음껏 뛰어놀 수 있는 야외 공간 정보</li>
           <li><strong>자유게시판:</strong> 이웃들과 소통하고 정보를 나누는 커뮤니티</li>
         </ul>

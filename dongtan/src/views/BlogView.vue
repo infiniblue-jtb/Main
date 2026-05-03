@@ -19,7 +19,7 @@
       <!-- 글쓰기/수정 에디터 폼 -->
       <transition name="apple-fade">
         <div v-if="showEditor" class="editor-container glass-card">
-          <h2>{{ isEditing ? (currentLang === 'ko' ? '정보 수정하기' : 'Edit Info') : (currentLang === 'ko' ? '새로운 정보 작성' : 'Write New Info') }}</h2>
+          <h2>{{ isEditing ? (currentLang === 'ko' ? '포스트 수정하기' : 'Edit Post') : (currentLang === 'ko' ? '새로운 포스트 작성' : 'Write New Post') }}</h2>
           <form @submit.prevent="submitPost" class="apple-form">
             <div class="form-group">
               <label>{{ currentLang === 'ko' ? '제목' : 'Title' }}</label>
@@ -42,7 +42,7 @@
               <input v-model="adminKey" type="password" required placeholder="API SECRET 입력 (저장 후 자동 삭제)">
             </div>
             <button type="submit" class="submit-btn" :disabled="submitting">
-              {{ submitting ? (currentLang === 'ko' ? '처리 중...' : 'Processing...') : (currentLang === 'ko' ? '정보 저장' : 'Save Info') }}
+              {{ submitting ? (currentLang === 'ko' ? '처리 중...' : 'Processing...') : (currentLang === 'ko' ? '저장' : 'Save') }}
             </button>
           </form>
         </div>
@@ -144,17 +144,17 @@ import { ref, computed, inject, onMounted } from 'vue';
 
 const TRANSLATIONS = {
   ko: {
-    title: '정보 광장',
+    title: 'blog',
     desc: '동탄 생활에 도움이 되는 유용한 정보와 소식을 직접 공유하세요.',
   },
   en: {
-    title: 'Info Hub',
+    title: 'Blog',
     desc: 'Share and explore useful information for life in Dongtan.',
   }
 };
 
 export default {
-  name: 'InfoView',
+  name: 'BlogView',
   setup() {
     const currentLang = inject('currentLang', ref('ko'));
     const posts = ref([]);
