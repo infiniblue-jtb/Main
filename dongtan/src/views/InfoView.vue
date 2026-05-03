@@ -107,6 +107,9 @@
           </div>
         </div>
       </div>
+
+      <!-- Bottom Ad Unit -->
+      <AdComponent slotId="9173007135" />
     </section>
 
     <!-- 포스트 상세 모달 -->

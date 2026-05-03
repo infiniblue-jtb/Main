@@ -16,6 +16,8 @@
         </div>
       </div>
 
+      <AdComponent slotId="9173007135" />
+
       <!-- Contact Form -->
       <div id="contact-section" class="glass-card contact-container mt-80">
         <h2 class="card-title">{{ t.contactTitle }}</h2>

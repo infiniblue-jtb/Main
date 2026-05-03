@@ -30,6 +30,9 @@
         </p>
       </div>
 
+      <!-- In-content Ad -->
+      <AdComponent slotId="9173007135" />
+
       <div class="info-grid">
         <div class="info-card">
           <div class="card-icon">🏘️</div>

@@ -29,6 +29,9 @@
 
       <h2>5. 개인정보 보호책임자</h2>
       <p>문의사항이 있으시면 아래 이메일로 연락 주시기 바랍니다.<br>Email: infiniblue@naver.com</p>
+      
+      <!-- Bottom Ad Unit -->
+      <AdComponent slotId="9173007135" />
     </section>
   </div>
 </template>

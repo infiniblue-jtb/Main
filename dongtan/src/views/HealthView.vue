@@ -67,6 +67,9 @@
           </div>
         </div>
       </div>
+
+      <!-- Bottom Ad Unit -->
+      <AdComponent slotId="9173007135" />
     </section>
   </div>
 </template>

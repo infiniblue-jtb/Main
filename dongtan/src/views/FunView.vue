@@ -42,6 +42,9 @@
       </div>
     </section>
 
+    <!-- Ad Unit -->
+    <AdComponent slotId="9173007135" />
+
     <!-- ── 모달 (Teleport 제거 → scoped CSS 정상 적용) ── -->
     <Transition name="modal">
       <div v-if="activeGame" class="modal-overlay" @click.self="closeGame">
@@ -186,10 +189,10 @@
                       :style="{ left: `calc(${racer.progress}% - 10px)` }"
                       :class="{ running: raceActive }"
                     >
-                      <span v-if="raceActive" class="racer-dust">💨</span>
-<span class="racer-emoji">
+<span class="racer-emoji" :style="{ display: 'inline-block', transform: activeGame === 'horse' ? 'scaleX(-1)' : 'scaleX(-1)' }">
   {{ activeGame === 'horse' ? '🐎' : '🏎️' }}
 </span>
+                      <span v-if="raceActive" class="racer-dust">💨</span>
                     </div>
                     <div class="finish-flag">🏁</div>
                   </div>
@@ -458,13 +461,15 @@ export default {
           if (np > maxP) { maxP = np; raceLeader.value = idx; }
           if (np >= 92) {
             const place = placeCounter++;
-            if (place === 1) raceWinner.value = r.name;
             return { ...r, progress: 92, finished: true, place };
           }
           return { ...r, progress: np };
         });
         if (placeCounter > pCount.value) {
           clearInterval(raceInterval); raceInterval = null; raceActive.value = false;
+          // 모든 참가자 완주 후 1등 표시
+          const winner = racers.value.find(r => r.place === 1);
+          if (winner) raceWinner.value = winner.name;
         }
       }, 60);
     };
@@ -527,8 +532,12 @@ export default {
       setTimeout(() => {
         isSpinning.value = false; wheelTransition.value = 'none';
         const n = pCount.value, arcDeg = 360 / n;
-        const normalized = ((360 - (finalAngle % 360)) % 360 + arcDeg / 2) % 360;
-        wheelWinner.value = pNames.value[Math.floor(normalized / arcDeg) % n] || `항목${Math.floor(normalized / arcDeg) % n + 1}`;
+        // 캔버스는 -90도(12시)에서 시작, 포인터(▼)는 상단 고정
+        // finalAngle만큼 회전했으므로 실제 포인터가 가리키는 각도 = (0 - finalAngle % 360 + 360) % 360 → 12시 기준
+        const rotated = ((finalAngle % 360) + 360) % 360;
+        const pointedAngle = (360 - rotated) % 360;
+        const idx = Math.floor(pointedAngle / arcDeg) % n;
+        wheelWinner.value = pNames.value[idx] || `항목${idx + 1}`;
       }, 4100);
     };
 
@@ -779,7 +788,7 @@ export default {
 @keyframes racer-bounce { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
 .racer-dust {
   position: absolute;
-  left: -22px;   /* 캐릭터 뒤쪽 */
+  right: -22px;   /* 캐릭터 뒤쪽 (진행 방향 반대) */
   top: 2px;
   font-size: 18px;
   opacity: 0.8;

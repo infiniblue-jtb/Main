@@ -43,6 +43,9 @@
           <p>A: 현재는 동탄 1, 2신도시에 집중하여 가장 정확하고 깊이 있는 로컬 정보를 제공하는 것을 목표로 하고 있습니다.</p>
         </div>
       </div>
+
+      <!-- Bottom Ad Unit -->
+      <AdComponent slotId="9173007135" />
     </section>
   </div>
 </template>

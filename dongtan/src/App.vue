@@ -48,6 +48,9 @@
           <component :is="Component" />
         </transition>
       </router-view>
+      
+      <!-- Bottom Ad Unit for all pages -->
+      <AdComponent slotId="9173007135" />
     </main>
     <footer class="apple-footer">
       <div class="footer-content">
