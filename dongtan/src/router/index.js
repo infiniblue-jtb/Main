@@ -6,7 +6,7 @@ import CafeView from '../views/CafeView.vue'
 import HealthView from '../views/HealthView.vue'
 import BoardView from '../views/BoardView.vue'
 import BlogView from '../views/BlogView.vue'
-import FunView from '../views/FunView.vue'
+import FunView from '../views/FunView_backup.vue'
 import AboutView from '../views/AboutView.vue'
 import PrivacyView from '../views/PrivacyView.vue'
 

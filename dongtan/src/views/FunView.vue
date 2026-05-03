@@ -183,18 +183,10 @@
                 >
                   <div class="lane-label">{{ racer.name }}</div>
                   <div class="lane-road">
-                    <div class="lane-dash"></div>
-                    <div
-                      class="racer"
-                      :style="{ left: `calc(${racer.progress}% - 10px)` }"
-                      :class="{ running: raceActive }"
-                    >
-<span class="racer-emoji" :style="{ display: 'inline-block', transform: activeGame === 'horse' ? 'scaleX(-1)' : 'scaleX(-1)' }">
-  {{ activeGame === 'horse' ? '🐎' : '🏎️' }}
-</span>
-                      <span v-if="raceActive" class="racer-dust">💨</span>
-                    </div>
-                    <div class="finish-flag">🏁</div>
+                    <canvas
+                      class="lane-canvas"
+                      :ref="el => { if(el) laneCanvases.value[idx] = el }"
+                    ></canvas>
                   </div>
                   <div class="place-badge" v-if="racer.place">{{ racer.place }}위</div>
                 </div>
@@ -428,13 +420,73 @@ export default {
     };
 
     /* ══════════ 레이스 ══════════ */
-    const racers     = ref([]);
-    const raceActive = ref(false);
-    const raceWinner = ref(null);
-    const countdown  = ref(0);
-    const raceLeader = ref(-1);
-    let   raceInterval  = null;
-    let   placeCounter  = 1;
+    const racers       = ref([]);
+    const raceActive   = ref(false);
+    const raceWinner   = ref(null);
+    const countdown    = ref(0);
+    const raceLeader   = ref(-1);
+    const laneCanvases = ref([]);
+    let   raceInterval = null;
+    let   placeCounter = 1;
+
+    const drawLane = (canvas, racer, isActive) => {
+      if (!canvas) return;
+      const W = canvas.clientWidth || 300;
+      const H = canvas.clientHeight || 46;
+      const dpr = window.devicePixelRatio || 1;
+      if (canvas.width !== W * dpr || canvas.height !== H * dpr) {
+        canvas.width  = W * dpr;
+        canvas.height = H * dpr;
+      }
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+
+      // 점선
+      ctx.beginPath();
+      ctx.setLineDash([10, 10]);
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 1;
+      ctx.moveTo(W * 0.05, H / 2);
+      ctx.lineTo(W * 0.9, H / 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 결승 깃발
+      ctx.font = `${H * 0.7}px serif`;
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🏁', W - H * 0.8, H / 2);
+
+      // 이모지를 canvas에 직접 그림 → transform 100% 제어 가능
+      const emoji = activeGame.value === 'horse' ? '🐎' : '🏎️';
+      const dust  = '💨';
+      const eSize = Math.floor(H * 0.85);
+      const x     = W * (racer.progress / 100);
+      const cy    = H / 2;
+
+      ctx.save();
+      ctx.font = `${eSize}px serif`;
+      ctx.textBaseline = 'middle';
+
+      if (isActive) {
+        // 연기: 말 오른쪽에 그린 뒤 scaleX(-1)로 뒤집어서 왼쪽 방향으로
+        ctx.save();
+        ctx.translate(x - eSize * 0.3, cy);
+        ctx.scale(-1, 1); // 좌우반전
+        ctx.font = `${Math.floor(eSize * 0.6)}px serif`;
+        ctx.fillText(dust, 0, 0);
+        ctx.restore();
+      }
+
+      // 이모지: 오른쪽 방향으로 그리기 위해 scaleX(-1)
+      ctx.save();
+      ctx.translate(x + eSize * 0.5, cy);
+      ctx.scale(-1, 1); // 좌우반전 → 오른쪽 방향
+      ctx.fillText(emoji, 0, 0);
+      ctx.restore();
+
+      ctx.restore();
+    };
 
     const startRace = () => {
       placeCounter     = 1;
@@ -465,9 +517,13 @@ export default {
           }
           return { ...r, progress: np };
         });
+        // 매 tick마다 canvas에 직접 그리기
+        racers.value.forEach((r, idx) => {
+          drawLane(laneCanvases.value[idx], r, raceActive.value);
+        });
         if (placeCounter > pCount.value) {
           clearInterval(raceInterval); raceInterval = null; raceActive.value = false;
-          // 모든 참가자 완주 후 1등 표시
+          racers.value.forEach((r, idx) => drawLane(laneCanvases.value[idx], r, false));
           const winner = racers.value.find(r => r.place === 1);
           if (winner) raceWinner.value = winner.name;
         }
@@ -545,7 +601,7 @@ export default {
       gameCards, activeGame, openGame, closeGame, pCount, pNames, ballColor,
       lottoRows, isGenerating, generateLotto,
       ladderCanvas, ladderStarted, ladderDone, ladderWinnerName, ladderResultCol, ladderActiveCol, startLadder,
-      racers, raceActive, raceWinner, countdown, raceLeader, startRace, resetRace,
+      racers, raceActive, raceWinner, countdown, raceLeader, laneCanvases, startRace, resetRace,
       wheelCanvas, rouletteStarted, wheelAngle, wheelTransition, isSpinning, wheelWinner, spinWheel, resetRoulette,
     };
   }
@@ -770,6 +826,7 @@ export default {
 .race-lane.leading { background: rgba(255,215,61,0.07); }
 .lane-label { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.45); width: 54px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lane-road  { flex: 1; height: 46px; background: rgba(255,255,255,0.04); border-radius: 23px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.07); }
+.lane-canvas { width: 100%; height: 100%; display: block; }
 .lane-dash  {
   position: absolute; top: 50%; left: 5%; right: 10%; height: 1px;
   background: repeating-linear-gradient(90deg,rgba(255,255,255,0.1) 0,rgba(255,255,255,0.1) 10px,transparent 10px,transparent 20px);
