@@ -75,7 +75,7 @@
         </div>
 
         <!-- 나머지 정보 테이블 -->
-        <div v-if="posts.length > 4" class="other-posts-section">
+        <div v-if="tablePosts.length > 0" class="other-posts-section">
           <h2 class="section-title">{{ currentLang === 'ko' ? '이전 소식' : 'Previous News' }}</h2>
           <div class="table-container glass-card">
             <table class="info-table">
@@ -87,7 +87,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="post in posts.slice(4)" :key="post.id" @click="viewPost(post)">
+                <tr v-for="post in paginatedTablePosts" :key="post.id" @click="viewPost(post)">
                   <td class="col-date">{{ formatDate(post.created_at) }}</td>
                   <td class="col-title">
                     <div class="title-wrapper">
@@ -104,6 +104,35 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Pagination UI -->
+          <div v-if="totalPages > 1" class="pagination">
+            <button 
+              class="page-btn nav-btn" 
+              :disabled="currentPage === 1" 
+              @click="setPage(currentPage - 1)"
+            >
+              &lt;
+            </button>
+            <div class="page-numbers">
+              <button 
+                v-for="page in totalPages" 
+                :key="page" 
+                class="page-btn" 
+                :class="{ active: currentPage === page }"
+                @click="setPage(page)"
+              >
+                {{ page }}
+              </button>
+            </div>
+            <button 
+              class="page-btn nav-btn" 
+              :disabled="currentPage === totalPages" 
+              @click="setPage(currentPage + 1)"
+            >
+              &gt;
+            </button>
           </div>
         </div>
       </div>
@@ -173,6 +202,10 @@ export default {
       content: ''
     });
 
+    // Pagination
+    const currentPage = ref(1);
+    const pageSize = 10;
+
     const t = computed(() => TRANSLATIONS[currentLang.value] || TRANSLATIONS['ko']);
 
     const fetchPosts = async () => {
@@ -185,6 +218,26 @@ export default {
         console.error('Failed to fetch posts:', error);
       } finally {
         loading.value = false;
+      }
+    };
+
+    const tablePosts = computed(() => posts.value.slice(4));
+    const totalPages = computed(() => Math.ceil(tablePosts.value.length / pageSize));
+    
+    const paginatedTablePosts = computed(() => {
+      const start = (currentPage.value - 1) * pageSize;
+      const end = start + pageSize;
+      return tablePosts.value.slice(start, end);
+    });
+
+    const setPage = (page) => {
+      if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page;
+        // 스크롤을 테이블 상단으로 이동시킬 수 있음
+        const tableElement = document.querySelector('.other-posts-section');
+        if (tableElement) {
+          tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }
     };
 
@@ -740,6 +793,54 @@ tr:hover .table-delete-btn {
 
 tr:hover .arrow {
   transform: translateX(5px);
+}
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+  gap: 15px;
+}
+
+.page-numbers {
+  display: flex;
+  gap: 8px;
+}
+
+.page-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #e5e5e7;
+  transform: scale(1.05);
+}
+
+.page-btn.active {
+  background: var(--accent);
+  color: white;
+}
+
+.page-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.nav-btn {
+  font-size: 1.2rem;
 }
 
 @media (max-width: 734px) {
