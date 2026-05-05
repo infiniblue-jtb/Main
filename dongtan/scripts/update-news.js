@@ -16,6 +16,14 @@ async function updateNews() {
   }
   workerApiUrl = workerApiUrl.replace(/\/$/, '');
 
+  // 만약 URL에 이미 /api/posts가 포함되어 있다면 베이스 URL만 추출
+  const baseUrl = workerApiUrl.includes('/api/posts') 
+    ? workerApiUrl.split('/api/posts')[0] 
+    : workerApiUrl;
+  
+  const uploadUrl = `${baseUrl}/api/posts`;
+  console.log(`Target Upload URL: ${uploadUrl}`);
+
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ 
     model: "gemini-2.5-flash-lite", // 성능이 좋은 최신 모델 사용
@@ -79,7 +87,7 @@ async function updateNews() {
     for (const newsData of newsArray) {
       console.log('Uploading:', newsData.title);
       
-      const apiResponse = await fetch(`${workerApiUrl}/api/posts`, {
+      const apiResponse = await fetch(uploadUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
