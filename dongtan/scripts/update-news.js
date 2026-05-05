@@ -3,7 +3,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 async function updateNews() {
   const apiKey = process.env.GEMINI_API_KEY;
   let workerApiUrl = process.env.WORKER_API_URL ? process.env.WORKER_API_URL.trim() : null;
-  const apiSecret = process.env.API_SECRET ? process.env.API_SECRET.replace(/\s/g, '') : null;
+  const apiSecret = process.env.API_SECRET ? process.env.API_SECRET.trim() : null; // 전체 공백 제거 대신 trim() 사용
 
   if (!apiKey || !workerApiUrl || !apiSecret) {
     console.error('ERROR: Missing environment variables (API_KEY, WORKER_URL, or API_SECRET).');
@@ -91,8 +91,9 @@ async function updateNews() {
       if (apiResponse.ok) {
         console.log(`- Success: ${newsData.title}`);
       } else {
+        const status = apiResponse.status;
         const errorText = await apiResponse.text();
-        console.error(`- Failed: ${newsData.title}`, errorText);
+        console.error(`- Failed: ${newsData.title} (Status: ${status})`, errorText);
       }
     }
 
