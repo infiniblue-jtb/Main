@@ -37,18 +37,40 @@ async function updateData() {
     'IMPORTANT: Locations MUST be in Dongtan (동탄). Coordinates must be accurate. ' +
     'name, address, menu, feature, info, parking must be in Korean. English fields (name_en, price_en, etc.) must be in English.';
 
-  try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text().trim();
-    
-    if (!text) {
-      throw new Error("Gemini returned an empty response.");
-    }
+  let attempts = 0;
+  const maxAttempts = 3;
+  let success = false;
+  let data = null;
 
-    const data = JSON.parse(text);
+  while (attempts < maxAttempts && !success) {
+    try {
+      attempts++;
+      console.log(`Generating data (Attempt ${attempts}/${maxAttempts})...`);
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text().trim();
+      
+      if (!text) {
+        throw new Error("Gemini returned an empty response.");
+      }
+
+      data = JSON.parse(text);
+      success = true;
+    } catch (error) {
+      console.error(`Attempt ${attempts} failed:`, error.message);
+      if (attempts < maxAttempts) {
+        const delay = attempts * 5000;
+        console.log(`Waiting ${delay / 1000} seconds before retrying...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        console.error('All attempts to generate data failed.');
+        process.exit(1);
+      }
+    }
+  }
+
+  try {
     const filePath = path.join(__dirname, '../src/assets/data.json');
-    
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
     console.log('Successfully updated data.json');
   } catch (error) {

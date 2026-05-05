@@ -41,16 +41,38 @@ async function updateNews() {
     반드시 한국어로 작성하고, 실제 동탄 지역의 특성을 반영해줘.
   `;
 
-  try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text().trim();
-    const newsArray = JSON.parse(text);
+  let attempts = 0;
+  const maxAttempts = 3;
+  let success = false;
+  let newsArray = [];
 
-    if (!Array.isArray(newsArray)) {
-      throw new Error('Gemini did not return an array.');
+  while (attempts < maxAttempts && !success) {
+    try {
+      attempts++;
+      console.log(`Generating content (Attempt ${attempts}/${maxAttempts})...`);
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text().trim();
+      newsArray = JSON.parse(text);
+
+      if (!Array.isArray(newsArray)) {
+        throw new Error('Gemini did not return an array.');
+      }
+      success = true;
+    } catch (error) {
+      console.error(`Attempt ${attempts} failed:`, error.message);
+      if (attempts < maxAttempts) {
+        const delay = attempts * 5000; // 5초, 10초 대기
+        console.log(`Waiting ${delay / 1000} seconds before retrying...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        console.error('All attempts to generate content failed.');
+        process.exit(1);
+      }
     }
+  }
 
+  try {
     console.log(`Generated ${newsArray.length} posts. Starting upload...`);
 
     // 각 포스트를 루프 돌며 D1에 저장
