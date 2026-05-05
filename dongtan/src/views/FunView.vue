@@ -185,7 +185,7 @@
                   <div class="lane-road">
                     <canvas
                       class="lane-canvas"
-                      :ref="el => { if(el) laneCanvases.value[idx] = el }"
+                      :ref="el => { if(el) laneCanvases[idx] = el }"
                     ></canvas>
                   </div>
                   <div class="place-badge" v-if="racer.place">{{ racer.place }}위</div>
@@ -430,7 +430,7 @@ export default {
     let   placeCounter = 1;
 
     const drawLane = (canvas, racer, isActive) => {
-      if (!canvas) return;
+      if (!canvas || !racer) return;
       const W = canvas.clientWidth || 300;
       const H = canvas.clientHeight || 46;
       const dpr = window.devicePixelRatio || 1;
@@ -455,6 +455,7 @@ export default {
       // 결승 깃발
       ctx.font = `${H * 0.7}px serif`;
       ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center';
       ctx.fillText('🏁', W - H * 0.8, H / 2);
 
       // 이모지를 canvas에 직접 그림 → transform 100% 제어 가능
@@ -467,12 +468,12 @@ export default {
       ctx.save();
       ctx.font = `${eSize}px serif`;
       ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center';
 
       if (isActive) {
-        // 연기: 말 오른쪽에 그린 뒤 scaleX(-1)로 뒤집어서 왼쪽 방향으로
+        // 연기: 말 왼쪽에 그림
         ctx.save();
-        ctx.translate(x - eSize * 0.3, cy);
-        ctx.scale(-1, 1); // 좌우반전
+        ctx.translate(x - eSize * 0.5, cy);
         ctx.font = `${Math.floor(eSize * 0.6)}px serif`;
         ctx.fillText(dust, 0, 0);
         ctx.restore();
@@ -480,7 +481,7 @@ export default {
 
       // 이모지: 오른쪽 방향으로 그리기 위해 scaleX(-1)
       ctx.save();
-      ctx.translate(x + eSize * 0.5, cy);
+      ctx.translate(x, cy);
       ctx.scale(-1, 1); // 좌우반전 → 오른쪽 방향
       ctx.fillText(emoji, 0, 0);
       ctx.restore();
@@ -488,13 +489,23 @@ export default {
       ctx.restore();
     };
 
-    const startRace = () => {
+    const startRace = async () => {
       placeCounter     = 1;
       raceWinner.value = null;
       racers.value = Array.from({ length: pCount.value }, (_, i) => ({
         name: pNames.value[i] || `참가자${i + 1}`,
         progress: 0, speed: 0.4 + Math.random() * 0.4, finished: false, place: null,
       }));
+      
+      // 캔버스 초기화 및 대기
+      laneCanvases.value = [];
+      await nextTick();
+      
+      // 시작 선에 그리기
+      racers.value.forEach((r, idx) => {
+        drawLane(laneCanvases.value[idx], r, false);
+      });
+
       countdown.value = 3;
       const t = setInterval(() => {
         countdown.value--;
