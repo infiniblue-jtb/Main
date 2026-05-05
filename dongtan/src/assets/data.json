@@ -2,388 +2,388 @@
   "kids": {
     "free": [
       {
-        "name": "동탄센트럴파크",
+        "name": "동탄 센트럴파크",
         "name_en": "Dongtan Central Park",
-        "lat": 37.1853,
-        "lng": 127.0808,
-        "address": "경기도 화성시 동탄반석로 132",
+        "lat": 37.2105,
+        "lng": 127.0805,
+        "address": "경기도 화성시 동탄반석로 175",
         "price": "무료",
         "price_en": "Free",
-        "parking": "주차장 이용 가능 (유료)"
+        "parking": "공영주차장 이용"
       },
       {
-        "name": "동탄문화공원",
+        "name": "동탄 문화공원",
         "name_en": "Dongtan Culture Park",
-        "lat": 37.1965,
-        "lng": 127.0723,
-        "address": "경기도 화성시 동탄대로 431",
-        "price": "무료",
-        "price_en": "Free",
-        "parking": "주차장 이용 가능 (무료)"
-      },
-      {
-        "name": "청계호수공원",
-        "name_en": "Cheonggye Lake Park",
-        "lat": 37.1938,
-        "lng": 127.0552,
-        "address": "경기도 화성시 동탄대로 2412",
-        "price": "무료",
-        "price_en": "Free",
-        "parking": "주차장 이용 가능 (무료)"
-      },
-      {
-        "name": "동탄호수공원 어린이놀이터",
-        "name_en": "Dongtan Lake Park Playground",
-        "lat": 37.1941,
-        "lng": 127.0535,
-        "address": "경기도 화성시 동탄대로 2412",
-        "price": "무료",
-        "price_en": "Free",
-        "parking": "동탄호수공원 주차장 이용"
-      },
-      {
-        "name": "오산천 산책로 (동탄 구간)",
-        "name_en": "Osan Stream Promenade (Dongtan Section)",
         "lat": 37.1912,
-        "lng": 127.0695,
-        "address": "경기도 화성시 반월동",
+        "lng": 127.0788,
+        "address": "경기도 화성시 동탄대로5길 25",
         "price": "무료",
         "price_en": "Free",
-        "parking": "주변 노상 주차장 이용"
+        "parking": "공영주차장 이용"
       },
       {
-        "name": "동탄역 문화광장",
-        "name_en": "Dongtan Station Cultural Plaza",
-        "lat": 37.2049,
-        "lng": 127.0878,
-        "address": "경기도 화성시 동탄대로 514",
+        "name": "동탄호수공원",
+        "name_en": "Dongtan Lake Park",
+        "lat": 37.1581,
+        "lng": 127.0854,
+        "address": "경기도 화성시 동탄대로5길 2",
         "price": "무료",
         "price_en": "Free",
-        "parking": "동탄역 환승주차장 이용 (유료)"
+        "parking": "공영주차장 이용"
+      },
+      {
+        "name": "동탄 어린이 도서관",
+        "name_en": "Dongtan Children's Library",
+        "lat": 37.2063,
+        "lng": 127.0821,
+        "address": "경기도 화성시 동탄반석로 184",
+        "price": "무료",
+        "price_en": "Free",
+        "parking": "도서관 주차장 이용 (협소)"
+      },
+      {
+        "name": "숲 체험 학습장 (동탄)",
+        "name_en": "Forest Experience Learning Center (Dongtan)",
+        "lat": 37.1958,
+        "lng": 127.0729,
+        "address": "경기도 화성시 동탄문화로 111",
+        "price": "무료",
+        "price_en": "Free",
+        "parking": "인근 공영주차장 이용"
+      },
+      {
+        "name": "동탄 2신도시 물놀이터",
+        "name_en": "Dongtan 2 New Town Splash Pad",
+        "lat": 37.1779,
+        "lng": 127.0909,
+        "address": "경기도 화성시 동탄대로5길 15",
+        "price": "무료",
+        "price_en": "Free",
+        "parking": "공영주차장 이용"
       }
     ],
     "paid": [
       {
-        "name": "롯데백화점 동탄점 옥상정원",
-        "name_en": "Lotte Department Store Dongtan Rooftop Garden",
-        "lat": 37.2001,
-        "lng": 127.0913,
-        "address": "경기도 화성시 동탄역로 160",
-        "price": "백화점 이용 시 무료",
-        "price_en": "Free with Department Store Visit",
-        "parking": "백화점 주차장 이용 (유료)"
-      },
-      {
-        "name": "리틀다이노 동탄점",
-        "name_en": "Little Dino Dongtan",
-        "lat": 37.1915,
-        "lng": 127.0789,
-        "address": "경기도 화성시 동탄대로 492",
-        "price": "시간당 요금 부과",
-        "price_en": "Hourly Fee",
-        "parking": "건물 내 주차 가능 (유료)"
-      },
-      {
-        "name": "키즈맘센터 동탄점",
-        "name_en": "Kid Mom Center Dongtan",
-        "lat": 37.1902,
-        "lng": 127.0858,
-        "address": "경기도 화성시 동탄대로 484",
-        "price": "시간당 요금 부과",
-        "price_en": "Hourly Fee",
-        "parking": "건물 내 주차 가능 (유료)"
-      },
-      {
-        "name": "에코스쿨 동탄점",
-        "name_en": "Eco School Dongtan",
-        "lat": 37.1891,
-        "lng": 127.0751,
-        "address": "경기도 화성시 동탄대로 439",
-        "price": "체험별 요금 부과",
-        "price_en": "Fee per Experience",
-        "parking": "건물 내 주차 가능 (유료)"
+        "name": "키즈다쿵 동탄점",
+        "name_en": "Kids Dakung Dongtan",
+        "lat": 37.1935,
+        "lng": 127.0888,
+        "address": "경기도 화성시 동탄대로 566",
+        "price": "평일 18,000원 / 주말 22,000원 (12개월 이상)",
+        "price_en": "Weekday 18,000 KRW / Weekend 22,000 KRW (over 12 months)",
+        "parking": "건물 내 주차장 이용"
       },
       {
         "name": "챔피언1250 동탄점",
         "name_en": "Champion 1250 Dongtan",
-        "lat": 37.1954,
-        "lng": 127.0917,
-        "address": "경기도 화성시 동탄기흥로 585",
-        "price": "시간당 요금 부과",
-        "price_en": "Hourly Fee",
-        "parking": "건물 내 주차 가능 (유료)"
+        "lat": 37.1759,
+        "lng": 127.0769,
+        "address": "경기도 화성시 동탄역로 150",
+        "price": "1시간 20,000원 내외",
+        "price_en": "Around 20,000 KRW for 1 hour",
+        "parking": "건물 내 주차장 이용"
+      },
+      {
+        "name": "모래놀이터",
+        "name_en": "Sand Playground",
+        "lat": 37.1839,
+        "lng": 127.0763,
+        "address": "경기도 화성시 동탄대로 522",
+        "price": "시간당 10,000원 내외",
+        "price_en": "Around 10,000 KRW per hour",
+        "parking": "인근 유료 주차장 이용"
+      },
+      {
+        "name": "아이니테마파크",
+        "name_en": "Aini Theme Park",
+        "lat": 37.1719,
+        "lng": 127.0741,
+        "address": "경기도 화성시 동탄대로2길 54",
+        "price": "1인당 25,000원 내외",
+        "price_en": "Around 25,000 KRW per person",
+        "parking": "건물 내 주차장 이용"
+      },
+      {
+        "name": "트램폴린파크",
+        "name_en": "Trampoline Park",
+        "lat": 37.2031,
+        "lng": 127.0938,
+        "address": "경기도 화성시 동탄대로 485",
+        "price": "1시간 15,000원 내외",
+        "price_en": "Around 15,000 KRW for 1 hour",
+        "parking": "건물 내 주차장 이용"
       },
       {
         "name": "상상노리 동탄점",
         "name_en": "Sangsang Nori Dongtan",
-        "lat": 37.2009,
-        "lng": 127.0832,
-        "address": "경기도 화성시 동탄대로 500",
-        "price": "시간당 요금 부과",
-        "price_en": "Hourly Fee",
-        "parking": "건물 내 주차 가능 (유료)"
+        "lat": 37.1925,
+        "lng": 127.0895,
+        "address": "경기도 화성시 동탄대로 566",
+        "price": "평일 16,000원 / 주말 20,000원",
+        "price_en": "Weekday 16,000 KRW / Weekend 20,000 KRW",
+        "parking": "건물 내 주차장 이용"
       }
     ]
   },
   "food": {
     "breakfast": [
       {
+        "name": "아메리칸 에그 샌드위치",
+        "name_en": "American Egg Sandwich",
+        "lat": 37.1821,
+        "lng": 127.0773,
+        "address": "경기도 화성시 동탄대로 522",
+        "menu": "에그 베이컨 치즈 샌드위치",
+        "menu_en": "Egg Bacon Cheese Sandwich",
+        "parking": "인근 유료 주차장 이용"
+      },
+      {
         "name": "김가네 동탄점",
         "name_en": "Kimganae Dongtan",
-        "lat": 37.1919,
-        "lng": 127.0846,
-        "address": "경기도 화성시 동탄대로 496",
-        "menu": "김밥, 분식류",
-        "menu_en": "Kimbap, Bunsik",
-        "parking": "건물 내 주차장 이용 (유료)"
+        "lat": 37.1978,
+        "lng": 127.0841,
+        "address": "경기도 화성시 동탄대로 593",
+        "menu": "김밥",
+        "menu_en": "Kimbap",
+        "parking": "상가 주차장 이용"
       },
       {
-        "name": "와플반트 동탄점",
-        "name_en": "Waffle Bant Dongtan",
-        "lat": 37.1987,
-        "lng": 127.0901,
-        "address": "경기도 화성시 동탄대로 514",
-        "menu": "와플, 커피",
-        "menu_en": "Waffles, Coffee",
-        "parking": "백화점 주차장 이용 (유료)"
+        "name": "소담촌 동탄",
+        "name_en": "Sodamchon Dongtan",
+        "lat": 37.1897,
+        "lng": 127.0779,
+        "address": "경기도 화성시 동탄대로 500",
+        "menu": "샤브샤브",
+        "menu_en": "Shabu-shabu",
+        "parking": "건물 내 주차장 이용"
       },
       {
-        "name": "이삭토스트 동탄역점",
-        "name_en": "Isak Toast Dongtan Station",
-        "lat": 37.2048,
-        "lng": 127.0888,
-        "address": "경기도 화성시 동탄대로 514",
-        "menu": "토스트, 커피",
-        "menu_en": "Toast, Coffee",
-        "parking": "동탄역 환승주차장 이용 (유료)"
-      },
-      {
-        "name": "서브웨이 동탄역점",
-        "name_en": "Subway Dongtan Station",
-        "lat": 37.205,
-        "lng": 127.0885,
-        "address": "경기도 화성시 동탄대로 514",
-        "menu": "샌드위치, 샐러드",
-        "menu_en": "Sandwiches, Salads",
-        "parking": "동탄역 환승주차장 이용 (유료)"
+        "name": "맥도날드 동탄DT점",
+        "name_en": "McDonald's Dongtan DT",
+        "lat": 37.1828,
+        "lng": 127.0759,
+        "address": "경기도 화성시 동탄대로 522",
+        "menu": "맥모닝",
+        "menu_en": "McMuffin",
+        "parking": "DT 이용 또는 인근 유료 주차장"
       }
     ],
     "lunch": [
       {
-        "name": "본가 동탄점",
-        "name_en": "Bon-ga Dongtan",
-        "lat": 37.1912,
-        "lng": 127.0861,
-        "address": "경기도 화성시 동탄대로 492",
-        "menu": "소갈비, 불고기",
-        "menu_en": "Beef Ribs, Bulgogi",
-        "parking": "건물 내 주차장 이용 (유료)"
+        "name": "본죽 동탄점",
+        "name_en": "Bonjuk Dongtan",
+        "lat": 37.2045,
+        "lng": 127.0866,
+        "address": "경기도 화성시 동탄대로 485",
+        "menu": "전복죽",
+        "menu_en": "Abalone Porridge",
+        "parking": "건물 내 주차장 이용"
       },
       {
-        "name": "채선당 동탄점",
-        "name_en": "Chaesundang Dongtan",
-        "lat": 37.1899,
-        "lng": 127.0854,
-        "address": "경기도 화성시 동탄대로 484",
-        "menu": "샤브샤브",
-        "menu_en": "Shabu-shabu",
-        "parking": "건물 내 주차장 이용 (유료)"
+        "name": "한촌설렁탕 동탄점",
+        "name_en": "Hanchon Seolleongtang Dongtan",
+        "lat": 37.1895,
+        "lng": 127.0801,
+        "address": "경기도 화성시 동탄대로 500",
+        "menu": "설렁탕",
+        "menu_en": "Seolleongtang",
+        "parking": "건물 내 주차장 이용"
       },
       {
-        "name": "명인만두 동탄점",
-        "name_en": "Myungin Mandu Dongtan",
-        "lat": 37.1975,
-        "lng": 127.0732,
-        "address": "경기도 화성시 동탄문화로 25",
-        "menu": "만두, 쫄면",
-        "menu_en": "Dumplings, Jjolmyeon",
-        "parking": "건물 주차장 이용 (유료)"
+        "name": "마포갈매기 동탄점",
+        "name_en": "Mapo Galmaegi Dongtan",
+        "lat": 37.1778,
+        "lng": 127.0779,
+        "address": "경기도 화성시 동탄역로 150",
+        "menu": "갈매기살",
+        "menu_en": "Galmaegisal",
+        "parking": "건물 내 주차장 이용"
       },
       {
-        "name": "고봉민김밥 동탄2신도시점",
-        "name_en": "Gobongmin Kimbap Dongtan 2 New Town",
-        "lat": 37.1943,
-        "lng": 127.0605,
-        "address": "경기도 화성시 동탄대로 602",
-        "menu": "김밥, 라면",
-        "menu_en": "Kimbap, Ramyeon",
-        "parking": "건물 주차장 이용 (유료)"
+        "name": "규동",
+        "name_en": "Gyudon",
+        "lat": 37.1819,
+        "lng": 127.0771,
+        "address": "경기도 화성시 동탄대로 522",
+        "menu": "규동",
+        "menu_en": "Gyudon",
+        "parking": "인근 유료 주차장 이용"
       }
     ],
     "dinner": [
       {
-        "name": "삼겹살 무한리필",
-        "name_en": "Samgyeopsal Muhan Ripeul",
-        "lat": 37.1933,
-        "lng": 127.0888,
-        "address": "경기도 화성시 동탄반석로 204",
-        "menu": "삼겹살 무한리필",
-        "menu_en": "Unlimited Pork Belly",
-        "parking": "건물 주차장 이용 (유료)"
+        "name": "원조부안집",
+        "name_en": "Wonjo Busanjip",
+        "lat": 37.1775,
+        "lng": 127.0785,
+        "address": "경기도 화성시 동탄역로 150",
+        "menu": "숙성 통삼겹살",
+        "menu_en": "Aged Pork Belly",
+        "parking": "건물 내 주차장 이용"
       },
       {
-        "name": "조선칼국수 동탄점",
-        "name_en": "Joseon Kalguksu Dongtan",
-        "lat": 37.1888,
-        "lng": 127.0777,
-        "address": "경기도 화성시 동탄대로 471",
-        "menu": "칼국수, 만두",
-        "menu_en": "Kalguksu, Dumplings",
-        "parking": "건물 내 주차장 이용 (유료)"
+        "name": "고요남 동탄점",
+        "name_en": "Goyonam Dongtan",
+        "lat": 37.1899,
+        "lng": 127.0781,
+        "address": "경기도 화성시 동탄대로 500",
+        "menu": "고인돌 갈비",
+        "menu_en": "Goin Dol Galbi",
+        "parking": "건물 내 주차장 이용"
       },
       {
-        "name": "장어의꿈 동탄점",
-        "name_en": "Jangeui Kkum Dongtan",
-        "lat": 37.195,
-        "lng": 127.0743,
-        "address": "경기도 화성시 동탄대로 435",
-        "menu": "민물장어 구이",
-        "menu_en": "Freshwater Eel BBQ",
-        "parking": "건물 주차장 이용 (유료)"
+        "name": "신전떡볶이 동탄",
+        "name_en": "Sinjeon Tteokbokki Dongtan",
+        "lat": 37.2039,
+        "lng": 127.0855,
+        "address": "경기도 화성시 동탄대로 485",
+        "menu": "떡볶이",
+        "menu_en": "Tteokbokki",
+        "parking": "건물 내 주차장 이용"
       },
       {
-        "name": "동탄회관",
-        "name_en": "Dongtan Hoegwan",
-        "lat": 37.1905,
-        "lng": 127.0835,
-        "address": "경기도 화성시 동탄대로 488",
-        "menu": "한정식",
-        "menu_en": "Korean Set Menu",
-        "parking": "건물 내 주차장 이용 (유료)"
+        "name": "교촌치킨 동탄1호점",
+        "name_en": "Kyochon Chicken Dongtan 1st Branch",
+        "lat": 37.1991,
+        "lng": 127.0828,
+        "address": "경기도 화성시 동탄대로 597",
+        "menu": "오리지날",
+        "menu_en": "Original Chicken",
+        "parking": "건물 내 주차장 이용 (협소)"
       }
     ]
   },
   "cafe": [
     {
-      "name": "스타벅스 동탄역점",
-      "name_en": "Starbucks Dongtan Station",
-      "lat": 37.2052,
-      "lng": 127.0883,
-      "address": "경기도 화성시 동탄대로 514",
-      "feature": "넓은 좌석, 콘센트",
-      "feature_en": "Spacious seating, power outlets",
-      "parking": "동탄역 환승주차장 이용 (유료)"
-    },
-    {
-      "name": "투썸플레이스 동탄호수공원점",
-      "name_en": "Twosome Place Dongtan Lake Park",
-      "lat": 37.1949,
-      "lng": 127.053,
-      "address": "경기도 화성시 동탄대로 2426",
-      "feature": "호수 뷰, 베이커리",
-      "feature_en": "Lake view, bakery",
-      "parking": "동탄호수공원 주차장 이용"
-    },
-    {
-      "name": "폴바셋 동탄점",
+      "name": "폴 바셋 동탄",
       "name_en": "Paul Bassett Dongtan",
-      "lat": 37.1901,
-      "lng": 127.0856,
-      "address": "경기도 화성시 동탄대로 484",
-      "feature": "넓은 공간, 맛있는 커피",
-      "feature_en": "Spacious area, quality coffee",
-      "parking": "건물 내 주차장 이용 (유료)"
+      "lat": 37.1825,
+      "lng": 127.0765,
+      "address": "경기도 화성시 동탄대로 522",
+      "feature": "넓은 공간, 유모차 통행 용이",
+      "feature_en": "Spacious, stroller-friendly",
+      "parking": "건물 내 주차장 이용"
     },
     {
-      "name": "할리스커피 동탄센트럴파크점",
-      "name_en": "Hollys Coffee Dongtan Central Park",
-      "lat": 37.186,
-      "lng": 127.081,
-      "address": "경기도 화성시 동탄반석로 132",
-      "feature": "공원 뷰, 편안한 분위기",
-      "feature_en": "Park view, comfortable atmosphere",
-      "parking": "동탄센트럴파크 주차장 이용 (유료)"
+      "name": "스타벅스 동탄호수공원점",
+      "name_en": "Starbucks Dongtan Lake Park",
+      "lat": 37.1589,
+      "lng": 127.0859,
+      "address": "경기도 화성시 동탄대로5길 2",
+      "feature": "호수 뷰, 편안한 좌석",
+      "feature_en": "Lake view, comfortable seating",
+      "parking": "공영주차장 이용"
     },
     {
-      "name": "메가커피 동탄역점",
-      "name_en": "Mega Coffee Dongtan Station",
-      "lat": 37.204,
-      "lng": 127.0895,
-      "address": "경기도 화성시 동탄대로 514",
-      "feature": "가성비 좋은 커피, 테이크아웃",
-      "feature_en": "Affordable coffee, take-out friendly",
-      "parking": "동탄역 환승주차장 이용 (유료)"
+      "name": "앤하우스",
+      "name_en": "N House",
+      "lat": 37.2029,
+      "lng": 127.0858,
+      "address": "경기도 화성시 동탄대로 485",
+      "feature": "베이커리, 아이와 함께 방문하기 좋은 분위기",
+      "feature_en": "Bakery, good atmosphere for visiting with children",
+      "parking": "건물 내 주차장 이용"
     },
     {
-      "name": "컴포즈커피 동탄점",
-      "name_en": "Compose Coffee Dongtan",
-      "lat": 37.1939,
-      "lng": 127.0795,
-      "address": "경기도 화성시 동탄대로 471",
-      "feature": "다양한 메뉴, 합리적인 가격",
-      "feature_en": "Diverse menu, reasonable prices",
-      "parking": "건물 주차장 이용 (유료)"
+      "name": "마이마이",
+      "name_en": "Maimai",
+      "lat": 37.1777,
+      "lng": 127.0775,
+      "address": "경기도 화성시 동탄역로 150",
+      "feature": "아기 의자 구비, 디저트 종류 다양",
+      "feature_en": "High chairs available, variety of desserts",
+      "parking": "건물 내 주차장 이용"
+    },
+    {
+      "name": "카페 하이드",
+      "name_en": "Cafe Hide",
+      "lat": 37.1962,
+      "lng": 127.0765,
+      "address": "경기도 화성시 동탄문화로 111",
+      "feature": "조용한 분위기, 아이 간식 메뉴",
+      "feature_en": "Quiet atmosphere, kids' snack menu",
+      "parking": "인근 공영주차장 이용"
+    },
+    {
+      "name": "테라로사 동탄",
+      "name_en": "Terarosa Dongtan",
+      "lat": 37.1809,
+      "lng": 127.0783,
+      "address": "경기도 화성시 동탄대로 522",
+      "feature": "넓은 공간, 브런치 메뉴",
+      "feature_en": "Spacious, brunch menu",
+      "parking": "건물 내 주차장 이용"
     }
   ],
   "health": {
     "hospitals": [
       {
-        "name": "동탄성심병원",
-        "name_en": "Dongtan Hallym General Hospital",
-        "lat": 37.1847,
-        "lng": 127.0791,
-        "address": "경기도 화성시 동탄지성로 22",
+        "name": "동탄 제일병원",
+        "name_en": "Dongtan Jeil Hospital",
+        "lat": 37.1894,
+        "lng": 127.0786,
+        "address": "경기도 화성시 동탄대로 500",
+        "time": "평일 09:00 ~ 18:00 (진료과별 상이)",
+        "time_en": "Weekdays 09:00 ~ 18:00 (Varies by department)",
+        "info": "소아청소년과, 산부인과 진료",
+        "info_en": "Pediatrics, Obstetrics and Gynecology departments available"
+      },
+      {
+        "name": "해맑은아이병원",
+        "name_en": "Haemalgeun A-i Hospital",
+        "lat": 37.1772,
+        "lng": 127.0795,
+        "address": "경기도 화성시 동탄역로 150",
         "time": "24시간 운영",
-        "time_en": "24 Hours",
-        "info": "응급실 운영",
-        "info_en": "Emergency Room Available"
+        "time_en": "24 hours operation",
+        "info": "어린이 전문 병원, 야간 및 휴일 진료",
+        "info_en": "Children's specialized hospital, night and holiday care"
       },
       {
-        "name": "화성중앙병원",
-        "name_en": "Hwaseong Central Hospital",
-        "lat": 37.1885,
-        "lng": 127.0533,
-        "address": "경기도 화성시 동탄대로 2012",
-        "time": "평일 09:00~18:00, 토요일 09:00~13:00",
-        "time_en": "Weekdays 09:00-18:00, Saturdays 09:00-13:00",
-        "info": "달빛어린이병원 지정 (평일 야간 및 주말 소아 진료)",
-        "info_en": "Designated Moonlight Children's Hospital (Pediatric care on weekday nights and weekends)"
-      },
-      {
-        "name": "다정병원",
-        "name_en": "Dajeong Hospital",
-        "lat": 37.1946,
-        "lng": 127.091,
-        "address": "경기도 화성시 동탄역로 132",
-        "time": "평일 09:00~18:00",
-        "time_en": "Weekdays 09:00-18:00",
-        "info": "정형외과, 신경외과",
-        "info_en": "Orthopedics, Neurosurgery"
+        "name": "동탄 송도병원",
+        "name_en": "Dongtan Songdo Hospital",
+        "lat": 37.192,
+        "lng": 127.085,
+        "address": "경기도 화성시 동탄대로 566",
+        "time": "평일 09:00 ~ 18:00 (진료과별 상이)",
+        "time_en": "Weekdays 09:00 ~ 18:00 (Varies by department)",
+        "info": "내과, 외과 등 일반 진료",
+        "info_en": "General consultations including Internal Medicine, Surgery"
       }
     ],
     "pharmacies": [
       {
-        "name": "드림약국",
-        "name_en": "Dream Pharmacy",
-        "lat": 37.192,
-        "lng": 127.0845,
-        "address": "경기도 화성시 동탄대로 496",
-        "time": "평일 09:00~20:00",
-        "time_en": "Weekdays 09:00-20:00",
-        "info": "주말 및 공휴일 휴무",
-        "info_en": "Closed on weekends and holidays"
+        "name": "하나약국",
+        "name_en": "Hana Pharmacy",
+        "lat": 37.1832,
+        "lng": 127.0775,
+        "address": "경기도 화성시 동탄대로 522",
+        "time": "평일 09:00 ~ 20:00, 토요일 09:00 ~ 17:00",
+        "time_en": "Weekdays 09:00 ~ 20:00, Saturdays 09:00 ~ 17:00",
+        "info": "일반 의약품 취급",
+        "info_en": "Handles general medicines"
       },
       {
-        "name": "행복약국",
-        "name_en": "Haengbok Pharmacy",
-        "lat": 37.1955,
-        "lng": 127.073,
-        "address": "경기도 화성시 동탄대로 435",
-        "time": "매일 09:00~21:00",
-        "time_en": "Daily 09:00-21:00",
-        "info": "연중무휴",
-        "info_en": "Open all year round"
+        "name": "튼튼약국",
+        "name_en": "Teunteun Pharmacy",
+        "lat": 37.1779,
+        "lng": 127.0788,
+        "address": "경기도 화성시 동탄역로 150",
+        "time": "연중무휴 09:00 ~ 21:00",
+        "time_en": "Open year-round 09:00 ~ 21:00",
+        "info": "처방약 및 일반 의약품",
+        "info_en": "Prescription and general medicines"
       },
       {
-        "name": "미래약국",
-        "name_en": "Mirae Pharmacy",
-        "lat": 37.185,
-        "lng": 127.079,
-        "address": "경기도 화성시 동탄지성로 22",
-        "time": "24시간 운영 (병원 내)",
-        "time_en": "24 Hours (Inside Hospital)",
-        "info": "동탄성심병원 내 약국",
-        "info_en": "Pharmacy located within Dongtan Hallym General Hospital"
+        "name": "동탄늘푸른약국",
+        "name_en": "Dongtan Neulpureun Pharmacy",
+        "lat": 37.2042,
+        "lng": 127.0861,
+        "address": "경기도 화성시 동탄대로 485",
+        "time": "평일 09:00 ~ 19:00",
+        "time_en": "Weekdays 09:00 ~ 19:00",
+        "info": "소아과 연계 약국",
+        "info_en": "Pharmacy connected with pediatrics clinic"
       }
     ]
   }
