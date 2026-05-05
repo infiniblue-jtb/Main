@@ -348,7 +348,8 @@ export default {
     return { 
       currentLang, t, posts, loading, formatDate, viewPost,
       showEditor, newPost, submitPost, submitting, adminKey, selectedPost, 
-      confirmDelete, isEditing, startEdit, openEditor, closeEditor
+      confirmDelete, isEditing, startEdit, openEditor, closeEditor,
+      currentPage, totalPages, paginatedTablePosts, setPage, tablePosts
     };
   }
 }
