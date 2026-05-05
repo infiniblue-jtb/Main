@@ -14,15 +14,21 @@ async function updateNews() {
   if (!workerApiUrl.startsWith('http')) {
     workerApiUrl = `https://${workerApiUrl}`;
   }
+  
+  // 주소에서 마지막 슬래시 제거
   workerApiUrl = workerApiUrl.replace(/\/$/, '');
 
-  // 만약 URL에 이미 /api/posts가 포함되어 있다면 베이스 URL만 추출
-  const baseUrl = workerApiUrl.includes('/api/posts') 
-    ? workerApiUrl.split('/api/posts')[0] 
-    : workerApiUrl;
+  // 최종 업로드 주소 결정 (중복 방지)
+  let uploadUrl;
+  if (workerApiUrl.endsWith('/api/posts')) {
+    uploadUrl = workerApiUrl;
+  } else if (workerApiUrl.endsWith('/api')) {
+    uploadUrl = `${workerApiUrl}/posts`;
+  } else {
+    uploadUrl = `${workerApiUrl}/api/posts`;
+  }
   
-  const uploadUrl = `${baseUrl}/api/posts`;
-  console.log(`Target Upload URL: ${uploadUrl}`);
+  console.log(`[DEBUG] Final Upload URL: ${uploadUrl}`);
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ 
