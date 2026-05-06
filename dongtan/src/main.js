@@ -1,4 +1,4 @@
-// v1.0.6 - Webpack Chain Rendering Fix
+// v1.0.7 - Sequential Rendering Attempt
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
