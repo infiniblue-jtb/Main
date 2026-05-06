@@ -1,4 +1,4 @@
-// v1.0.5 - Final Deployment Trigger
+// v1.0.6 - Webpack Chain Rendering Fix
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
