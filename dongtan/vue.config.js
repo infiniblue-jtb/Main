@@ -14,7 +14,8 @@ module.exports = defineConfig({
         staticDir: path.join(__dirname, 'dist'),
         routes: ['/', '/kids', '/food', '/cafe', '/health', '/blog', '/fun', '/board', '/about', '/privacy'],
         renderer: new PuppeteerRenderer({
-          renderAfterDocumentEvent: 'render-event',
+          // 이벤트 대신 5초 대기 방식으로 변경하여 확실하게 렌더링
+          renderAfterTime: 5000, 
           headless: true,
           args: ['--no-sandbox', '--disable-setuid-sandbox']
         })

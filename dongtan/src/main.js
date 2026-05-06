@@ -1,4 +1,4 @@
-// v1.0.2 - Force Build Refresh
+// v1.0.3 - Static Rendering Fix
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
