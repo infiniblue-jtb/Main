@@ -1,3 +1,4 @@
+// v1.0.1 - SEO & Pre-rendering enabled
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
