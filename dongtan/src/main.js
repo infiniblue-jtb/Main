@@ -1,4 +1,4 @@
-// v1.0.4 - Force Sync & Prerender Fix
+// v1.0.5 - Final Deployment Trigger
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
