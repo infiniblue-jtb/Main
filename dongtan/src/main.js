@@ -1,4 +1,4 @@
-// v1.0.1 - SEO & Pre-rendering enabled
+// v1.0.2 - Force Build Refresh
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
