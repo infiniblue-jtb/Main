@@ -1,13 +1,21 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="ko">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title>Happy Dongtan - 동탄 아이와 가볼만한 곳 & 맛집 가이드</title>
-    <meta name="description" content="동탄 신도시에서 아이와 함께 가볼만한 곳, 맛집, 키즈카페, 병원 및 약국 정보를 제공하는 프리미엄 가이드 사이트입니다.">
+    <meta name="description" content="동탄 신도시에서 아이와 함께 가볼만한 곳, 맛집, 키즈카페, 병원 및 약국 정보를 제공하는 프리미엄 가이드 사이트입니다. 로컬 에디터들이 직접 검증한 생생한 정보를 확인하세요.">
     <meta name="keywords" content="동탄, 동탄신도시, 동탄 아이와 가볼만한곳, 동탄 맛집, 동탄 키즈카페, 동탄 병원, 동탄 약국, 동탄 생활정보">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dongtan.pages.dev/">
+    <meta property="og:title" content="Happy Dongtan - 동탄 생활 가이드">
+    <meta property="og:description" content="동탄 부모님들을 위한 스마트한 생활 가이드. 아이와 가기 좋은 곳부터 맛집까지!">
+    <meta property="og:image" content="<%= BASE_URL %>logo.png">
+
     <meta name="google-adsense-account" content="ca-pub-1969163891557217">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1969163891557217"
      crossorigin="anonymous"></script>
@@ -15,7 +23,11 @@
   </head>
   <body>
     <noscript>
-      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+      <div style="text-align: center; padding: 20px;">
+        <h2>Happy Dongtan</h2>
+        <p>이 사이트는 JavaScript를 사용하여 최적화된 경험을 제공합니다.</p>
+        <p>자바스크립트가 비활성화되어 있어도 일부 콘텐츠는 표시되지만, 전체 기능을 사용하려면 자바스크립트를 활성화해주세요.</p>
+      </div>
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->

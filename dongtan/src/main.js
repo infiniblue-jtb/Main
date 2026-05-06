@@ -7,3 +7,8 @@ const app = createApp(App)
 app.component('AdComponent', AdComponent)
 app.use(router)
 app.mount('#app')
+
+// For pre-rendering
+router.isReady().then(() => {
+  document.dispatchEvent(new Event('render-event'))
+})
