@@ -16,12 +16,11 @@
         </div>
 
         <div class="nav-links" :class="{ 'is-open': isMenuOpen }">
-          <router-link to="/kids" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '아이와 뭐하지' : 'Explore' }}</router-link>
-          <router-link to="/food" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '오늘 뭐먹지' : 'Eat' }}</router-link>
-          <router-link to="/cafe" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '키즈 가베' : 'Cafe' }}</router-link>
-          <router-link to="/health" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '병원/약국' : 'Health' }}</router-link>
-          <router-link to="/blog" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? 'blog' : 'Blog' }}</router-link>
-          <router-link to="/fun" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '놀이터' : 'Fun' }}</router-link>
+          <router-link to="/" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '홈' : 'Home' }}</router-link>
+          <router-link to="/blog" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '블로그' : 'Blog' }}</router-link>
+          <router-link to="/kids" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '생활정보' : 'Life' }}</router-link>
+          <router-link to="/food" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '맛집' : 'Food' }}</router-link>
+          <router-link to="/health" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '병원' : 'Health' }}</router-link>
           <router-link to="/board" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '자유게시판' : 'Board' }}</router-link>
         </div>
         <div class="control-group">
