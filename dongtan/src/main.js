@@ -1,4 +1,4 @@
-// v1.0.7 - Sequential Rendering Attempt
+// v1.0.8 - Explicit Output & Logging
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
