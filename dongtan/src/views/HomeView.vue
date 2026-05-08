@@ -6,11 +6,13 @@
         <h1 class="main-title">Happy Dongtan</h1>
         <p class="main-subtitle">아이와 함께하는 동탄 생활의 모든 것</p>
         <div class="cta-group">
-          <router-link to="/kids" class="apple-button primary">🎠 아이와 뭐하지</router-link>
-          <router-link to="/food" class="apple-button secondary">🍱 오늘 뭐먹지</router-link>
-          <router-link to="/cafe" class="apple-button secondary">☕ 키즈 가베</router-link>
-          <router-link to="/health" class="apple-button secondary">🏥 병원/약국</router-link>
-          <router-link to="/blog" class="apple-button secondary">📰 blog</router-link>
+          <router-link to="/blog" class="apple-button secondary">📰 블로그</router-link>
+          <router-link to="/kids" class="apple-button primary">🎠 생활정보</router-link>
+          <router-link to="/food" class="apple-button secondary">🍱 맛집탐방</router-link>
+          <router-link to="/cafe" class="apple-button secondary">☕ 카페가베</router-link>
+          <router-link to="/health" class="apple-button secondary">🏥 병원약국</router-link>
+          <router-link to="/fun" class="apple-button secondary">🎮 게임천국</router-link>
+          <router-link to="/board" class="apple-button secondary">📋 자유게시판</router-link>
         </div>
       </div>
     </section>
