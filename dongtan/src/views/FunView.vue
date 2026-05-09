@@ -471,9 +471,10 @@ export default {
       ctx.textAlign = 'center';
 
       if (isActive) {
-        // 연기: 말 왼쪽에 그림
+        // 연기: 말 왼쪽에 그림 + 방향 반전
         ctx.save();
         ctx.translate(x - eSize * 0.5, cy);
+        ctx.scale(-1, 1);
         ctx.font = `${Math.floor(eSize * 0.6)}px serif`;
         ctx.fillText(dust, 0, 0);
         ctx.restore();
