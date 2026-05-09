@@ -11,7 +11,7 @@
           <router-link to="/food" class="apple-button secondary">🍱 맛집탐방</router-link>
           <router-link to="/cafe" class="apple-button secondary">☕ 카페가베</router-link>
           <router-link to="/health" class="apple-button secondary">🏥 병원약국</router-link>
-          <router-link to="/fun" class="apple-button secondary">🎮 게임천국</router-link>
+          <router-link to="/fun" class="apple-button secondary">🎮 놀거리</router-link>
           <router-link to="/board" class="apple-button secondary">📋 자유게시판</router-link>
         </div>
       </div>

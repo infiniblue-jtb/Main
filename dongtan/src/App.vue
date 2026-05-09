@@ -22,7 +22,7 @@
           <router-link to="/food" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '맛집' : 'Food' }}</router-link>
           <router-link to="/cafe" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '카페' : 'Cafe' }}</router-link>
           <router-link to="/health" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '병원' : 'Health' }}</router-link>
-          <router-link to="/fun" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '게임' : 'Game' }}</router-link>
+          <router-link to="/fun" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '놀거리' : 'Fun' }}</router-link>
           <router-link to="/board" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '자유게시판' : 'Board' }}</router-link>
         </div>
         <div class="control-group">

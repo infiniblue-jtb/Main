@@ -8,7 +8,7 @@
         <div class="header-glow"></div>
       </div>
       <div class="header-content">
-        <div class="header-badge">🎮 GAME ZONE</div>
+        <div class="header-badge">🎮 FUN ZONE</div>
         <h1 class="header-title">
           <span class="title-line1">재미있는</span>
           <span class="title-line2">놀이터</span>
