@@ -174,7 +174,9 @@
                   <div class="countdown-num" :key="countdown">{{ countdown }}</div>
                 </div>
               </Transition>
-              <div class="race-track">
+
+              <!-- 🐎 경마: 기존 선형 트랙 -->
+              <div v-if="activeGame === 'horse'" class="race-track">
                 <div
                   v-for="(racer, idx) in racers"
                   :key="idx"
@@ -191,6 +193,12 @@
                   <div class="place-badge" v-if="racer.place">{{ racer.place }}위</div>
                 </div>
               </div>
+
+              <!-- 🏎️ 차량: 새로운 원형 트랙 -->
+              <div v-else class="circuit-container">
+                <canvas ref="circuitCanvas" class="circuit-canvas"></canvas>
+              </div>
+
               <Transition name="winner-pop">
                 <div v-if="raceWinner" class="winner-banner">
                   <div class="winner-confetti">🎊</div>
@@ -426,8 +434,100 @@ export default {
     const countdown    = ref(0);
     const raceLeader   = ref(-1);
     const laneCanvases = ref([]);
+    const circuitCanvas = ref(null);
     let   raceInterval = null;
     let   placeCounter = 1;
+
+    // 원형 트랙 그리기 (차량용)
+    const drawCircuit = () => {
+      const canvas = circuitCanvas.value;
+      if (!canvas) return;
+      const W = canvas.clientWidth || 460;
+      const H = canvas.clientHeight || 320;
+      const dpr = window.devicePixelRatio || 1;
+      if (canvas.width !== W * dpr || canvas.height !== H * dpr) {
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+      }
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+
+      const cx = W / 2, cy = H / 2;
+      const rx = W * 0.38, ry = H * 0.35;
+
+      // 트랙 배경 (아스팔트 느낌)
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rx + 30, ry + 30, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#1a1a2e';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // 중앙 잔디
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rx - 30, ry - 30, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#0d0d1a';
+      ctx.fill();
+      ctx.stroke();
+
+      // 결승선
+      ctx.beginPath();
+      ctx.setLineDash([5, 5]);
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+      ctx.moveTo(cx + rx - 30, cy);
+      ctx.lineTo(cx + rx + 30, cy);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 차량들 그리기
+      racers.value.forEach((r, idx) => {
+        const laneOffset = (idx - (pCount.value - 1) / 2) * 12;
+        const curRx = rx + laneOffset;
+        const curRy = ry + laneOffset;
+        
+        // progress 0-100 -> angle (3시 방향이 0도, 시계방향)
+        const angle = (r.progress / 100) * Math.PI * 2;
+        const x = cx + curRx * Math.cos(angle);
+        const y = cy + curRy * Math.sin(angle);
+        
+        // 진행 방향 (접선 각도)
+        const tangent = angle + Math.PI / 2;
+
+        const eSize = 28;
+        const emoji = '🏎️';
+        const dust  = '💨';
+
+        // 연기 (뒤쪽에 그림)
+        if (raceActive.value && !r.finished) {
+          ctx.save();
+          // 차량 뒤쪽 위치 계산
+          const dustX = x - Math.cos(tangent) * 15;
+          const dustY = y - Math.sin(tangent) * 15;
+          ctx.translate(dustX, dustY);
+          ctx.rotate(tangent);
+          ctx.scale(-1, 1);
+          ctx.font = `${eSize * 0.6}px serif`;
+          ctx.textBaseline = 'middle';
+          ctx.textAlign = 'center';
+          // 수평 맞춤을 위해 y좌표 미세 조정
+          ctx.fillText(dust, 0, 2); 
+          ctx.restore();
+        }
+
+        // 자동차
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(tangent);
+        ctx.scale(-1, 1); // 이모지 방향 반전
+        ctx.font = `${eSize}px serif`;
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center';
+        ctx.fillText(emoji, 0, 0);
+        ctx.restore();
+      });
+    };
 
     const drawLane = (canvas, racer, isActive) => {
       if (!canvas || !racer) return;
@@ -458,7 +558,6 @@ export default {
       ctx.textAlign = 'center';
       ctx.fillText('🏁', W - H * 0.8, H / 2);
 
-      // 이모지를 canvas에 직접 그림 → transform 100% 제어 가능
       const emoji = activeGame.value === 'horse' ? '🐎' : '🏎️';
       const dust  = '💨';
       const eSize = Math.floor(H * 0.85);
@@ -471,19 +570,19 @@ export default {
       ctx.textAlign = 'center';
 
       if (isActive) {
-        // 연기: 말 왼쪽에 그림 + 방향 반전
+        // 연기: 캐릭터 왼쪽에 그림 + 방향 반전 + 수평 조정
         ctx.save();
-        ctx.translate(x - eSize * 0.5, cy);
+        ctx.translate(x - eSize * 0.5, cy + 2);
         ctx.scale(-1, 1);
         ctx.font = `${Math.floor(eSize * 0.6)}px serif`;
         ctx.fillText(dust, 0, 0);
         ctx.restore();
       }
 
-      // 이모지: 오른쪽 방향으로 그리기 위해 scaleX(-1)
+      // 이모지
       ctx.save();
       ctx.translate(x, cy);
-      ctx.scale(-1, 1); // 좌우반전 → 오른쪽 방향
+      ctx.scale(-1, 1); 
       ctx.fillText(emoji, 0, 0);
       ctx.restore();
 
@@ -498,14 +597,17 @@ export default {
         progress: 0, speed: 0.4 + Math.random() * 0.4, finished: false, place: null,
       }));
       
-      // 캔버스 초기화 및 대기
-      laneCanvases.value = [];
       await nextTick();
       
-      // 시작 선에 그리기
-      racers.value.forEach((r, idx) => {
-        drawLane(laneCanvases.value[idx], r, false);
-      });
+      if (activeGame.value === 'horse') {
+        laneCanvases.value = [];
+        await nextTick();
+        racers.value.forEach((r, idx) => {
+          drawLane(laneCanvases.value[idx], r, false);
+        });
+      } else {
+        drawCircuit();
+      }
 
       countdown.value = 3;
       const t = setInterval(() => {
@@ -521,21 +623,30 @@ export default {
         racers.value = racers.value.map((r, idx) => {
           if (r.finished) return r;
           const jitter = (Math.random() - 0.3) * 1.6;
-          const np     = Math.min(r.progress + r.speed + jitter, 92);
+          const np     = Math.min(r.progress + r.speed + jitter, 96);
           if (np > maxP) { maxP = np; raceLeader.value = idx; }
-          if (np >= 92) {
+          if (np >= 96) {
             const place = placeCounter++;
-            return { ...r, progress: 92, finished: true, place };
+            return { ...r, progress: 96, finished: true, place };
           }
           return { ...r, progress: np };
         });
-        // 매 tick마다 canvas에 직접 그리기
-        racers.value.forEach((r, idx) => {
-          drawLane(laneCanvases.value[idx], r, raceActive.value);
-        });
+
+        if (activeGame.value === 'horse') {
+          racers.value.forEach((r, idx) => {
+            drawLane(laneCanvases.value[idx], r, raceActive.value);
+          });
+        } else {
+          drawCircuit();
+        }
+
         if (placeCounter > pCount.value) {
           clearInterval(raceInterval); raceInterval = null; raceActive.value = false;
-          racers.value.forEach((r, idx) => drawLane(laneCanvases.value[idx], r, false));
+          if (activeGame.value === 'horse') {
+            racers.value.forEach((r, idx) => drawLane(laneCanvases.value[idx], r, false));
+          } else {
+            drawCircuit();
+          }
           const winner = racers.value.find(r => r.place === 1);
           if (winner) raceWinner.value = winner.name;
         }
@@ -865,6 +976,22 @@ export default {
 @keyframes dust-fade { 0%,100%{ opacity:0.7; } 50%{ opacity:0.2; } }
 .finish-flag { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 1.3rem; }
 .place-badge { font-size: 0.7rem; font-weight: 700; color: #ffd93d; width: 28px; text-align: right; flex-shrink: 0; }
+
+/* 새로운 회로 스타일 */
+.circuit-container {
+  width: 100%;
+  height: 320px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 20px;
+}
+.circuit-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
 
 /* 룰렛 */
 .roulette-setup { display: flex; flex-direction: column; gap: 18px; align-items: center; }
