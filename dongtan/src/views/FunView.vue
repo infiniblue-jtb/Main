@@ -597,6 +597,8 @@ export default {
         progress: 0, speed: 0.4 + Math.random() * 0.4, finished: false, place: null,
       }));
       
+      // 레이스 화면으로 즉시 전환 (트랙과 카운트다운 표시를 위해)
+      raceActive.value = true;
       await nextTick();
       
       if (activeGame.value === 'horse') {
