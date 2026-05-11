@@ -18,7 +18,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
         run: |
@@ -49,8 +49,10 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add dongtan/src/assets/data.json
+          
           if [ -n "$(git status --porcelain dongtan/src/assets/data.json)" ]; then
             git commit -m "auto: weekly data update from Gemini API"
+            # 異몃룎 諛⑹??瑜? ?꾪빐 理쒖떊 肄붾뱶瑜? 媛?몄삩 뚮씪 ?쒕줈 ?쒖씠?몃뱶 吏꾪뻾
             git pull origin main --rebase
             git push origin main
           else
