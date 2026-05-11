@@ -40,8 +40,9 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add src/assets/data.json
-          if ! git diff --quiet || ! git diff --staged --quiet; then
+          if [ -n "$(git status --porcelain src/assets/data.json)" ]; then
             git commit -m "chore: automatic data update [skip ci]"
-            git pull origin main --rebase
             git push origin main
+          else
+            echo "No changes to src/assets/data.json"
           fi
