@@ -266,6 +266,7 @@
 
 <script>
 import { ref, nextTick, watch } from 'vue';
+import AdComponent from '@/components/AdComponent.vue';
 
 const GAME_CARDS = [
   { id: 'lotto',    icon: '🎰', name: '로또 번호 생성기', desc: '행운의 번호를 자동으로 뽑아보세요!' },
@@ -287,6 +288,7 @@ const ballColor = (n) => {
 
 export default {
   name: 'FunView',
+    components: { AdComponent },
   setup() {
     const gameCards  = GAME_CARDS;
     const activeGame = ref(null);
@@ -444,6 +446,7 @@ export default {
       if (!canvas) return;
       const W = canvas.clientWidth || 460;
       const H = canvas.clientHeight || 320;
+      if (W <= 0 || H <= 0) return;
       const dpr = window.devicePixelRatio || 1;
       if (canvas.width !== W * dpr || canvas.height !== H * dpr) {
         canvas.width = W * dpr;
@@ -507,7 +510,7 @@ export default {
           const dustY = y - Math.sin(tangent) * 15;
           ctx.translate(dustX, dustY);
           ctx.rotate(tangent);
-          ctx.scale(-1, 1);
+          // ctx.scale(-1, 1);
           ctx.font = `${eSize * 0.6}px serif`;
           ctx.textBaseline = 'middle';
           ctx.textAlign = 'center';
@@ -520,7 +523,7 @@ export default {
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(tangent);
-        ctx.scale(-1, 1); // 이모지 방향 반전
+        // ctx.scale(-1, 1); // 이모지 방향 반전
         ctx.font = `${eSize}px serif`;
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'center';
@@ -573,7 +576,7 @@ export default {
         // 연기: 캐릭터 왼쪽에 그림 + 방향 반전 + 수평 조정
         ctx.save();
         ctx.translate(x - eSize * 0.5, cy + 2);
-        ctx.scale(-1, 1);
+        // ctx.scale(-1, 1);
         ctx.font = `${Math.floor(eSize * 0.6)}px serif`;
         ctx.fillText(dust, 0, 0);
         ctx.restore();
@@ -582,7 +585,7 @@ export default {
       // 이모지
       ctx.save();
       ctx.translate(x, cy);
-      ctx.scale(-1, 1); 
+      // ctx.scale(-1, 1); 
       ctx.fillText(emoji, 0, 0);
       ctx.restore();
 
@@ -983,6 +986,9 @@ export default {
 .circuit-container {
   width: 100%;
   height: 320px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background: rgba(0,0,0,0.2);
   border-radius: 20px;
   overflow: hidden;
@@ -991,7 +997,8 @@ export default {
 }
 .circuit-canvas {
   width: 100%;
-  height: 100%;
+  max-width: 500px;
+  height: 320px;
   display: block;
 }
 
