@@ -1,23 +1,23 @@
 <template>
   <div class="fun-page">
 
-    <!-- ?�?� ?�더 ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?� -->
+    <!-- ── 헤더 ───────────────────────────── -->
     <header class="fun-header">
       <div class="header-bg">
         <div class="grid-lines"></div>
         <div class="header-glow"></div>
       </div>
       <div class="header-content">
-        <div class="header-badge">?�� FUN ZONE</div>
+        <div class="header-badge">🎮 FUN ZONE</div>
         <h1 class="header-title">
-          <span class="title-line1">?��??�는</span>
-          <span class="title-line2">?�?�터</span>
+          <span class="title-line1">재미있는</span>
+          <span class="title-line2">놀이터</span>
         </h1>
-        <p class="header-sub">?�심????즐기??박진�??�치??복불�?게임</p>
+        <p class="header-sub">심심할 때 즐기는 박진감 넘치는 복불복 게임</p>
       </div>
     </header>
 
-    <!-- ?�?� 게임 카드 그리???�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?� -->
+    <!-- ── 게임 카드 그리드 ─────────────────── -->
     <section class="games-section">
       <div class="games-grid">
         <div
@@ -34,7 +34,7 @@
             <p class="card-desc">{{ game.desc }}</p>
             <div class="card-cta">
               <span>PLAY</span>
-              <span class="cta-arrow">??/span>
+              <span class="cta-arrow">→</span>
             </div>
           </div>
           <div class="card-scan"></div>
@@ -45,17 +45,17 @@
     <!-- Ad Unit -->
     <AdComponent slotId="9173007135" />
 
-    <!-- ?�?� 모달 (Teleport ?�거 ??scoped CSS ?�상 ?�용) ?�?� -->
+    <!-- ── 모달 (Teleport 제거 → scoped CSS 정상 적용) ── -->
     <Transition name="modal">
       <div v-if="activeGame" class="modal-overlay" @click.self="closeGame">
         <div class="modal-box">
-          <button class="modal-close" @click="closeGame">??/button>
+          <button class="modal-close" @click="closeGame">✕</button>
 
           <!-- ===== 로또 ===== -->
           <div v-if="activeGame === 'lotto'" class="game-wrap">
             <div class="game-title-row">
-              <span class="g-icon">?��</span>
-              <h2>로또 번호 ?�성�?/h2>
+              <span class="g-icon">🎰</span>
+              <h2>로또 번호 생성기</h2>
             </div>
             <div class="lotto-area">
               <div class="lotto-rows">
@@ -78,8 +78,8 @@
                 </div>
               </div>
               <div v-if="lottoRows.length === 0" class="empty-hint">
-                <div class="empty-icon">?��</div>
-                <p>버튼???�러 ?�운??번호�?뽑아보세??</p>
+                <div class="empty-icon">🎱</div>
+                <p>버튼을 눌러 행운의 번호를 뽑아보세요!</p>
               </div>
             </div>
             <button
@@ -88,32 +88,32 @@
               @click="generateLotto"
               :disabled="isGenerating"
             >
-              <span v-if="!isGenerating">?�� 번호 뽑기 (7�?</span>
-              <span v-else class="dots">?�성 �?span>.</span><span>.</span><span>.</span></span>
+              <span v-if="!isGenerating">🎰 번호 뽑기 (7줄)</span>
+              <span v-else class="dots">생성 중<span>.</span><span>.</span><span>.</span></span>
             </button>
           </div>
 
-          <!-- ===== ?�다�?===== -->
+          <!-- ===== 사다리 ===== -->
           <div v-if="activeGame === 'ladder'" class="game-wrap">
             <div class="game-title-row">
-              <span class="g-icon">?��</span>
-              <h2>?�다�??��?/h2>
+              <span class="g-icon">🪜</span>
+              <h2>사다리 타기</h2>
             </div>
             <div v-if="!ladderStarted" class="setup-panel">
               <div class="count-ctrl">
-                <button class="count-btn" @click="pCount = Math.max(2, pCount - 1)">�?/button>
-                <span class="count-val">{{ pCount }}�?/span>
-                <button class="count-btn" @click="pCount = Math.min(8, pCount + 1)">�?/button>
+                <button class="count-btn" @click="pCount = Math.max(2, pCount - 1)">－</button>
+                <span class="count-val">{{ pCount }}명</span>
+                <button class="count-btn" @click="pCount = Math.min(8, pCount + 1)">＋</button>
               </div>
               <div class="name-grid" :style="{ gridTemplateColumns: `repeat(${Math.min(pCount, 4)}, 1fr)` }">
                 <input
                   v-for="i in pCount" :key="i"
                   v-model="pNames[i-1]"
                   class="name-input"
-                  :placeholder="`참�???${i}`"
+                  :placeholder="`참가자 ${i}`"
                 />
               </div>
-              <button class="action-btn" @click="startLadder">?�� ?�다�??�작!</button>
+              <button class="action-btn" @click="startLadder">🪜 사다리 시작!</button>
             </div>
             <div v-else class="ladder-viz">
               <div class="top-names">
@@ -132,40 +132,40 @@
                     win:  ladderResultCol === i - 1 && ladderDone,
                     lose: ladderResultCol !== i - 1 && ladderDone
                   }"
-                >{{ ladderResultCol === i - 1 ? '?�� WIN' : '?? }}</div>
+                >{{ ladderResultCol === i - 1 ? '🏆 WIN' : '✕' }}</div>
               </div>
               <Transition name="winner-pop">
                 <div v-if="ladderDone" class="winner-banner">
-                  <div class="winner-confetti">?��</div>
-                  <div class="winner-text">{{ ladderWinnerName }} ?�첨!</div>
-                  <button class="action-btn sm" @click="ladderStarted = false; ladderDone = false">?�시 ?�기</button>
+                  <div class="winner-confetti">🎊</div>
+                  <div class="winner-text">{{ ladderWinnerName }} 당첨!</div>
+                  <button class="action-btn sm" @click="ladderStarted = false; ladderDone = false">다시 하기</button>
                 </div>
               </Transition>
             </div>
           </div>
 
-          <!-- ===== 경마 / 차량 ?�이??===== -->
+          <!-- ===== 경마 / 차량 레이스 ===== -->
           <div v-if="activeGame === 'horse' || activeGame === 'car'" class="game-wrap">
             <div class="game-title-row">
-              <span class="g-icon">{{ activeGame === 'horse' ? '?��' : '?���? }}</span>
-              <h2>{{ activeGame === 'horse' ? '경마 복불�? : '차량 복불�? }}</h2>
+              <span class="g-icon">{{ activeGame === 'horse' ? '🐎' : '🏎️' }}</span>
+              <h2>{{ activeGame === 'horse' ? '경마 복불복' : '차량 복불복' }}</h2>
             </div>
             <div v-if="!raceActive && !raceWinner" class="setup-panel">
               <div class="count-ctrl">
-                <button class="count-btn" @click="pCount = Math.max(2, pCount - 1)">�?/button>
-                <span class="count-val">{{ pCount }}�?/span>
-                <button class="count-btn" @click="pCount = Math.min(6, pCount + 1)">�?/button>
+                <button class="count-btn" @click="pCount = Math.max(2, pCount - 1)">－</button>
+                <span class="count-val">{{ pCount }}명</span>
+                <button class="count-btn" @click="pCount = Math.min(6, pCount + 1)">＋</button>
               </div>
               <div class="name-grid" :style="{ gridTemplateColumns: `repeat(${Math.min(pCount, 3)}, 1fr)` }">
                 <input
                   v-for="i in pCount" :key="i"
                   v-model="pNames[i-1]"
                   class="name-input"
-                  :placeholder="`참�???${i}`"
+                  :placeholder="`참가자 ${i}`"
                 />
               </div>
               <button class="action-btn" @click="startRace">
-                {{ activeGame === 'horse' ? '?�� 경기 ?�작!' : '?�� ?�이???�작!' }}
+                {{ activeGame === 'horse' ? '🏁 경기 시작!' : '🚦 레이스 시작!' }}
               </button>
             </div>
             <div v-else class="race-area">
@@ -175,7 +175,7 @@
                 </div>
               </Transition>
 
-              <!-- ?�� 경마: 기존 ?�형 ?�랙 -->
+              <!-- 🐎 경마: 기존 선형 트랙 -->
               <div v-if="activeGame === 'horse'" class="race-track">
                 <div
                   v-for="(racer, idx) in racers"
@@ -190,20 +190,20 @@
                       :ref="el => { if(el) laneCanvases[idx] = el }"
                     ></canvas>
                   </div>
-                  <div class="place-badge" v-if="racer.place">{{ racer.place }}??/div>
+                  <div class="place-badge" v-if="racer.place">{{ racer.place }}위</div>
                 </div>
               </div>
 
-              <!-- ?���?차량: ?�로???�형 ?�랙 -->
+              <!-- 🏎️ 차량: 새로운 원형 트랙 -->
               <div v-else class="circuit-container">
                 <canvas ref="circuitCanvas" class="circuit-canvas"></canvas>
               </div>
 
               <Transition name="winner-pop">
                 <div v-if="raceWinner" class="winner-banner">
-                  <div class="winner-confetti">?��</div>
-                  <div class="winner-text">?�� {{ raceWinner }} ?�승!</div>
-                  <button class="action-btn sm" @click="resetRace">?�시 ?�기</button>
+                  <div class="winner-confetti">🎊</div>
+                  <div class="winner-text">🏆 {{ raceWinner }} 우승!</div>
+                  <button class="action-btn sm" @click="resetRace">다시 하기</button>
                 </div>
               </Transition>
             </div>
@@ -212,27 +212,27 @@
           <!-- ===== 룰렛 ===== -->
           <div v-if="activeGame === 'roulette'" class="game-wrap">
             <div class="game-title-row">
-              <span class="g-icon">?��</span>
-              <h2>룰렛 복불�?/h2>
+              <span class="g-icon">🎡</span>
+              <h2>룰렛 복불복</h2>
             </div>
             <div v-if="!rouletteStarted" class="setup-panel">
               <div class="count-ctrl">
-                <button class="count-btn" @click="pCount = Math.max(2, pCount - 1)">�?/button>
-                <span class="count-val">{{ pCount }}�?/span>
-                <button class="count-btn" @click="pCount = Math.min(8, pCount + 1)">�?/button>
+                <button class="count-btn" @click="pCount = Math.max(2, pCount - 1)">－</button>
+                <span class="count-val">{{ pCount }}칸</span>
+                <button class="count-btn" @click="pCount = Math.min(8, pCount + 1)">＋</button>
               </div>
               <div class="name-grid" :style="{ gridTemplateColumns: `repeat(${Math.min(pCount, 4)}, 1fr)` }">
                 <input
                   v-for="i in pCount" :key="i"
                   v-model="pNames[i-1]"
                   class="name-input"
-                  :placeholder="`??�� ${i}`"
+                  :placeholder="`항목 ${i}`"
                 />
               </div>
-              <button class="action-btn" @click="rouletteStarted = true">?�� 룰렛 준�?</button>
+              <button class="action-btn" @click="rouletteStarted = true">🎡 룰렛 준비!</button>
             </div>
             <div v-else class="roulette-wrap">
-              <div class="wheel-pointer">??/div>
+              <div class="wheel-pointer">▼</div>
               <div class="wheel-container">
                 <canvas
                   ref="wheelCanvas"
@@ -242,9 +242,9 @@
               </div>
               <Transition name="winner-pop">
                 <div v-if="wheelWinner" class="winner-banner">
-                  <div class="winner-confetti">?��</div>
-                  <div class="winner-text">?�� {{ wheelWinner }}!</div>
-                  <button class="action-btn sm" @click="resetRoulette">?�시 ?�리�?/button>
+                  <div class="winner-confetti">🎊</div>
+                  <div class="winner-text">🎯 {{ wheelWinner }}!</div>
+                  <button class="action-btn sm" @click="resetRoulette">다시 돌리기</button>
                 </div>
               </Transition>
               <button
@@ -253,7 +253,7 @@
                 :class="{ spinning: isSpinning }"
                 @click="spinWheel"
                 :disabled="isSpinning"
-              >{{ isSpinning ? '?? ?�아가??�?..' : '?�� 룰렛 ?�리�?' }}</button>
+              >{{ isSpinning ? '🌀 돌아가는 중...' : '🎡 룰렛 돌리기!' }}</button>
             </div>
           </div>
 
@@ -268,11 +268,11 @@
 import { ref, nextTick, watch } from 'vue';
 
 const GAME_CARDS = [
-  { id: 'lotto',    icon: '?��', name: '로또 번호 ?�성�?, desc: '?�운??번호�??�동?�로 뽑아보세??' },
-  { id: 'ladder',   icon: '?��', name: '?�다�??��?,       desc: '긴장�??�치???�다�??��??�니메이??' },
-  { id: 'horse',    icon: '?��', name: '경마 복불�?,       desc: '???�름??걸고 ?�리??짜릿???�이??' },
-  { id: 'car',      icon: '?���?, name: '차량 복불�?,       desc: '분노??질주! ?�자???��? ?�까??' },
-  { id: 'roulette', icon: '?��', name: '룰렛 복불�?,       desc: '?�명??룰렛???�려보세??' },
+  { id: 'lotto',    icon: '🎰', name: '로또 번호 생성기', desc: '행운의 번호를 자동으로 뽑아보세요!' },
+  { id: 'ladder',   icon: '🪜', name: '사다리 타기',       desc: '긴장감 넘치는 사다리 타기 애니메이션!' },
+  { id: 'horse',    icon: '🐎', name: '경마 복불복',       desc: '내 이름을 걸고 달리는 짜릿한 레이스!' },
+  { id: 'car',      icon: '🏎️', name: '차량 복불복',       desc: '분노의 질주! 승자는 누가 될까요?' },
+  { id: 'roulette', icon: '🎡', name: '룰렛 복불복',       desc: '운명의 룰렛을 돌려보세요!' },
 ];
 
 const WHEEL_COLORS = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff9f43','#a29bfe','#fd79a8','#00b894'];
@@ -293,7 +293,7 @@ export default {
     const pCount     = ref(4);
     const pNames     = ref(Array.from({ length: 10 }, () => ''));
 
-    /* ?�?� 공통 리셋 ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?� */
+    /* ── 공통 리셋 ─────────────────────────── */
     const resetAll = () => {
       lottoRows.value        = [];
       isGenerating.value     = false;
@@ -318,7 +318,7 @@ export default {
     const openGame  = (id) => { resetAll(); activeGame.value = id; };
     const closeGame = ()   => { activeGame.value = null; };
 
-    /* ?�═?�═?�═?�═?�═ 로또 ?�═?�═?�═?�═?�═ */
+    /* ══════════ 로또 ══════════ */
     const lottoRows    = ref([]);
     const isGenerating = ref(false);
 
@@ -335,7 +335,7 @@ export default {
       isGenerating.value = false;
     };
 
-    /* ?�═?�═?�═?�═?�═ ?�다�??�═?�═?�═?�═?�═ */
+    /* ══════════ 사다리 ══════════ */
     const ladderCanvas     = ref(null);
     const ladderStarted    = ref(false);
     const ladderDone       = ref(false);
@@ -393,7 +393,7 @@ export default {
       });
       path.push({ x: PAD_X + cur * colW, y: H - PAD_Y });
       ladderResultCol.value  = cur;
-      ladderWinnerName.value = pNames.value[startCol] || `참�???{startCol + 1}`;
+      ladderWinnerName.value = pNames.value[startCol] || `참가자${startCol + 1}`;
 
       const draw = (progress) => {
         ctx.clearRect(0, 0, W, H);
@@ -427,7 +427,7 @@ export default {
       animate();
     };
 
-    /* ?�═?�═?�═?�═?�═ ?�이???�═?�═?�═?�═?�═ */
+    /* ══════════ 레이스 ══════════ */
     const racers       = ref([]);
     const raceActive   = ref(false);
     const raceWinner   = ref(null);
@@ -438,7 +438,7 @@ export default {
     let   raceInterval = null;
     let   placeCounter = 1;
 
-    // ?�형 ?�랙 그리�?(차량??
+    // 원형 트랙 그리기 (차량용)
     const drawCircuit = () => {
       const canvas = circuitCanvas.value;
       if (!canvas) return;
@@ -456,7 +456,7 @@ export default {
       const cx = W / 2, cy = H / 2;
       const rx = W * 0.38, ry = H * 0.35;
 
-      // ?�랙 배경 (?�스?�트 ?�낌)
+      // 트랙 배경 (아스팔트 느낌)
       ctx.beginPath();
       ctx.ellipse(cx, cy, rx + 30, ry + 30, 0, 0, Math.PI * 2);
       ctx.fillStyle = '#1a1a2e';
@@ -465,14 +465,14 @@ export default {
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // 중앙 ?�디
+      // 중앙 잔디
       ctx.beginPath();
       ctx.ellipse(cx, cy, rx - 30, ry - 30, 0, 0, Math.PI * 2);
       ctx.fillStyle = '#0d0d1a';
       ctx.fill();
       ctx.stroke();
 
-      // 결승??
+      // 결승선
       ctx.beginPath();
       ctx.setLineDash([5, 5]);
       ctx.strokeStyle = 'rgba(255,255,255,0.5)';
@@ -481,28 +481,28 @@ export default {
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // 차량??그리�?
+      // 차량들 그리기
       racers.value.forEach((r, idx) => {
         const laneOffset = (idx - (pCount.value - 1) / 2) * 12;
         const curRx = rx + laneOffset;
         const curRy = ry + laneOffset;
         
-        // progress 0-100 -> angle (3??방향??0?? ?�계방향)
+        // progress 0-100 -> angle (3시 방향이 0도, 시계방향)
         const angle = (r.progress / 100) * Math.PI * 2;
         const x = cx + curRx * Math.cos(angle);
         const y = cy + curRy * Math.sin(angle);
         
-        // 진행 방향 (?�선 각도)
+        // 진행 방향 (접선 각도)
         const tangent = angle + Math.PI / 2;
 
         const eSize = 28;
-        const emoji = '?���?;
-        const dust  = '?��';
+        const emoji = '🏎️';
+        const dust  = '💨';
 
-        // ?�기 (?�쪽??그림)
+        // 연기 (뒤쪽에 그림)
         if (raceActive.value && !r.finished) {
           ctx.save();
-          // 차량 ?�쪽 ?�치 계산
+          // 차량 뒤쪽 위치 계산
           const dustX = x - Math.cos(tangent) * 15;
           const dustY = y - Math.sin(tangent) * 15;
           ctx.translate(dustX, dustY);
@@ -511,16 +511,16 @@ export default {
           ctx.font = `${eSize * 0.6}px serif`;
           ctx.textBaseline = 'middle';
           ctx.textAlign = 'center';
-          // ?�평 맞춤???�해 y좌표 미세 조정
+          // 수평 맞춤을 위해 y좌표 미세 조정
           ctx.fillText(dust, 0, 2); 
           ctx.restore();
         }
 
-        // ?�동�?
+        // 자동차
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(tangent);
-        ctx.scale(-1, 1); // ?�모지 방향 반전
+        ctx.scale(-1, 1); // 이모지 방향 반전
         ctx.font = `${eSize}px serif`;
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'center';
@@ -542,7 +542,7 @@ export default {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, W, H);
 
-      // ?�선
+      // 점선
       ctx.beginPath();
       ctx.setLineDash([10, 10]);
       ctx.strokeStyle = 'rgba(255,255,255,0.1)';
@@ -556,10 +556,10 @@ export default {
       ctx.font = `${H * 0.7}px serif`;
       ctx.textBaseline = 'middle';
       ctx.textAlign = 'center';
-      ctx.fillText('?��', W - H * 0.8, H / 2);
+      ctx.fillText('🏁', W - H * 0.8, H / 2);
 
-      const emoji = activeGame.value === 'horse' ? '?��' : '?���?;
-      const dust  = '?��';
+      const emoji = activeGame.value === 'horse' ? '🐎' : '🏎️';
+      const dust  = '💨';
       const eSize = Math.floor(H * 0.85);
       const x     = W * (racer.progress / 100);
       const cy    = H / 2;
@@ -570,7 +570,7 @@ export default {
       ctx.textAlign = 'center';
 
       if (isActive) {
-        // ?�기: 캐릭???�쪽??그림 + 방향 반전 + ?�평 조정
+        // 연기: 캐릭터 왼쪽에 그림 + 방향 반전 + 수평 조정
         ctx.save();
         ctx.translate(x - eSize * 0.5, cy + 2);
         ctx.scale(-1, 1);
@@ -579,7 +579,7 @@ export default {
         ctx.restore();
       }
 
-      // ?�모지
+      // 이모지
       ctx.save();
       ctx.translate(x, cy);
       ctx.scale(-1, 1); 
@@ -593,11 +593,11 @@ export default {
       placeCounter     = 1;
       raceWinner.value = null;
       racers.value = Array.from({ length: pCount.value }, (_, i) => ({
-        name: pNames.value[i] || `참�???{i + 1}`,
+        name: pNames.value[i] || `참가자${i + 1}`,
         progress: 0, speed: 0.4 + Math.random() * 0.4, finished: false, place: null,
       }));
       
-      // ?�이???�면?�로 즉시 ?�환 (?�랙�?카운?�다???�시�??�해)
+      // 레이스 화면으로 즉시 전환 (트랙과 카운트다운 표시를 위해)
       raceActive.value = true;
       await nextTick();
       
@@ -614,7 +614,7 @@ export default {
       countdown.value = 3;
       const t = setInterval(() => {
         countdown.value--;
-        if (countdown.value === 0) { clearInterval(t); nextTick().then(() => runRace()); }
+        if (countdown.value === 0) { clearInterval(t); runRace(); }
       }, 1000);
     };
 
@@ -660,7 +660,7 @@ export default {
       raceActive.value = false; racers.value = []; raceWinner.value = null; raceLeader.value = -1;
     };
 
-    /* ?�═?�═?�═?�═?�═ 룰렛 ?�═?�═?�═?�═?�═ */
+    /* ══════════ 룰렛 ══════════ */
     const wheelCanvas     = ref(null);
     const rouletteStarted = ref(false);
     const wheelAngle      = ref(0);
@@ -688,7 +688,7 @@ export default {
         ctx.textAlign = 'right'; ctx.fillStyle = '#fff';
         ctx.font = `bold ${Math.max(10, Math.floor(14 - n * 0.5))}px sans-serif`;
         ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 4;
-        ctx.fillText(pNames.value[i] || `??��${i + 1}`, r - 8, 5); ctx.restore();
+        ctx.fillText(pNames.value[i] || `항목${i + 1}`, r - 8, 5); ctx.restore();
       }
       ctx.beginPath(); ctx.arc(cx, cy, 20, 0, 2 * Math.PI);
       ctx.fillStyle = '#12122a'; ctx.fill();
@@ -713,12 +713,12 @@ export default {
       setTimeout(() => {
         isSpinning.value = false; wheelTransition.value = 'none';
         const n = pCount.value, arcDeg = 360 / n;
-        // 캔버?�는 -90??12???�서 ?�작, ?�인???????�단 고정
-        // finalAngle만큼 ?�전?�으므�??�제 ?�인?��? 가리키??각도 = (0 - finalAngle % 360 + 360) % 360 ??12??기�?
+        // 캔버스는 -90도(12시)에서 시작, 포인터(▼)는 상단 고정
+        // finalAngle만큼 회전했으므로 실제 포인터가 가리키는 각도 = (0 - finalAngle % 360 + 360) % 360 → 12시 기준
         const rotated = ((finalAngle % 360) + 360) % 360;
         const pointedAngle = (360 - rotated) % 360;
         const idx = Math.floor(pointedAngle / arcDeg) % n;
-        wheelWinner.value = pNames.value[idx] || `??��${idx + 1}`;
+        wheelWinner.value = pNames.value[idx] || `항목${idx + 1}`;
       }, 4100);
     };
 
@@ -742,7 +742,7 @@ export default {
   overflow-x: hidden;
 }
 
-/* ?�더 */
+/* 헤더 */
 .fun-header { position: relative; padding: 80px 24px 60px; text-align: center; overflow: hidden; }
 .header-bg  { position: absolute; inset: 0; pointer-events: none; }
 .grid-lines {
@@ -775,7 +775,7 @@ export default {
 }
 .header-sub { font-size: 1rem; color: rgba(255,255,255,0.35); letter-spacing: 0.05em; }
 
-/* 카드 그리??*/
+/* 카드 그리드 */
 .games-section { max-width: 1100px; margin: 0 auto; padding: 0 24px 100px; }
 .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
 
@@ -790,7 +790,7 @@ export default {
 .game-card:hover .cta-arrow { transform: translateX(4px); }
 
 .card-glow { position: absolute; inset: 0; border-radius: 20px; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-/* ???�정: .card-roulette .card-glow (기존??.card-roulette.card-glow �??�못 ?�) */
+/* ✅ 수정: .card-roulette .card-glow (기존엔 .card-roulette.card-glow 로 잘못 씀) */
 .card-lotto    .card-glow { box-shadow: inset 0 0 40px rgba(255,107,107,0.25); }
 .card-ladder   .card-glow { box-shadow: inset 0 0 40px rgba(77,150,255,0.25); }
 .card-horse    .card-glow { box-shadow: inset 0 0 40px rgba(255,215,61,0.25); }
@@ -816,7 +816,7 @@ export default {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.75);
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  z-index: 10001; /* ??App.vue nav(9999) 보다 ?�게 */
+  z-index: 10001; /* ✅ App.vue nav(9999) 보다 높게 */
   display: flex; align-items: center; justify-content: center; padding: 20px;
 }
 .modal-box {
@@ -910,7 +910,7 @@ export default {
 }
 .empty-icon { font-size: 3rem; }
 
-/* ?�다�?*/
+/* 사다리 */
 .ladder-viz   { display: flex; flex-direction: column; gap: 8px; }
 .top-names, .bottom-slots { display: flex; width: 100%; }
 .top-name {
@@ -928,7 +928,7 @@ export default {
 .bottom-slot.win  { background: rgba(0,245,255,0.15); color: #00f5ff; text-shadow: 0 0 8px #00f5ff; }
 .bottom-slot.lose { color: rgba(255,255,255,0.12); }
 
-/* ?�이??*/
+/* 레이스 */
 .race-area { position: relative; }
 .countdown-overlay {
   position: absolute; inset: 0; z-index: 5;
@@ -970,7 +970,7 @@ export default {
 @keyframes racer-bounce { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
 .racer-dust {
   position: absolute;
-  right: -22px;   /* 캐릭???�쪽 (진행 방향 반�?) */
+  right: -22px;   /* 캐릭터 뒤쪽 (진행 방향 반대) */
   top: 2px;
   font-size: 18px;
   opacity: 0.8;
@@ -979,7 +979,7 @@ export default {
 .finish-flag { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 1.3rem; }
 .place-badge { font-size: 0.7rem; font-weight: 700; color: #ffd93d; width: 28px; text-align: right; flex-shrink: 0; }
 
-/* ?�로???�로 ?��???*/
+/* 새로운 회로 스타일 */
 .circuit-container {
   width: 100%;
   height: 320px;
@@ -1005,7 +1005,7 @@ export default {
 .spin-btn.spinning { background: linear-gradient(135deg,#a29bfe,#6c5ce7); color: #fff; animation: spin-pulse 0.8s infinite; }
 @keyframes spin-pulse { 0%,100%{ box-shadow:0 0 20px rgba(162,155,254,0.3); } 50%{ box-shadow:0 0 40px rgba(162,155,254,0.7); } }
 
-/* ?�너 배너 */
+/* 위너 배너 */
 .winner-banner {
   text-align: center; padding: 24px;
   background: rgba(0,245,255,0.06); border: 1px solid rgba(0,245,255,0.25); border-radius: 18px;
@@ -1021,7 +1021,7 @@ export default {
 .winner-pop-enter-active { transition: all 0.5s cubic-bezier(.2,.8,.2,1); }
 .winner-pop-enter-from   { opacity: 0; transform: scale(0.7) translateY(20px); }
 
-/* 반응??*/
+/* 반응형 */
 @media (max-width: 600px) {
   .games-grid      { grid-template-columns: repeat(2, 1fr); }
   .game-wrap       { padding: 28px 18px 24px; }
