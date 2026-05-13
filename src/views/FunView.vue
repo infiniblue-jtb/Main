@@ -729,7 +729,7 @@ export default {
       gameCards, activeGame, openGame, closeGame, pCount, pNames, ballColor,
       lottoRows, isGenerating, generateLotto,
       ladderCanvas, ladderStarted, ladderDone, ladderWinnerName, ladderResultCol, ladderActiveCol, startLadder,
-      racers, raceActive, raceWinner, countdown, raceLeader, laneCanvases, startRace, resetRace,
+      racers, raceActive, raceWinner, countdown, raceLeader, laneCanvases, circuitCanvas, startRace, resetRace,
       wheelCanvas, rouletteStarted, wheelAngle, wheelTransition, isSpinning, wheelWinner, spinWheel, resetRoulette,
     };
   }
