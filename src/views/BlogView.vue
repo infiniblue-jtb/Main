@@ -4,14 +4,30 @@
       <h1 class="hero-title">{{ t.title }}</h1>
       <p class="hero-subtitle">{{ t.desc }}</p>
       
-      <!-- 글쓰기 버튼 -->
+      <!-- 글쓰기 버튼 및 일괄 작업 -->
       <div class="admin-controls">
-        <button v-if="!showEditor" @click="openEditor()" class="write-btn">
-          <span>✍️</span> {{ currentLang === 'ko' ? '글 작성하기' : 'Write Post' }}
-        </button>
-        <button v-else @click="closeEditor" class="cancel-btn">
-          {{ currentLang === 'ko' ? '취소' : 'Cancel' }}
-        </button>
+        <div class="control-group">
+          <button v-if="!showEditor" @click="openEditor()" class="write-btn">
+            <span>✍️</span> {{ currentLang === 'ko' ? '글 작성하기' : 'Write Post' }}
+          </button>
+          <button v-else @click="closeEditor" class="cancel-btn">
+            {{ currentLang === 'ko' ? '취소' : 'Cancel' }}
+          </button>
+        </div>
+        
+        <transition name="apple-fade">
+          <div v-if="selectedIds.length > 0" class="batch-actions glass-card">
+            <span class="selected-count">
+              {{ currentLang === 'ko' ? `${selectedIds.length}개 선택됨` : `${selectedIds.length} selected` }}
+            </span>
+            <button @click="confirmBatchDelete" class="batch-delete-btn">
+              {{ currentLang === 'ko' ? '선택 삭제' : 'Delete Selected' }}
+            </button>
+            <button @click="selectedIds = []" class="clear-selection-btn">
+              {{ currentLang === 'ko' ? '선택 해제' : 'Deselect All' }}
+            </button>
+          </div>
+        </transition>
       </div>
     </header>
 
@@ -58,6 +74,10 @@
           <article v-for="post in posts.slice(0, 4)" :key="post.id" class="blog-card" @click="viewPost(post)">
             <div class="card-image" :style="post.image_url ? { backgroundImage: `url(${post.image_url})` } : {}">
               <div v-if="!post.image_url" class="placeholder-image">✨</div>
+              <!-- 체크박스 -->
+              <div class="selection-overlay" @click.stop>
+                <input type="checkbox" :value="post.id" v-model="selectedIds" class="apple-checkbox">
+              </div>
               <!-- 삭제 버튼 -->
               <button class="delete-icon-btn" @click.stop="confirmDelete(post.id, post.title)" :title="currentLang === 'ko' ? '삭제' : 'Delete'">
                 ✕
@@ -76,11 +96,20 @@
 
         <!-- 나머지 정보 테이블 -->
         <div v-if="tablePosts.length > 0" class="other-posts-section">
-          <h2 class="section-title">{{ currentLang === 'ko' ? '이전 소식' : 'Previous News' }}</h2>
+          <div class="section-header">
+            <h2 class="section-title">{{ currentLang === 'ko' ? '이전 소식' : 'Previous News' }}</h2>
+            <div class="table-controls">
+              <label class="select-all-label">
+                <input type="checkbox" :checked="isAllTableSelected" @change="toggleSelectAllTable" class="apple-checkbox">
+                <span>{{ currentLang === 'ko' ? '전체 선택' : 'Select All' }}</span>
+              </label>
+            </div>
+          </div>
           <div class="table-container glass-card">
             <table class="info-table">
               <thead>
                 <tr>
+                  <th class="col-check"></th>
                   <th class="col-date">{{ currentLang === 'ko' ? '날짜' : 'Date' }}</th>
                   <th class="col-title">{{ currentLang === 'ko' ? '제목' : 'Title' }}</th>
                   <th class="col-action"></th>
@@ -88,6 +117,9 @@
               </thead>
               <tbody>
                 <tr v-for="post in paginatedTablePosts" :key="post.id" @click="viewPost(post)">
+                  <td class="col-check" @click.stop>
+                    <input type="checkbox" :value="post.id" v-model="selectedIds" class="apple-checkbox">
+                  </td>
                   <td class="col-date">{{ formatDate(post.created_at) }}</td>
                   <td class="col-title">
                     <div class="title-wrapper">
@@ -194,6 +226,7 @@ export default {
     const submitting = ref(false);
     const selectedPost = ref(null);
     const adminKey = ref('');
+    const selectedIds = ref([]);
 
     const newPost = ref({
       title: '',
@@ -214,6 +247,7 @@ export default {
         const response = await fetch('https://dongtan-api.infiniblue.workers.dev/api/posts');
         if (!response.ok) throw new Error('Network response was not ok');
         posts.value = await response.json();
+        selectedIds.value = []; // Reset selection on refresh
       } catch (error) {
         console.error('Failed to fetch posts:', error);
       } finally {
@@ -229,6 +263,25 @@ export default {
       const end = start + pageSize;
       return tablePosts.value.slice(start, end);
     });
+
+    // Multi-select logic
+    const isAllTableSelected = computed(() => {
+      if (paginatedTablePosts.value.length === 0) return false;
+      return paginatedTablePosts.value.every(post => selectedIds.value.includes(post.id));
+    });
+
+    const toggleSelectAllTable = () => {
+      const currentIds = paginatedTablePosts.value.map(p => p.id);
+      if (isAllTableSelected.value) {
+        selectedIds.value = selectedIds.value.filter(id => !currentIds.includes(id));
+      } else {
+        const newIds = [...selectedIds.value];
+        currentIds.forEach(id => {
+          if (!newIds.includes(id)) newIds.push(id);
+        });
+        selectedIds.value = newIds;
+      }
+    };
 
     const setPage = (page) => {
       if (page >= 1 && page <= totalPages.value) {
@@ -330,6 +383,41 @@ export default {
       }
     };
 
+    const confirmBatchDelete = async () => {
+      if (!adminKey.value) {
+        const key = prompt(`${selectedIds.value.length}개의 글을 삭제하기 위해 관리자 비밀번호를 입력해주세요:`);
+        if (!key) return;
+        adminKey.value = key;
+      }
+
+      const ok = confirm(`선택한 ${selectedIds.value.length}개의 글을 정말 모두 삭제하시겠습니까?`);
+      if (!ok) return;
+
+      try {
+        const response = await fetch('https://dongtan-api.infiniblue.workers.dev/api/posts/batch-delete', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${adminKey.value}`
+          },
+          body: JSON.stringify({ ids: selectedIds.value })
+        });
+
+        if (response.ok) {
+          alert('모두 삭제되었습니다.');
+          adminKey.value = '';
+          selectedIds.value = [];
+          await fetchPosts();
+        } else {
+          const err = await response.json();
+          alert('삭제 실패: ' + (err.error || '비밀번호를 확인하세요.'));
+          adminKey.value = '';
+        }
+      } catch (error) {
+        alert('삭제 중 오류 발생: ' + error.message);
+      }
+    };
+
     const formatDate = (dateStr) => {
       const date = dateStr ? new Date(dateStr) : new Date();
       return date.toLocaleDateString(currentLang.value === 'ko' ? 'ko-KR' : 'en-US', {
@@ -349,7 +437,8 @@ export default {
       currentLang, t, posts, loading, formatDate, viewPost,
       showEditor, newPost, submitPost, submitting, adminKey, selectedPost, 
       confirmDelete, isEditing, startEdit, openEditor, closeEditor,
-      currentPage, totalPages, paginatedTablePosts, setPage, tablePosts
+      currentPage, totalPages, paginatedTablePosts, setPage, tablePosts,
+      selectedIds, confirmBatchDelete, isAllTableSelected, toggleSelectAllTable
     };
   }
 }
@@ -377,6 +466,60 @@ export default {
 
 .admin-controls {
   margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+}
+
+.batch-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  background: var(--card-bg);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  animation: apple-fade 0.3s ease-out;
+}
+
+.selected-count {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.batch-delete-btn {
+  background: #ff3b30;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.batch-delete-btn:hover {
+  background: #d70015;
+}
+
+.clear-selection-btn {
+  background: none;
+  border: 1px solid rgba(0,0,0,0.1);
+  color: var(--text-secondary);
+  padding: 7px 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.clear-selection-btn:hover {
+  background: rgba(0,0,0,0.05);
 }
 
 .write-btn, .cancel-btn {
@@ -489,6 +632,48 @@ export default {
   align-items: center;
   justify-content: center;
   position: relative;
+}
+
+.selection-overlay {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+}
+
+.apple-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.info-table .apple-checkbox {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: white;
+}
+
+.apple-checkbox:checked {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.apple-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .delete-icon-btn {
@@ -690,11 +875,28 @@ export default {
   animation: apple-fade 0.8s ease-out;
 }
 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
 .section-title {
   font-size: 1.8rem;
   font-weight: 700;
-  margin-bottom: 24px;
+  margin-bottom: 0;
   text-align: left;
+}
+
+.select-all-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
 }
 
 .table-container {
@@ -730,6 +932,10 @@ export default {
 
 .info-table tr:hover td {
   background: rgba(0,0,0,0.01);
+}
+
+.col-check {
+  width: 50px;
 }
 
 .col-date {
@@ -854,5 +1060,14 @@ tr:hover .arrow {
   .title-text { font-size: 1rem; }
   .excerpt-hint { display: none; }
   .info-table td, .info-table th { padding: 16px; }
+  
+  .batch-actions {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    justify-content: center;
+    z-index: 100;
+  }
 }
 </style>

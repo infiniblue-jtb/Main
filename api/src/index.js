@@ -58,6 +58,30 @@ app.delete('/api/posts/:id', async (c) => {
   }
 });
 
+// 게시글 일괄 삭제
+app.post('/api/posts/batch-delete', async (c) => {
+  const authHeader = c.req.header('Authorization');
+  if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+
+  const { ids } = await c.req.json();
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    return c.json({ error: 'No IDs provided' }, 400);
+  }
+
+  try {
+    // D1 batch()를 사용하여 일괄 처리
+    const statements = ids.map(id => 
+      c.env.DB.prepare("DELETE FROM posts WHERE id = ?").bind(id)
+    );
+    await c.env.DB.batch(statements);
+    return c.json({ success: true });
+  } catch (e) {
+    return c.json({ error: e.message }, 500);
+  }
+});
+
 // 게시글 수정
 app.put('/api/posts/:id', async (c) => {
   const authHeader = c.req.header('Authorization');
