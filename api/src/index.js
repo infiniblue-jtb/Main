@@ -3,8 +3,25 @@ import { cors } from 'hono/cors'
 
 const app = new Hono()
 
-// CORS 허용 (프론트엔드 주소로 제한하는 것이 좋지만 우선 모두 허용)
+// CORS 허용
 app.use('/api/*', cors())
+
+// 오류 핸들러 (JSON 형식으로 에러 반환 보장)
+app.onError((err, c) => {
+  console.error(`${err}`);
+  return c.json({
+    success: false,
+    error: err.message || 'Internal Server Error'
+  }, 500);
+});
+
+// 404 핸들러
+app.notFound((c) => {
+  return c.json({
+    success: false,
+    error: 'Not Found'
+  }, 404);
+});
 
 // 게시글 목록 조회
 app.get('/api/posts', async (c) => {

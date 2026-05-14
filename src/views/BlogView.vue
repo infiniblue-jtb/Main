@@ -327,7 +327,7 @@ export default {
           method: method,
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${adminKey.value}`
+            'Authorization': `Bearer ${adminKey.value.trim()}`
           },
           body: JSON.stringify(newPost.value)
         });
@@ -354,7 +354,7 @@ export default {
       if (!adminKey.value) {
         const key = prompt('삭제를 위해 관리자 비밀번호를 입력해주세요:');
         if (!key) return;
-        adminKey.value = key;
+        adminKey.value = key.trim();
       }
 
       const ok = confirm(`'${title}' 글을 정말 삭제하시겠습니까?`);
@@ -364,19 +364,26 @@ export default {
         const response = await fetch(`https://dongtan-api.infiniblue.workers.dev/api/posts/${id}`, {
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer ${adminKey.value}`
+            'Authorization': `Bearer ${adminKey.value.trim()}`
           }
         });
 
         if (response.ok) {
           alert('삭제되었습니다.');
-          adminKey.value = ''; // 비밀번호 자동 삭제
+          adminKey.value = ''; 
           selectedPost.value = null;
           await fetchPosts();
         } else {
-          const err = await response.json();
-          alert('삭제 실패: ' + (err.error || '비밀번호를 확인하세요.'));
-          adminKey.value = ''; // 실패 시에도 보안을 위해 삭제
+          let errorMessage = '비밀번호를 확인하세요.';
+          try {
+            const err = await response.json();
+            errorMessage = err.error || errorMessage;
+          } catch (e) {
+            const text = await response.text();
+            errorMessage = text || `에러 코드: ${response.status}`;
+          }
+          alert('삭제 실패: ' + errorMessage);
+          adminKey.value = ''; 
         }
       } catch (error) {
         alert('삭제 중 오류 발생: ' + error.message);
@@ -387,7 +394,7 @@ export default {
       if (!adminKey.value) {
         const key = prompt(`${selectedIds.value.length}개의 글을 삭제하기 위해 관리자 비밀번호를 입력해주세요:`);
         if (!key) return;
-        adminKey.value = key;
+        adminKey.value = key.trim();
       }
 
       const ok = confirm(`선택한 ${selectedIds.value.length}개의 글을 정말 모두 삭제하시겠습니까?`);
@@ -398,7 +405,7 @@ export default {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${adminKey.value}`
+            'Authorization': `Bearer ${adminKey.value.trim()}`
           },
           body: JSON.stringify({ ids: selectedIds.value })
         });
@@ -409,8 +416,15 @@ export default {
           selectedIds.value = [];
           await fetchPosts();
         } else {
-          const err = await response.json();
-          alert('삭제 실패: ' + (err.error || '비밀번호를 확인하세요.'));
+          let errorMessage = '비밀번호를 확인하세요.';
+          try {
+            const err = await response.json();
+            errorMessage = err.error || errorMessage;
+          } catch (e) {
+            const text = await response.text();
+            errorMessage = text || `에러 코드: ${response.status}`;
+          }
+          alert('삭제 실패: ' + errorMessage);
           adminKey.value = '';
         }
       } catch (error) {
