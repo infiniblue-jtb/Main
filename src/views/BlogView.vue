@@ -340,8 +340,15 @@ export default {
           isEditing.value = false;
           await fetchPosts();
         } else {
-          const err = await response.json();
-          alert('저장 실패: ' + (err.error || '비밀번호를 확인하세요.'));
+          let errorMessage = '비밀번호를 확인하세요.';
+          const text = await response.text();
+          try {
+            const err = JSON.parse(text);
+            errorMessage = err.error || errorMessage;
+          } catch (e) {
+            errorMessage = text || `에러 코드: ${response.status}`;
+          }
+          alert('저장 실패: ' + errorMessage);
         }
       } catch (error) {
         alert('네트워크 오류: ' + error.message);
@@ -375,11 +382,11 @@ export default {
           await fetchPosts();
         } else {
           let errorMessage = '비밀번호를 확인하세요.';
+          const text = await response.text();
           try {
-            const err = await response.json();
+            const err = JSON.parse(text);
             errorMessage = err.error || errorMessage;
           } catch (e) {
-            const text = await response.text();
             errorMessage = text || `에러 코드: ${response.status}`;
           }
           alert('삭제 실패: ' + errorMessage);
@@ -417,11 +424,11 @@ export default {
           await fetchPosts();
         } else {
           let errorMessage = '비밀번호를 확인하세요.';
+          const text = await response.text();
           try {
-            const err = await response.json();
+            const err = JSON.parse(text);
             errorMessage = err.error || errorMessage;
           } catch (e) {
-            const text = await response.text();
             errorMessage = text || `에러 코드: ${response.status}`;
           }
           alert('삭제 실패: ' + errorMessage);
