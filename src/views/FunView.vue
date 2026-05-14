@@ -504,91 +504,90 @@ export default {
 
         // 연기 (뒤쪽에 그림)
         if (raceActive.value && !r.finished) {
-          ctx.save();
-          // 차량 뒤쪽 위치 계산
-          const dustX = x - Math.cos(tangent) * 15;
-          const dustY = y - Math.sin(tangent) * 15;
-          ctx.translate(dustX, dustY);
-          ctx.rotate(tangent);
-          // ctx.scale(-1, 1);
-          ctx.font = `${eSize * 0.6}px serif`;
-          ctx.textBaseline = 'middle';
-          ctx.textAlign = 'center';
-          // 수평 맞춤을 위해 y좌표 미세 조정
-          ctx.fillText(dust, 0, 2); 
-          ctx.restore();
+        ctx.save();
+        // 차량 뒤쪽 위치 계산
+        const dustX = x - Math.cos(tangent) * 15;
+        const dustY = y - Math.sin(tangent) * 15;
+        ctx.translate(dustX, dustY);
+        ctx.rotate(tangent);
+        ctx.scale(-1, 1); // 연기 좌우 대칭
+        ctx.font = `${eSize * 0.6}px serif`;
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center';
+        // 수평 맞춤을 위해 y좌표 미세 조정
+        ctx.fillText(dust, 0, 2); 
+        ctx.restore();
         }
 
         // 자동차
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(tangent);
-        // ctx.scale(-1, 1); // 이모지 방향 반전
+        ctx.scale(-1, 1); // 자동차 좌우 대칭
         ctx.font = `${eSize}px serif`;
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'center';
         ctx.fillText(emoji, 0, 0);
         ctx.restore();
-      });
-    };
+        });
+        };
 
-    const drawLane = (canvas, racer, isActive) => {
-      if (!canvas || !racer) return;
-      const W = canvas.clientWidth || 300;
-      const H = canvas.clientHeight || 46;
-      const dpr = window.devicePixelRatio || 1;
-      if (canvas.width !== W * dpr || canvas.height !== H * dpr) {
+        const drawLane = (canvas, racer, isActive) => {
+        if (!canvas || !racer) return;
+        const W = canvas.clientWidth || 300;
+        const H = canvas.clientHeight || 46;
+        const dpr = window.devicePixelRatio || 1;
+        if (canvas.width !== W * dpr || canvas.height !== H * dpr) {
         canvas.width  = W * dpr;
         canvas.height = H * dpr;
-      }
-      const ctx = canvas.getContext('2d');
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, W, H);
+        }
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, W, H);
 
-      // 점선
-      ctx.beginPath();
-      ctx.setLineDash([10, 10]);
-      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-      ctx.lineWidth = 1;
-      ctx.moveTo(W * 0.05, H / 2);
-      ctx.lineTo(W * 0.9, H / 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
+        // 점선
+        ctx.beginPath();
+        ctx.setLineDash([10, 10]);
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.lineWidth = 1;
+        ctx.moveTo(W * 0.05, H / 2);
+        ctx.lineTo(W * 0.9, H / 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
 
-      // 결승 깃발
-      ctx.font = `${H * 0.7}px serif`;
-      ctx.textBaseline = 'middle';
-      ctx.textAlign = 'center';
-      ctx.fillText('🏁', W - H * 0.8, H / 2);
+        // 결승 깃발
+        ctx.font = `${H * 0.7}px serif`;
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center';
+        ctx.fillText('🏁', W - H * 0.8, H / 2);
 
-      const emoji = activeGame.value === 'horse' ? '🐎' : '🏎️';
-      const dust  = '💨';
-      const eSize = Math.floor(H * 0.85);
-      const x     = W * (racer.progress / 100);
-      const cy    = H / 2;
+        const emoji = activeGame.value === 'horse' ? '🐎' : '🏎️';
+        const dust  = '💨';
+        const eSize = Math.floor(H * 0.85);
+        const x     = W * (racer.progress / 100);
+        const cy    = H / 2;
 
-      ctx.save();
-      ctx.font = `${eSize}px serif`;
-      ctx.textBaseline = 'middle';
-      ctx.textAlign = 'center';
+        ctx.save();
+        ctx.font = `${eSize}px serif`;
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center';
 
-      if (isActive) {
+        if (isActive) {
         // 연기: 캐릭터 왼쪽에 그림 + 방향 반전 + 수평 조정
         ctx.save();
         ctx.translate(x - eSize * 0.5, cy + 2);
-        // ctx.scale(-1, 1);
+        ctx.scale(-1, 1); // 연기 좌우 대칭
         ctx.font = `${Math.floor(eSize * 0.6)}px serif`;
         ctx.fillText(dust, 0, 0);
         ctx.restore();
-      }
+        }
 
-      // 이모지
-      ctx.save();
-      ctx.translate(x, cy);
-      // ctx.scale(-1, 1); 
-      ctx.fillText(emoji, 0, 0);
-      ctx.restore();
-
+        // 이모지
+        ctx.save();
+        ctx.translate(x, cy);
+        ctx.scale(-1, 1); // 말/자동차 좌우 대칭
+        ctx.fillText(emoji, 0, 0);
+        ctx.restore();
       ctx.restore();
     };
 
