@@ -10,9 +10,11 @@
   - 배포 설정(예: Cloudflare Dashboard)의 **Root Directory**는 반드시 비워두거나 `/`로 설정해야 하며, 특정 폴더명을 입력하면 빌드 오류(`Cannot find cwd`)가 발생합니다.
 
 ## 2. 배포 및 빌드
+- **배포 방식:** GitHub 레포지토리의 `main` 브랜치에 코드가 푸시되면 Cloudflare Pages를 통해 자동으로 빌드 및 배포가 수행됩니다.
 - 프론트엔드 빌드 도구: Vue CLI (`npm run build`)
 - 결과물 위치: `dist/` 폴더
 - 사전 렌더링(Prerendering): `@prerenderer/webpack-plugin`을 사용하여 주요 라우트를 미리 렌더링합니다. 관련 설정을 수정할 때 렌더링 경로가 누락되지 않도록 주의하십시오.
+- **API 서버 (Workers):** `api/` 폴더의 코드는 Cloudflare Workers로 배포됩니다. (마찬가지로 GitHub 연동을 통한 자동 배포 설정을 권장합니다.)
 
 ## 3. 주의사항
 - 코드를 수정할 때 파일 경로를 절대 경로로 오해하여 레포지토리 상위 구조를 무시하는 실수를 하지 마십시오.
