@@ -3,47 +3,77 @@ import { cors } from 'hono/cors'
 
 const app = new Hono()
 
-// CORS 허용 (모든 요청에 대해 적용)
-app.use('*', cors())
+// 모든 요청에 대해 로그 출력 및 CORS 적용
+app.use('*', async (c, next) => {
+  console.log(`[REQUEST] ${c.req.method} ${c.req.url}`);
+  const res = await cors()(c, next);
+  return res;
+});
 
-// 상태 확인용 루트 경로
-app.get('/', (c) => c.text('Dongtan API is running!'))
+// 상태 확인
+app.get('/', (c) => c.text('Dongtan API is live and well!'))
+app.get('/health', (c) => c.json({ status: 'ok', worker: 'dongtan-api' }))
 
-// 게시글 목록 조회
-app.get('/api/posts', async (c) => {
+// 게시글 API 그룹화 (경로 유연성 제공)
+// /api/posts, /posts, /api/posts/1, /posts/1 모두 대응
+const postsApi = new Hono()
+
+// 목록 조회
+postsApi.get('/', async (c) => {
   try {
     const { results } = await c.env.DB.prepare(
       "SELECT * FROM posts ORDER BY created_at DESC"
     ).all();
     return c.json(results);
   } catch (e) {
-    return c.json({ error: e.message }, 500);
+    return c.json({ error: e.message, stage: 'list' }, 500);
   }
 });
 
 // 게시글 작성
-app.post('/api/posts', async (c) => {
+postsApi.post('/', async (c) => {
   const authHeader = c.req.header('Authorization');
   if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
-    return c.json({ error: 'Unauthorized' }, 401);
+    return c.json({ error: 'Unauthorized', stage: 'auth' }, 401);
   }
-  const body = await c.req.json();
-  const { title, content, excerpt, image_url } = body;
   try {
+    const body = await c.req.json();
+    const { title, content, excerpt, image_url } = body;
     await c.env.DB.prepare(
       "INSERT INTO posts (title, content, excerpt, image_url) VALUES (?, ?, ?, ?)"
     ).bind(title, content, excerpt, image_url).run();
     return c.json({ success: true }, 201);
   } catch (e) {
-    return c.json({ error: e.message }, 500);
+    return c.json({ error: e.message, stage: 'create' }, 500);
   }
 });
 
-// 게시글 삭제
-app.delete('/api/posts/:id', async (c) => {
+// 일괄 삭제 (ID 상세 경로보다 먼저 정의해야 함)
+postsApi.post('/batch-delete', async (c) => {
   const authHeader = c.req.header('Authorization');
   if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
-    return c.json({ error: 'Unauthorized' }, 401);
+    return c.json({ error: 'Unauthorized', stage: 'auth-batch' }, 401);
+  }
+  try {
+    const { ids } = await c.req.json();
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return c.json({ error: 'No IDs provided' }, 400);
+    }
+    const statements = ids.map(id => 
+      c.env.DB.prepare("DELETE FROM posts WHERE id = ?").bind(id)
+    );
+    await c.env.DB.batch(statements);
+    return c.json({ success: true, count: ids.length });
+  } catch (e) {
+    return c.json({ error: e.message, stage: 'batch-delete' }, 500);
+  }
+});
+
+// 단일 항목 조작 (ID)
+postsApi.delete('/:id', async (c) => {
+  const authHeader = c.req.header('Authorization');
+  if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
+    return c.json({ error: 'Unauthorized', stage: 'auth-delete' }, 401);
   }
   const id = c.req.param('id');
   try {
@@ -52,76 +82,52 @@ app.delete('/api/posts/:id', async (c) => {
     ).bind(id).run();
     
     if (result.meta && result.meta.changes === 0) {
-      return c.json({ error: `Post with ID ${id} not found` }, 404);
+      return c.json({ error: `Post ${id} not found in DB`, success: false }, 404);
     }
     return c.json({ success: true });
   } catch (e) {
-    return c.json({ error: e.message }, 500);
+    return c.json({ error: e.message, stage: 'delete' }, 500);
   }
 });
 
-// 게시글 일괄 삭제
-app.post('/api/posts/batch-delete', async (c) => {
+postsApi.put('/:id', async (c) => {
   const authHeader = c.req.header('Authorization');
   if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
-    return c.json({ error: 'Unauthorized' }, 401);
-  }
-  const { ids } = await c.req.json();
-  if (!ids || !Array.isArray(ids) || ids.length === 0) {
-    return c.json({ error: 'No IDs provided' }, 400);
-  }
-  try {
-    const statements = ids.map(id => 
-      c.env.DB.prepare("DELETE FROM posts WHERE id = ?").bind(id)
-    );
-    await c.env.DB.batch(statements);
-    return c.json({ success: true });
-  } catch (e) {
-    return c.json({ error: e.message }, 500);
-  }
-});
-
-// 게시글 수정
-app.put('/api/posts/:id', async (c) => {
-  const authHeader = c.req.header('Authorization');
-  if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
-    return c.json({ error: 'Unauthorized' }, 401);
+    return c.json({ error: 'Unauthorized', stage: 'auth-update' }, 401);
   }
   const id = c.req.param('id');
-  const body = await c.req.json();
-  const { title, content, excerpt, image_url } = body;
   try {
+    const body = await c.req.json();
+    const { title, content, excerpt, image_url } = body;
     await c.env.DB.prepare(
       "UPDATE posts SET title = ?, content = ?, excerpt = ?, image_url = ? WHERE id = ?"
     ).bind(title, content, excerpt, image_url, id).run();
     return c.json({ success: true });
   } catch (e) {
-    return c.json({ error: e.message }, 500);
+    return c.json({ error: e.message, stage: 'update' }, 500);
   }
 });
 
-// 하위 호환성을 위해 /api 없이도 작동하도록 추가
-app.get('/posts', (c) => c.redirect('/api/posts'))
-app.delete('/posts/:id', (c) => {
-  const id = c.req.param('id')
-  return c.redirect(`/api/posts/${id}`, 307)
-})
+// 모든 경로 매핑
+app.route('/api/posts', postsApi)
+app.route('/posts', postsApi)
 
 // 오류 핸들러
 app.onError((err, c) => {
-  console.error(`Worker Error: ${err.message}`);
+  console.error(`[FATAL ERROR] ${err.stack}`);
   return c.json({
     success: false,
-    error: err.message || 'Internal Server Error'
+    error: `Worker Error: ${err.message}`,
+    path: c.req.path
   }, 500);
 });
 
 // 404 핸들러
 app.notFound((c) => {
-  console.log(`Worker 404: ${c.req.method} ${c.req.path}`);
   return c.json({
     success: false,
-    error: `API Route Not Found: ${c.req.method} ${c.req.path}`
+    error: `API Route Not Found: ${c.req.method} ${c.req.path}`,
+    suggestion: 'Check if the URL and method are correct.'
   }, 404);
 });
 
