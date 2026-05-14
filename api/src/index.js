@@ -6,23 +6,6 @@ const app = new Hono()
 // CORS 허용
 app.use('/api/*', cors())
 
-// 오류 핸들러 (JSON 형식으로 에러 반환 보장)
-app.onError((err, c) => {
-  console.error(`${err}`);
-  return c.json({
-    success: false,
-    error: err.message || 'Internal Server Error'
-  }, 500);
-});
-
-// 404 핸들러
-app.notFound((c) => {
-  return c.json({
-    success: false,
-    error: 'Not Found'
-  }, 404);
-});
-
 // 게시글 목록 조회
 app.get('/api/posts', async (c) => {
   try {
@@ -118,6 +101,23 @@ app.put('/api/posts/:id', async (c) => {
   } catch (e) {
     return c.json({ error: e.message }, 500);
   }
+});
+
+// 오류 핸들러
+app.onError((err, c) => {
+  console.error(`Error: ${err.message}`);
+  return c.json({
+    success: false,
+    error: err.message || 'Internal Server Error'
+  }, 500);
+});
+
+// 404 핸들러
+app.notFound((c) => {
+  return c.json({
+    success: false,
+    error: `Not Found: ${c.req.method} ${c.req.path}`
+  }, 404);
 });
 
 export default app
