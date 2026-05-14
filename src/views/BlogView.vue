@@ -358,6 +358,7 @@ export default {
     };
 
     const confirmDelete = async (id, title) => {
+      console.log(`Attempting to delete post: ID=${id}, Title=${title}`);
       if (!adminKey.value) {
         const key = prompt('삭제를 위해 관리자 비밀번호를 입력해주세요:');
         if (!key) return;
