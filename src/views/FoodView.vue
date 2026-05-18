@@ -303,5 +303,3 @@ export default {
 .naver-btn:hover { background: #02b351; }
 @media (max-width: 734px) { .hero-title { font-size: 2.5rem; } .hero-subtitle { font-size: 1.2rem; } .bento-grid { grid-template-columns: 1fr; } }
 </style>
-late-columns: 1fr; } }
-</style>
