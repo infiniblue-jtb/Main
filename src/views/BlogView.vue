@@ -6,6 +6,16 @@
       
       <!-- 글쓰기 버튼 및 일괄 작업 -->
       <div class="admin-controls">
+        <div class="search-bar glass-card">
+          <span class="search-icon">🔍</span>
+          <input 
+            v-model="searchQuery" 
+            :placeholder="currentLang === 'ko' ? '날짜, 제목, 내용으로 검색...' : 'Search by date, title, content...'"
+            class="search-input"
+          >
+          <button v-if="searchQuery" @click="searchQuery = ''" class="search-clear">✕</button>
+        </div>
+
         <div class="control-group">
           <button v-if="!showEditor" @click="openEditor()" class="write-btn">
             <span>✍️</span> {{ currentLang === 'ko' ? '글 작성하기' : 'Write Post' }}
@@ -69,9 +79,18 @@
       </div>
       
       <div v-else>
+        <!-- 검색 결과 없음 상태 -->
+        <div v-if="filteredPosts.length === 0" class="no-results glass-card">
+          <span class="no-results-icon">🔍</span>
+          <p>{{ currentLang === 'ko' ? '검색 결과가 없습니다.' : 'No results found.' }}</p>
+          <button @click="searchQuery = ''" class="clear-search-link">
+            {{ currentLang === 'ko' ? '검색 초기화' : 'Clear search' }}
+          </button>
+        </div>
+
         <!-- 상단 4개 카드 -->
-        <div class="blog-grid">
-          <article v-for="post in posts.slice(0, 4)" :key="post.id" class="blog-card" @click="viewPost(post)">
+        <div v-if="filteredPosts.length > 0" class="blog-grid">
+          <article v-for="post in filteredPosts.slice(0, 4)" :key="post.id" class="blog-card" @click="viewPost(post)">
             <div class="card-image" :style="post.image_url ? { backgroundImage: `url(${post.image_url})` } : {}">
               <div v-if="!post.image_url" class="placeholder-image">✨</div>
               <!-- 체크박스 -->
@@ -227,6 +246,7 @@ export default {
     const selectedPost = ref(null);
     const adminKey = ref('');
     const selectedIds = ref([]);
+    const searchQuery = ref('');
 
     const newPost = ref({
       title: '',
@@ -255,7 +275,19 @@ export default {
       }
     };
 
-    const tablePosts = computed(() => posts.value.slice(4));
+    const filteredPosts = computed(() => {
+      if (!searchQuery.value.trim()) return posts.value;
+      const q = searchQuery.value.toLowerCase();
+      return posts.value.filter(post => {
+        const title = (post.title || '').toLowerCase();
+        const content = (post.content || '').toLowerCase();
+        const excerpt = (post.excerpt || '').toLowerCase();
+        const date = formatDate(post.created_at).toLowerCase();
+        return title.includes(q) || content.includes(q) || excerpt.includes(q) || date.includes(q);
+      });
+    });
+
+    const tablePosts = computed(() => filteredPosts.value.slice(4));
     const totalPages = computed(() => Math.ceil(tablePosts.value.length / pageSize));
     
     const paginatedTablePosts = computed(() => {
@@ -460,13 +492,94 @@ export default {
       showEditor, newPost, submitPost, submitting, adminKey, selectedPost, 
       confirmDelete, isEditing, startEdit, openEditor, closeEditor,
       currentPage, totalPages, paginatedTablePosts, setPage, tablePosts,
-      selectedIds, confirmBatchDelete, isAllTableSelected, toggleSelectAllTable
+      selectedIds, confirmBatchDelete, isAllTableSelected, toggleSelectAllTable,
+      searchQuery, filteredPosts
     };
   }
 }
 </script>
 
 <style scoped>
+.no-results {
+  padding: 60px;
+  text-align: center;
+  margin: 40px auto;
+  max-width: 600px;
+}
+
+.no-results-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 20px;
+  opacity: 0.3;
+}
+
+.no-results p {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.clear-search-link {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.clear-search-link:hover {
+  opacity: 0.8;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 20px;
+  max-width: 500px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.search-icon {
+  font-size: 1.2rem;
+  opacity: 0.5;
+}
+
+.search-input {
+  flex-grow: 1;
+  border: none;
+  background: transparent;
+  padding: 10px 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.search-clear {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 5px;
+  font-size: 1rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.search-clear:hover {
+  opacity: 1;
+}
+
 .hero-section {
   padding: 80px 22px 40px;
   text-align: center;
