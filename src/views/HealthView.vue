@@ -42,13 +42,14 @@
         <h2 class="section-title">{{ t.hospitalTitle }}</h2>
       </div>
       <div class="bento-grid">
-        <div v-for="item in hospitals" :key="item.name" class="apple-card clickable" @click="searchOnNaver(currentLang === 'ko' ? item.name : item.name_en)">
+        <div v-for="item in hospitals" :key="item.name" class="apple-card clickable" @click="focusOnMap(item)">
           <div class="card-content">
             <span class="card-tag emergency">{{ currentLang === 'ko' ? '병원' : 'Hospital' }}</span>
             <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>
             <p class="address">{{ item.address }}</p>
             <p class="time">⏰ {{ currentLang === 'ko' ? item.time : item.time_en }}</p>
             <p class="info">ℹ️ {{ currentLang === 'ko' ? item.info : item.info_en }}</p>
+            <button class="naver-btn" @click.stop="searchOnNaver(currentLang === 'ko' ? item.name : item.name_en)">Naver Search</button>
           </div>
         </div>
       </div>
@@ -57,13 +58,14 @@
         <h2 class="section-title">{{ t.pharmacyTitle }}</h2>
       </div>
       <div class="bento-grid">
-        <div v-for="item in pharmacies" :key="item.name" class="apple-card clickable" @click="searchOnNaver(currentLang === 'ko' ? item.name : item.name_en)">
+        <div v-for="item in pharmacies" :key="item.name" class="apple-card clickable" @click="focusOnMap(item)">
           <div class="card-content">
             <span class="card-tag pharmacy">{{ currentLang === 'ko' ? '약국' : 'Pharmacy' }}</span>
             <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>
             <p class="address">{{ item.address }}</p>
             <p class="time">⏰ {{ currentLang === 'ko' ? item.time : item.time_en }}</p>
             <p class="info">ℹ️ {{ currentLang === 'ko' ? item.info : item.info_en }}</p>
+            <button class="naver-btn" @click.stop="searchOnNaver(currentLang === 'ko' ? item.name : item.name_en)">Naver Search</button>
           </div>
         </div>
       </div>
@@ -76,7 +78,7 @@
 
 <script>
 /* global kakao */
-import { ref, onMounted, computed, inject, watch } from 'vue';
+import { ref, onMounted, computed, inject, watch, onUnmounted } from 'vue';
 import data from '../assets/data.json';
 
 const TRANSLATIONS = {
@@ -143,22 +145,65 @@ export default {
 
     const renderMarkers = () => {
       if (!map.value) return;
-      markers.value.forEach(m => m.setMap(null));
+      markers.value.forEach(m => {
+        if (m.iw) m.iw.close();
+        m.setMap(null);
+      });
       markers.value = [];
-      [...hospitals.value, ...pharmacies.value].forEach(item => {
+      
+      const bounds = new kakao.maps.LatLngBounds();
+      const allItems = [...hospitals.value, ...pharmacies.value];
+      
+      allItems.forEach(item => {
+        const position = new kakao.maps.LatLng(item.lat, item.lng);
         const marker = new kakao.maps.Marker({
-          position: new kakao.maps.LatLng(item.lat, item.lng),
+          position: position,
           map: map.value
         });
+        
         const name = currentLang.value === 'ko' ? item.name : item.name_en;
-        const iw = new kakao.maps.InfoWindow({ content: `<div style="padding:5px;font-size:12px;color:#333;">${name}</div>` });
-        kakao.maps.event.addListener(marker, 'click', () => iw.open(map.value, marker));
+        const iw = new kakao.maps.InfoWindow({ 
+          content: `<div style="padding:10px;font-size:14px;color:#333;font-weight:600;min-width:150px;">${name}</div>`,
+          removable: true
+        });
+        
+        kakao.maps.event.addListener(marker, 'click', () => {
+          markers.value.forEach(m => m.iw.close());
+          iw.open(map.value, marker);
+        });
+        
+        marker.iw = iw;
+        marker.itemName = item.name;
         markers.value.push(marker);
+        bounds.extend(position);
       });
+
+      if (allItems.length > 0) {
+        map.value.setBounds(bounds);
+      }
+    };
+
+    const focusOnMap = (item) => {
+      if (!map.value) return;
+      const position = new kakao.maps.LatLng(item.lat, item.lng);
+      map.value.setCenter(position);
+      map.value.setLevel(4);
+      
+      const marker = markers.value.find(m => m.itemName === item.name);
+      if (marker) {
+        markers.value.forEach(m => m.iw.close());
+        marker.iw.open(map.value, marker);
+      }
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     onMounted(() => {
       initMap();
+    });
+
+    onUnmounted(() => {
+      // Clean up if needed
     });
 
     watch(currentLang, () => renderMarkers());
@@ -168,7 +213,7 @@ export default {
       window.open(url, '_blank');
     };
 
-    return { currentLang, t, hospitals, pharmacies, searchOnNaver };
+    return { currentLang, t, hospitals, pharmacies, searchOnNaver, focusOnMap };
   }
 }
 </script>
@@ -193,6 +238,18 @@ export default {
 .card-tag.pharmacy { color: #34c759; }
 .address, .time, .info { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 4px; }
 .clickable { cursor: pointer; }
+.naver-btn {
+  margin-top: 12px;
+  background: #03c75a;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.naver-btn:hover { background: #02b351; }
 @media (max-width: 734px) {
   .hero-title { font-size: 2.5rem; }
   .bento-grid { grid-template-columns: 1fr; }

@@ -42,13 +42,14 @@
         <h2 class="section-title">{{ t.listTitle }}</h2>
       </div>
       <div class="bento-grid">
-        <div v-for="cafe in cafePlaces" :key="cafe.name" class="apple-card clickable" @click="searchOnNaver(currentLang === 'ko' ? cafe.name : cafe.name_en)">
+        <div v-for="cafe in cafePlaces" :key="cafe.name" class="apple-card clickable" @click="focusOnMap(cafe)">
           <div class="card-content">
             <span class="card-tag cafe">{{ currentLang === 'ko' ? '카페' : 'Cafe' }}</span>
             <h3>{{ currentLang === 'ko' ? cafe.name : cafe.name_en }}</h3>
             <p class="address">{{ cafe.address }}</p>
             <p class="feature">{{ currentLang === 'ko' ? cafe.feature : cafe.feature_en }}</p>
             <p class="parking-info">🚗 {{ cafe.parking }}</p>
+            <button class="naver-btn" @click.stop="searchOnNaver(currentLang === 'ko' ? cafe.name : cafe.name_en)">Naver Search</button>
           </div>
         </div>
       </div>
@@ -134,18 +135,55 @@ export default {
 
     const renderMarkers = () => {
       if (!map.value) return;
-      markers.value.forEach(m => m.setMap(null));
+      markers.value.forEach(m => {
+        if (m.iw) m.iw.close();
+        m.setMap(null);
+      });
       markers.value = [];
+      
+      const bounds = new kakao.maps.LatLngBounds();
       cafePlaces.value.forEach(cafe => {
+        const position = new kakao.maps.LatLng(cafe.lat, cafe.lng);
         const marker = new kakao.maps.Marker({
-          position: new kakao.maps.LatLng(cafe.lat, cafe.lng),
+          position: position,
           map: map.value
         });
+        
         const name = currentLang.value === 'ko' ? cafe.name : cafe.name_en;
-        const iw = new kakao.maps.InfoWindow({ content: `<div style="padding:5px;font-size:12px;color:#333;border:none;">${name}</div>` });
-        kakao.maps.event.addListener(marker, 'click', () => iw.open(map.value, marker));
+        const iw = new kakao.maps.InfoWindow({ 
+          content: `<div style="padding:10px;font-size:14px;color:#333;font-weight:600;min-width:150px;">${name}</div>`,
+          removable: true
+        });
+        
+        kakao.maps.event.addListener(marker, 'click', () => {
+          markers.value.forEach(m => m.iw.close());
+          iw.open(map.value, marker);
+        });
+        
+        marker.iw = iw;
+        marker.itemName = cafe.name;
         markers.value.push(marker);
+        bounds.extend(position);
       });
+
+      if (cafePlaces.value.length > 0) {
+        map.value.setBounds(bounds);
+      }
+    };
+
+    const focusOnMap = (item) => {
+      if (!map.value) return;
+      const position = new kakao.maps.LatLng(item.lat, item.lng);
+      map.value.setCenter(position);
+      map.value.setLevel(4);
+      
+      const marker = markers.value.find(m => m.itemName === item.name);
+      if (marker) {
+        markers.value.forEach(m => m.iw.close());
+        marker.iw.open(map.value, marker);
+      }
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     onMounted(() => {
@@ -164,7 +202,7 @@ export default {
       window.open(url, '_blank');
     };
 
-    return { currentLang, theme, t, cafePlaces, searchOnNaver };
+    return { currentLang, theme, t, cafePlaces, searchOnNaver, focusOnMap };
   }
 }
 </script>
@@ -191,5 +229,17 @@ export default {
 .address { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 4px; }
 .feature { font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; }
 .parking-info { font-size: 0.85rem; color: var(--accent); font-weight: 500; }
+.naver-btn {
+  margin-top: 12px;
+  background: #03c75a;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.naver-btn:hover { background: #02b351; }
 @media (max-width: 734px) { .hero-title { font-size: 2.5rem; } .hero-subtitle { font-size: 1.2rem; } .bento-grid { grid-template-columns: 1fr; } }
 </style>

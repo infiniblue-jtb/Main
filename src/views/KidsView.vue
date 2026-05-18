@@ -43,13 +43,14 @@
         <h2 class="section-title">{{ t.freeTitle }}</h2>
       </div>
       <div class="bento-grid">
-        <div v-for="spot in freePlaces" :key="spot.name" class="apple-card clickable" @click="searchOnNaver(currentLang === 'ko' ? spot.name : spot.name_en)">
+        <div v-for="spot in freePlaces" :key="spot.name" class="apple-card clickable" @click="focusOnMap(spot)">
           <div class="card-content">
             <span class="card-tag free">{{ currentLang === 'ko' ? '무료' : 'Free' }}</span>
             <h3>{{ currentLang === 'ko' ? spot.name : spot.name_en }}</h3>
             <p class="address">{{ spot.address }}</p>
             <p class="price">{{ currentLang === 'ko' ? spot.price : spot.price_en }}</p>
             <p class="parking-info">🚗 {{ spot.parking }}</p>
+            <button class="naver-btn" @click.stop="searchOnNaver(currentLang === 'ko' ? spot.name : spot.name_en)">Naver Search</button>
           </div>
         </div>
       </div>
@@ -58,13 +59,14 @@
         <h2 class="section-title">{{ t.paidTitle }}</h2>
       </div>
       <div class="bento-grid">
-        <div v-for="spot in paidPlaces" :key="spot.name" class="apple-card clickable" @click="searchOnNaver(currentLang === 'ko' ? spot.name : spot.name_en)">
+        <div v-for="spot in paidPlaces" :key="spot.name" class="apple-card clickable" @click="focusOnMap(spot)">
           <div class="card-content">
             <span class="card-tag paid">{{ currentLang === 'ko' ? '유료' : 'Paid' }}</span>
             <h3>{{ currentLang === 'ko' ? spot.name : spot.name_en }}</h3>
             <p class="address">{{ spot.address }}</p>
             <p class="price">{{ currentLang === 'ko' ? spot.price : spot.price_en }}</p>
             <p class="parking-info">🚗 {{ spot.parking }}</p>
+            <button class="naver-btn" @click.stop="searchOnNaver(currentLang === 'ko' ? spot.name : spot.name_en)">Naver Search</button>
           </div>
         </div>
       </div>
@@ -145,7 +147,14 @@ export default {
               title: "내 위치"
             });
             
-            map.value.setCenter(locPosition);
+            // 내 위치가 동탄 중심에서 너무 멀지 않을 때만 중심 이동
+            const dongtanCenter = new kakao.maps.LatLng(37.197, 127.085);
+            const line = new kakao.maps.Polyline({
+                path: [locPosition, dongtanCenter]
+            });
+            if (line.getLength() < 20000) { // 20km 이내일 때만
+                map.value.setCenter(locPosition);
+            }
           });
         }
 
@@ -155,18 +164,57 @@ export default {
 
     const renderMarkers = () => {
       if (!map.value) return;
-      markers.value.forEach(m => m.setMap(null));
+      markers.value.forEach(m => {
+        if (m.iw) m.iw.close();
+        m.setMap(null);
+      });
       markers.value = [];
-      [...freePlaces.value, ...paidPlaces.value].forEach(spot => {
+      
+      const bounds = new kakao.maps.LatLngBounds();
+      const allItems = [...freePlaces.value, ...paidPlaces.value];
+      
+      allItems.forEach(spot => {
+        const position = new kakao.maps.LatLng(spot.lat, spot.lng);
         const marker = new kakao.maps.Marker({
-          position: new kakao.maps.LatLng(spot.lat, spot.lng),
+          position: position,
           map: map.value
         });
+        
         const name = currentLang.value === 'ko' ? spot.name : spot.name_en;
-        const iw = new kakao.maps.InfoWindow({ content: `<div style="padding:5px;font-size:12px;color:#333;border:none;">${name}</div>` });
-        kakao.maps.event.addListener(marker, 'click', () => iw.open(map.value, marker));
+        const iw = new kakao.maps.InfoWindow({ 
+          content: `<div style="padding:10px;font-size:14px;color:#333;font-weight:600;min-width:150px;">${name}</div>`,
+          removable: true
+        });
+        
+        kakao.maps.event.addListener(marker, 'click', () => {
+          markers.value.forEach(m => m.iw.close());
+          iw.open(map.value, marker);
+        });
+        
+        marker.iw = iw;
+        marker.itemName = spot.name;
         markers.value.push(marker);
+        bounds.extend(position);
       });
+
+      if (allItems.length > 0) {
+        map.value.setBounds(bounds);
+      }
+    };
+
+    const focusOnMap = (item) => {
+      if (!map.value) return;
+      const position = new kakao.maps.LatLng(item.lat, item.lng);
+      map.value.setCenter(position);
+      map.value.setLevel(4);
+      
+      const marker = markers.value.find(m => m.itemName === item.name);
+      if (marker) {
+        markers.value.forEach(m => m.iw.close());
+        marker.iw.open(map.value, marker);
+      }
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     onMounted(() => {
@@ -185,142 +233,46 @@ export default {
       window.open(url, '_blank');
     };
 
-    return { currentLang, theme, t, freePlaces, paidPlaces, searchOnNaver };
+    return { currentLang, theme, t, freePlaces, paidPlaces, searchOnNaver, focusOnMap };
   }
 }
 </script>
 
 <style scoped>
-.apple-page {
-  padding-bottom: 100px;
-}
-
-.clickable {
-  cursor: pointer;
-  transition: opacity 0.3s;
-}
-.clickable:hover {
-  opacity: 0.7;
-  text-decoration: underline;
-}
-
-.hero-section {
-  padding: 80px 22px 40px;
-  text-align: center;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.hero-title {
-  font-size: 3.5rem;
-  font-weight: 700;
-  letter-spacing: -0.015em;
-  margin-bottom: 12px;
-}
-
-.hero-subtitle {
-  font-size: 1.5rem;
-  color: var(--text-secondary);
-  font-weight: 400;
-}
-
-.map-section {
-  max-width: 1024px;
-  margin: 0 auto 80px;
-  padding: 0 22px;
-}
-
-.glass-card {
-  background: var(--card-bg);
-  border-radius: 28px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-}
-
-#map {
-  width: 100%;
-  height: 500px;
-  filter: grayscale(0.2);
-}
-
-.content-section {
-  max-width: 1024px;
-  margin: 0 auto;
-  padding: 0 22px;
-}
-
-.section-header {
-  margin-bottom: 30px;
-}
-
-.section-title {
-  font-size: 2rem;
-  font-weight: 600;
-}
-
+.apple-page { padding-bottom: 100px; }
+.clickable { cursor: pointer; transition: opacity 0.3s; }
+.clickable:hover { opacity: 0.7; text-decoration: underline; }
+.hero-section { padding: 80px 22px 40px; text-align: center; max-width: 800px; margin: 0 auto; }
+.hero-title { font-size: 3.5rem; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 12px; }
+.hero-subtitle { font-size: 1.5rem; color: var(--text-secondary); font-weight: 400; }
+.map-section { max-width: 1024px; margin: 0 auto 80px; padding: 0 22px; }
+.glass-card { background: var(--card-bg); border-radius: 28px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+#map { width: 100%; height: 500px; filter: grayscale(0.2); }
+.content-section { max-width: 1024px; margin: 0 auto; padding: 0 22px; }
+.section-header { margin-bottom: 30px; }
+.section-title { font-size: 2rem; font-weight: 600; }
 .mt-80 { margin-top: 80px; }
-
-.bento-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.apple-card {
-  background: var(--card-bg);
-  border-radius: 22px;
-  padding: 30px;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  min-height: 200px;
-  border: 1px solid transparent;
-}
-
-.apple-card:hover {
-  transform: scale(1.02);
-  border: 1px solid var(--accent);
-}
-
-.card-tag {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-  display: block;
-}
-
+.bento-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.apple-card { background: var(--card-bg); border-radius: 22px; padding: 30px; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: flex-end; min-height: 200px; border: 1px solid transparent; }
+.apple-card:hover { transform: scale(1.02); border: 1px solid var(--accent); }
+.card-tag { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; display: block; }
 .card-tag.free { color: var(--accent); }
 .card-tag.paid { color: #ff3b30; }
-
-.apple-card h3 {
-  font-size: 1.4rem;
+.apple-card h3 { font-size: 1.4rem; font-weight: 600; margin: 0 0 8px 0; }
+.address { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 4px; }
+.price { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+.parking-info { font-size: 0.85rem; color: var(--accent); font-weight: 500; }
+.naver-btn {
+  margin-top: 12px;
+  background: #03c75a;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 0.8rem;
   font-weight: 600;
-  margin: 0 0 8px 0;
+  cursor: pointer;
 }
-
-.address {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin-bottom: 4px;
-}
-
-.price {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.parking-info {
-  font-size: 0.85rem;
-  color: var(--accent);
-  font-weight: 500;
-}
-
-@media (max-width: 734px) {
-  .hero-title { font-size: 2.5rem; }
-  .hero-subtitle { font-size: 1.2rem; }
-  .bento-grid { grid-template-columns: 1fr; }
-}
+.naver-btn:hover { background: #02b351; }
+@media (max-width: 734px) { .hero-title { font-size: 2.5rem; } .hero-subtitle { font-size: 1.2rem; } .bento-grid { grid-template-columns: 1fr; } }
 </style>
