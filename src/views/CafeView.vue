@@ -215,7 +215,6 @@ export default {
 .hero-title { font-size: 3.5rem; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 12px; }
 .hero-subtitle { font-size: 1.5rem; color: var(--text-secondary); font-weight: 400; }
 .map-section { max-width: 1024px; margin: 0 auto 80px; padding: 0 22px; }
-.glass-card { background: var(--card-bg); border-radius: 28px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
 #map { width: 100%; height: 500px; filter: grayscale(0.2); }
 .content-section { max-width: 1024px; margin: 0 auto; padding: 0 22px; }
 .section-header { margin-bottom: 30px; }

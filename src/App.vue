@@ -413,16 +413,22 @@ body {
 }
 
 /* Common UI Components */
-.intro-card {
-  margin-bottom: 80px;
+.glass-card {
   background: var(--card-bg);
   border-radius: 28px;
-  padding: 40px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
   border: 1px solid rgba(0,0,0,0.05);
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-[data-theme="dark"] .intro-card {
+[data-theme="dark"] .glass-card {
   border: 1px solid rgba(255,255,255,0.1);
+}
+
+.intro-card {
+  margin-bottom: 80px;
+  padding: 40px;
 }
 
 .intro-card h2 {
