@@ -12,29 +12,14 @@ app.use('*', async (c, next) => {
 
 // 상태 확인
 app.get('/', (c) => c.text('Dongtan API is live and well!'))
-app.get('/health', (c) => c.json({ status: 'ok', worker: 'dongtan-api' }))
+app.get('/health', (c) => c.json({ status: 'ok', worker: 'dongtan-api', timestamp: new Date().toISOString() }))
 
 /**
  * 게시글 API 라우트 정의
- * app.route 사용 시 발생하는 경로 매칭 문제를 방지하기 위해 
- * 메인 앱 인스턴스에 직접 정의합니다.
+ * 경로 충돌을 방지하기 위해 구체적인 경로를 먼저 정의합니다.
  */
 
-// 1. 목록 조회
-const getPosts = async (c) => {
-  try {
-    const { results } = await c.env.DB.prepare(
-      "SELECT * FROM posts ORDER BY created_at DESC"
-    ).all();
-    return c.json(results);
-  } catch (e) {
-    return c.json({ error: e.message, stage: 'list' }, 500);
-  }
-};
-app.get('/api/posts', getPosts);
-app.get('/posts', getPosts);
-
-// 2. 일괄 삭제 (상세 경로 :id 보다 먼저 정의)
+// 1. 일괄 삭제 (가장 먼저 정의하여 /api/posts/:id 와의 충돌 방지)
 const batchDeletePosts = async (c) => {
   const authHeader = c.req.header('Authorization');
   if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
@@ -57,6 +42,20 @@ const batchDeletePosts = async (c) => {
 app.post('/api/posts/batch-delete', batchDeletePosts);
 app.post('/posts/batch-delete', batchDeletePosts);
 
+// 2. 목록 조회
+const getPosts = async (c) => {
+  try {
+    const { results } = await c.env.DB.prepare(
+      "SELECT * FROM posts ORDER BY created_at DESC"
+    ).all();
+    return c.json(results);
+  } catch (e) {
+    return c.json({ error: e.message, stage: 'list' }, 500);
+  }
+};
+app.get('/api/posts', getPosts);
+app.get('/posts', getPosts);
+
 // 3. 게시글 작성
 const createPost = async (c) => {
   const authHeader = c.req.header('Authorization');
@@ -77,7 +76,7 @@ const createPost = async (c) => {
 app.post('/api/posts', createPost);
 app.post('/posts', createPost);
 
-// 4. 단일 항목 삭제
+// 4. 단일 항목 삭제 (/:id 형태는 가장 나중에)
 const deletePost = async (c) => {
   const authHeader = c.req.header('Authorization');
   if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
@@ -127,16 +126,23 @@ app.onError((err, c) => {
   return c.json({
     success: false,
     error: `Worker Error: ${err.message}`,
-    path: c.req.path
+    path: c.req.path,
+    method: c.req.method
   }, 500);
 });
 
-// 404 핸들러
+// 404 핸들러 (진단 정보 포함)
 app.notFound((c) => {
   return c.json({
     success: false,
     error: `API Route Not Found: ${c.req.method} ${c.req.path}`,
-    suggestion: 'Check if the URL and method are correct.'
+    suggestion: 'Check if the URL and method are correct.',
+    debug: {
+      url: c.req.url,
+      path: c.req.path,
+      method: c.req.method,
+      headers: Object.fromEntries(c.req.header())
+    }
   }, 404);
 });
 
