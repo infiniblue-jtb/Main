@@ -3,27 +3,41 @@ import { cors } from 'hono/cors'
 
 const app = new Hono()
 
-// 모든 요청에 대해 로그 출력 및 CORS 적용
+// 표준 CORS 미들웨어 적용
+app.use('*', cors({
+  origin: '*',
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+  exposeHeaders: ['Content-Length'],
+  maxAge: 600,
+  credentials: true,
+}))
+
+// 요청 로깅 미들웨어
 app.use('*', async (c, next) => {
-  console.log(`[REQUEST] ${c.req.method} ${c.req.path}`);
-  const res = await cors()(c, next);
-  return res;
+  console.log(`[${c.req.method}] ${c.req.path}`);
+  await next();
 });
 
-// 상태 확인
-app.get('/', (c) => c.text('Dongtan API is live and well!'))
-app.get('/health', (c) => c.json({ status: 'ok', worker: 'dongtan-api', timestamp: new Date().toISOString() }))
+// 상태 확인 (배포 버전 확인용)
+app.get('/health', (c) => c.json({ 
+  status: 'ok', 
+  worker: 'dongtan-api', 
+  version: 'v1.1.0',
+  timestamp: new Date().toISOString() 
+}))
+
+app.get('/', (c) => c.text('Dongtan API is live!'))
 
 /**
- * 게시글 API 라우트 정의
- * 경로 충돌을 방지하기 위해 구체적인 경로를 먼저 정의합니다.
+ * 게시글 API
  */
 
-// 1. 일괄 삭제 (가장 먼저 정의하여 /api/posts/:id 와의 충돌 방지)
-const batchDeletePosts = async (c) => {
+// 1. 일괄 삭제 (ID 매칭보다 우선순위 높임)
+app.post('/api/posts/batch-delete', async (c) => {
   const authHeader = c.req.header('Authorization');
   if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
-    return c.json({ error: 'Unauthorized', stage: 'auth-batch' }, 401);
+    return c.json({ error: 'Unauthorized' }, 401);
   }
   try {
     const { ids } = await c.req.json();
@@ -36,31 +50,27 @@ const batchDeletePosts = async (c) => {
     await c.env.DB.batch(statements);
     return c.json({ success: true, count: ids.length });
   } catch (e) {
-    return c.json({ error: e.message, stage: 'batch-delete' }, 500);
+    return c.json({ error: e.message }, 500);
   }
-};
-app.post('/api/posts/batch-delete', batchDeletePosts);
-app.post('/posts/batch-delete', batchDeletePosts);
+});
 
 // 2. 목록 조회
-const getPosts = async (c) => {
+app.get('/api/posts', async (c) => {
   try {
     const { results } = await c.env.DB.prepare(
       "SELECT * FROM posts ORDER BY created_at DESC"
     ).all();
     return c.json(results);
   } catch (e) {
-    return c.json({ error: e.message, stage: 'list' }, 500);
+    return c.json({ error: e.message }, 500);
   }
-};
-app.get('/api/posts', getPosts);
-app.get('/posts', getPosts);
+});
 
 // 3. 게시글 작성
-const createPost = async (c) => {
+app.post('/api/posts', async (c) => {
   const authHeader = c.req.header('Authorization');
   if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
-    return c.json({ error: 'Unauthorized', stage: 'auth' }, 401);
+    return c.json({ error: 'Unauthorized' }, 401);
   }
   try {
     const body = await c.req.json();
@@ -70,40 +80,33 @@ const createPost = async (c) => {
     ).bind(title, content, excerpt, image_url).run();
     return c.json({ success: true }, 201);
   } catch (e) {
-    return c.json({ error: e.message, stage: 'create' }, 500);
+    return c.json({ error: e.message }, 500);
   }
-};
-app.post('/api/posts', createPost);
-app.post('/posts', createPost);
+});
 
-// 4. 단일 항목 삭제 (/:id 형태는 가장 나중에)
-const deletePost = async (c) => {
+// 4. 단일 항목 삭제
+app.delete('/api/posts/:id', async (c) => {
   const authHeader = c.req.header('Authorization');
   if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
-    return c.json({ error: 'Unauthorized', stage: 'auth-delete' }, 401);
+    return c.json({ error: 'Unauthorized' }, 401);
   }
   const id = c.req.param('id');
   try {
-    const result = await c.env.DB.prepare(
-      "DELETE FROM posts WHERE id = ?"
-    ).bind(id).run();
-    
+    const result = await c.env.DB.prepare("DELETE FROM posts WHERE id = ?").bind(id).run();
     if (result.meta && result.meta.changes === 0) {
-      return c.json({ error: `Post ${id} not found in DB`, success: false }, 404);
+      return c.json({ error: 'Not Found' }, 404);
     }
     return c.json({ success: true });
   } catch (e) {
-    return c.json({ error: e.message, stage: 'delete' }, 500);
+    return c.json({ error: e.message }, 500);
   }
-};
-app.delete('/api/posts/:id', deletePost);
-app.delete('/posts/:id', deletePost);
+});
 
 // 5. 단일 항목 수정
-const updatePost = async (c) => {
+app.put('/api/posts/:id', async (c) => {
   const authHeader = c.req.header('Authorization');
   if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
-    return c.json({ error: 'Unauthorized', stage: 'auth-update' }, 401);
+    return c.json({ error: 'Unauthorized' }, 401);
   }
   const id = c.req.param('id');
   try {
@@ -114,34 +117,28 @@ const updatePost = async (c) => {
     ).bind(title, content, excerpt, image_url, id).run();
     return c.json({ success: true });
   } catch (e) {
-    return c.json({ error: e.message, stage: 'update' }, 500);
+    return c.json({ error: e.message }, 500);
   }
-};
-app.put('/api/posts/:id', updatePost);
-app.put('/posts/:id', updatePost);
+});
 
 // 오류 핸들러
 app.onError((err, c) => {
-  console.error(`[FATAL ERROR] ${err.stack}`);
   return c.json({
     success: false,
-    error: `Worker Error: ${err.message}`,
-    path: c.req.path,
-    method: c.req.method
+    error: err.message,
+    path: c.req.path
   }, 500);
 });
 
-// 404 핸들러 (진단 정보 포함)
+// 404 핸들러
 app.notFound((c) => {
   return c.json({
     success: false,
-    error: `API Route Not Found: ${c.req.method} ${c.req.path}`,
-    suggestion: 'Check if the URL and method are correct.',
+    error: `Not Found: ${c.req.method} ${c.req.path}`,
     debug: {
-      url: c.req.url,
-      path: c.req.path,
       method: c.req.method,
-      headers: Object.fromEntries(c.req.header())
+      path: c.req.path,
+      url: c.req.url
     }
   }, 404);
 });
