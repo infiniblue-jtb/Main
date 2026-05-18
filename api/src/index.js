@@ -5,7 +5,7 @@ const app = new Hono()
 
 // 모든 요청에 대해 로그 출력 및 CORS 적용
 app.use('*', async (c, next) => {
-  console.log(`[REQUEST] ${c.req.method} ${c.req.url}`);
+  console.log(`[REQUEST] ${c.req.method} ${c.req.path}`);
   const res = await cors()(c, next);
   return res;
 });
@@ -14,12 +14,14 @@ app.use('*', async (c, next) => {
 app.get('/', (c) => c.text('Dongtan API is live and well!'))
 app.get('/health', (c) => c.json({ status: 'ok', worker: 'dongtan-api' }))
 
-// 게시글 API 그룹화 (경로 유연성 제공)
-// /api/posts, /posts, /api/posts/1, /posts/1 모두 대응
-const postsApi = new Hono()
+/**
+ * 게시글 API 라우트 정의
+ * app.route 사용 시 발생하는 경로 매칭 문제를 방지하기 위해 
+ * 메인 앱 인스턴스에 직접 정의합니다.
+ */
 
-// 목록 조회
-postsApi.get('/', async (c) => {
+// 1. 목록 조회
+const getPosts = async (c) => {
   try {
     const { results } = await c.env.DB.prepare(
       "SELECT * FROM posts ORDER BY created_at DESC"
@@ -28,28 +30,12 @@ postsApi.get('/', async (c) => {
   } catch (e) {
     return c.json({ error: e.message, stage: 'list' }, 500);
   }
-});
+};
+app.get('/api/posts', getPosts);
+app.get('/posts', getPosts);
 
-// 게시글 작성
-postsApi.post('/', async (c) => {
-  const authHeader = c.req.header('Authorization');
-  if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
-    return c.json({ error: 'Unauthorized', stage: 'auth' }, 401);
-  }
-  try {
-    const body = await c.req.json();
-    const { title, content, excerpt, image_url } = body;
-    await c.env.DB.prepare(
-      "INSERT INTO posts (title, content, excerpt, image_url) VALUES (?, ?, ?, ?)"
-    ).bind(title, content, excerpt, image_url).run();
-    return c.json({ success: true }, 201);
-  } catch (e) {
-    return c.json({ error: e.message, stage: 'create' }, 500);
-  }
-});
-
-// 일괄 삭제 (ID 상세 경로보다 먼저 정의해야 함)
-postsApi.post('/batch-delete', async (c) => {
+// 2. 일괄 삭제 (상세 경로 :id 보다 먼저 정의)
+const batchDeletePosts = async (c) => {
   const authHeader = c.req.header('Authorization');
   if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
     return c.json({ error: 'Unauthorized', stage: 'auth-batch' }, 401);
@@ -67,10 +53,32 @@ postsApi.post('/batch-delete', async (c) => {
   } catch (e) {
     return c.json({ error: e.message, stage: 'batch-delete' }, 500);
   }
-});
+};
+app.post('/api/posts/batch-delete', batchDeletePosts);
+app.post('/posts/batch-delete', batchDeletePosts);
 
-// 단일 항목 조작 (ID)
-postsApi.delete('/:id', async (c) => {
+// 3. 게시글 작성
+const createPost = async (c) => {
+  const authHeader = c.req.header('Authorization');
+  if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
+    return c.json({ error: 'Unauthorized', stage: 'auth' }, 401);
+  }
+  try {
+    const body = await c.req.json();
+    const { title, content, excerpt, image_url } = body;
+    await c.env.DB.prepare(
+      "INSERT INTO posts (title, content, excerpt, image_url) VALUES (?, ?, ?, ?)"
+    ).bind(title, content, excerpt, image_url).run();
+    return c.json({ success: true }, 201);
+  } catch (e) {
+    return c.json({ error: e.message, stage: 'create' }, 500);
+  }
+};
+app.post('/api/posts', createPost);
+app.post('/posts', createPost);
+
+// 4. 단일 항목 삭제
+const deletePost = async (c) => {
   const authHeader = c.req.header('Authorization');
   if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
     return c.json({ error: 'Unauthorized', stage: 'auth-delete' }, 401);
@@ -88,9 +96,12 @@ postsApi.delete('/:id', async (c) => {
   } catch (e) {
     return c.json({ error: e.message, stage: 'delete' }, 500);
   }
-});
+};
+app.delete('/api/posts/:id', deletePost);
+app.delete('/posts/:id', deletePost);
 
-postsApi.put('/:id', async (c) => {
+// 5. 단일 항목 수정
+const updatePost = async (c) => {
   const authHeader = c.req.header('Authorization');
   if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
     return c.json({ error: 'Unauthorized', stage: 'auth-update' }, 401);
@@ -106,11 +117,9 @@ postsApi.put('/:id', async (c) => {
   } catch (e) {
     return c.json({ error: e.message, stage: 'update' }, 500);
   }
-});
-
-// 모든 경로 매핑
-app.route('/api/posts', postsApi)
-app.route('/posts', postsApi)
+};
+app.put('/api/posts/:id', updatePost);
+app.put('/posts/:id', updatePost);
 
 // 오류 핸들러
 app.onError((err, c) => {
