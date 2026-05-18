@@ -108,6 +108,9 @@ export default {
         const options = { center: new kakao.maps.LatLng(37.197, 127.085), level: 7 };
         map.value = new kakao.maps.Map(container, options);
 
+        // ✅ 추가: 컨테이너 크기 재계산
+        map.value.relayout();
+
         // 내 위치 가져오기
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition((position) => {
@@ -215,7 +218,8 @@ export default {
 .hero-title { font-size: 3.5rem; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 12px; }
 .hero-subtitle { font-size: 1.5rem; color: var(--text-secondary); font-weight: 400; }
 .map-section { max-width: 1024px; margin: 0 auto 80px; padding: 0 22px; }
-#map { width: 100%; height: 500px; filter: grayscale(0.2); }
+.map-container { padding: 0 !important; overflow: hidden; }
+#map { width: 100%; height: 500px; filter: grayscale(0.2); display: block; }
 .content-section { max-width: 1024px; margin: 0 auto; padding: 0 22px; }
 .section-header { margin-bottom: 30px; }
 .section-title { font-size: 2rem; font-weight: 600; }
