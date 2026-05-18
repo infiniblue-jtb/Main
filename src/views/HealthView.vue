@@ -6,9 +6,7 @@
     </header>
 
     <section class="map-section">
-      <div class="glass-card map-container">
-        <div id="map" ref="mapContainer"></div>
-      </div>
+      <div id="map" ref="mapContainer"></div>
     </section>
 
     <section class="content-section">
@@ -78,7 +76,7 @@
 
 <script>
 /* global kakao */
-import { ref, onMounted, computed, inject, watch, onUnmounted } from 'vue';
+import { ref, onMounted, computed, inject, watch, onUnmounted, nextTick } from 'vue';
 import data from '../assets/data.json';
 
 const TRANSLATIONS = {
@@ -201,8 +199,9 @@ export default {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    onMounted(() => {
-      initMap();
+    onMounted(async () => {
+      await nextTick();
+      setTimeout(initMap, 100);
     });
 
     onUnmounted(() => {
@@ -227,8 +226,7 @@ export default {
 .hero-title { font-size: 3.5rem; font-weight: 700; margin-bottom: 12px; }
 .hero-subtitle { font-size: 1.5rem; color: var(--text-secondary); }
 .map-section { max-width: 1024px; margin: 0 auto 80px; padding: 0 22px; }
-.map-container { padding: 0 !important; overflow: hidden; }
-#map { width: 100%; height: 500px; display: block; }
+#map { width: 100%; height: 500px; border-radius: 22px; overflow: hidden; display: block; }
 .content-section { max-width: 1024px; margin: 0 auto; padding: 0 22px; }
 .section-header { margin-bottom: 30px; }
 .section-title { font-size: 2rem; font-weight: 600; }
