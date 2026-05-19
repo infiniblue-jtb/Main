@@ -6,7 +6,7 @@
     </header>
 
     <section class="map-section">
-      <div id="map" ref="mapContainer"></div>
+      <div ref="mapContainer" class="kakao-map"></div>
     </section>
 
     <section class="content-section">
@@ -99,6 +99,7 @@ export default {
   setup() {
     const currentLang = inject('currentLang', ref('ko'));
     const map = ref(null);
+    const mapContainer = ref(null);
     const markers = ref([]);
     const t = computed(() => TRANSLATIONS[currentLang.value] || TRANSLATIONS['ko']);
 
@@ -111,7 +112,7 @@ export default {
         return;
       }
       kakao.maps.load(() => {
-        const container = document.getElementById('map');
+        const container = mapContainer.value;
         if(!container) return;
         const options = { center: new kakao.maps.LatLng(37.205, 127.080), level: 7 };
         map.value = new kakao.maps.Map(container, options);
@@ -219,7 +220,7 @@ export default {
       window.open(url, '_blank');
     };
 
-    return { currentLang, t, hospitals, pharmacies, searchOnNaver, focusOnMap };
+    return { currentLang, t, hospitals, pharmacies, searchOnNaver, focusOnMap, mapContainer };
   }
 }
 </script>
@@ -230,7 +231,7 @@ export default {
 .hero-title { font-size: 3.5rem; font-weight: 700; margin-bottom: 12px; }
 .hero-subtitle { font-size: 1.5rem; color: var(--text-secondary); }
 .map-section { max-width: 1024px; margin: 0 auto 80px; padding: 0 22px; }
-#map { width: 100%; height: 500px; border-radius: 22px; overflow: hidden; display: block; }
+.kakao-map { width: 100%; height: 500px; border-radius: 22px; overflow: hidden; display: block; }
 .content-section { max-width: 1024px; margin: 0 auto; padding: 0 22px; }
 .section-header { margin-bottom: 30px; }
 .section-title { font-size: 2rem; font-weight: 600; }

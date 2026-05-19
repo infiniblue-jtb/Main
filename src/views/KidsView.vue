@@ -7,7 +7,7 @@
 
     <section class="map-section">
       <div class="glass-card map-container">
-        <div id="map" ref="mapContainer"></div>
+        <div ref="mapContainer" class="kakao-map"></div>
       </div>
     </section>
 
@@ -104,6 +104,7 @@ export default {
     const currentLang = inject('currentLang', ref('ko'));
     const theme = inject('theme', ref('light'));
     const map = ref(null);
+    const mapContainer = ref(null);
     const markers = ref([]);
     const t = computed(() => {
       const lang = currentLang.value || 'ko';
@@ -125,7 +126,7 @@ export default {
         return;
       }
       kakao.maps.load(() => {
-        const container = document.getElementById('map');
+        const container = mapContainer.value;
         if(!container) return;
         const options = { center: new kakao.maps.LatLng(37.197, 127.085), level: 7 };
         map.value = new kakao.maps.Map(container, options);
@@ -241,7 +242,7 @@ export default {
       window.open(url, '_blank');
     };
 
-    return { currentLang, theme, t, freePlaces, paidPlaces, searchOnNaver, focusOnMap };
+    return { currentLang, theme, t, freePlaces, paidPlaces, searchOnNaver, focusOnMap, mapContainer };
   }
 }
 </script>
@@ -255,7 +256,7 @@ export default {
 .hero-subtitle { font-size: 1.5rem; color: var(--text-secondary); font-weight: 400; }
 .map-section { max-width: 1024px; margin: 0 auto 80px; padding: 0 22px; }
 .map-container { padding: 0 !important; overflow: hidden; }
-#map { width: 100%; height: 500px; filter: grayscale(0.2); display: block; }
+.kakao-map { width: 100%; height: 500px; filter: grayscale(0.2); display: block; }
 .content-section { max-width: 1024px; margin: 0 auto; padding: 0 22px; }
 .section-header { margin-bottom: 30px; }
 .section-title { font-size: 2rem; font-weight: 600; }
