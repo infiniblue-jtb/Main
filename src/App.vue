@@ -488,18 +488,17 @@ body {
 .mb-80 { margin-bottom: 80px; }
 
 /* Animations */
+/* ✅ transform 제거: 카카오 맵 초기화 시 컨테이너 위치 틀어짐 방지 */
 .apple-fade-enter-active, .apple-fade-leave-active {
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.4s ease;
 }
 
 .apple-fade-enter-from {
   opacity: 0;
-  transform: translateY(20px);
 }
 
 .apple-fade-leave-to {
   opacity: 0;
-  transform: translateY(-20px);
 }
 
 @media (max-width: 834px) {

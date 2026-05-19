@@ -205,7 +205,7 @@ export default {
 
     onMounted(async () => {
       await nextTick();
-      setTimeout(initMap, 300);
+      setTimeout(initMap, 600);
     });
 
     onUnmounted(() => {
