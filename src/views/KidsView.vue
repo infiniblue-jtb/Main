@@ -79,7 +79,7 @@
 
 <script>
 /* global kakao */
-import { ref, onMounted, computed, inject, onUnmounted, watch } from 'vue';
+import { ref, onMounted, computed, inject, onUnmounted, watch, nextTick } from 'vue';
 
 import data from '../assets/data.json';
 
@@ -130,38 +130,42 @@ export default {
         const options = { center: new kakao.maps.LatLng(37.197, 127.085), level: 7 };
         map.value = new kakao.maps.Map(container, options);
 
-        // ✅ 추가: 컨테이너 크기 재계산
-        map.value.relayout();
+        // ✅ CSS 렌더링 완료 후 relayout → 마커 렌더
+        nextTick(() => {
+          setTimeout(() => {
+            map.value.relayout();
 
-        // 내 위치 가져오기
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition((position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            const locPosition = new kakao.maps.LatLng(lat, lng);
-            
-            // 내 위치 마커 표시
-            const imageSize = new kakao.maps.Size(24, 24);
-            const markerImage = new kakao.maps.MarkerImage('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png', imageSize);
-            new kakao.maps.Marker({
-              map: map.value,
-              position: locPosition,
-              image: markerImage,
-              title: "내 위치"
-            });
-            
-            // 내 위치가 동탄 중심에서 너무 멀지 않을 때만 중심 이동
-            const dongtanCenter = new kakao.maps.LatLng(37.197, 127.085);
-            const line = new kakao.maps.Polyline({
-                path: [locPosition, dongtanCenter]
-            });
-            if (line.getLength() < 20000) { // 20km 이내일 때만
-                map.value.setCenter(locPosition);
+            // 내 위치 가져오기
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition((position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const locPosition = new kakao.maps.LatLng(lat, lng);
+
+                // 내 위치 마커 표시
+                const imageSize = new kakao.maps.Size(24, 24);
+                const markerImage = new kakao.maps.MarkerImage('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png', imageSize);
+                new kakao.maps.Marker({
+                  map: map.value,
+                  position: locPosition,
+                  image: markerImage,
+                  title: "내 위치"
+                });
+
+                // 내 위치가 동탄 중심에서 너무 멀지 않을 때만 중심 이동
+                const dongtanCenter = new kakao.maps.LatLng(37.197, 127.085);
+                const line = new kakao.maps.Polyline({
+                    path: [locPosition, dongtanCenter]
+                });
+                if (line.getLength() < 20000) { // 20km 이내일 때만
+                    map.value.setCenter(locPosition);
+                }
+              });
             }
-          });
-        }
 
-        renderMarkers();
+            renderMarkers();
+          }, 300);
+        });
       });
     };
 
@@ -220,8 +224,9 @@ export default {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    onMounted(() => {
-      initMap();
+    onMounted(async () => {
+      await nextTick();
+      setTimeout(initMap, 300);
       window.addEventListener('lang-changed', renderMarkers);
     });
 

@@ -116,31 +116,35 @@ export default {
         const options = { center: new kakao.maps.LatLng(37.205, 127.080), level: 7 };
         map.value = new kakao.maps.Map(container, options);
 
-        // ✅ 추가: 컨테이너 크기 재계산
-        map.value.relayout();
+        // ✅ CSS 렌더링 완료 후 relayout → 마커 렌더
+        nextTick(() => {
+          setTimeout(() => {
+            map.value.relayout();
 
-        // 내 위치 가져오기
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition((position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            const locPosition = new kakao.maps.LatLng(lat, lng);
-            
-            // 내 위치 마커 표시
-            const imageSize = new kakao.maps.Size(24, 24);
-            const markerImage = new kakao.maps.MarkerImage('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png', imageSize);
-            new kakao.maps.Marker({
-              map: map.value,
-              position: locPosition,
-              image: markerImage,
-              title: "내 위치"
-            });
-            
-            map.value.setCenter(locPosition);
-          });
-        }
+            // 내 위치 가져오기
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition((position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const locPosition = new kakao.maps.LatLng(lat, lng);
 
-        renderMarkers();
+                // 내 위치 마커 표시
+                const imageSize = new kakao.maps.Size(24, 24);
+                const markerImage = new kakao.maps.MarkerImage('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png', imageSize);
+                new kakao.maps.Marker({
+                  map: map.value,
+                  position: locPosition,
+                  image: markerImage,
+                  title: "내 위치"
+                });
+
+                map.value.setCenter(locPosition);
+              });
+            }
+
+            renderMarkers();
+          }, 300);
+        });
       });
     };
 
@@ -201,7 +205,7 @@ export default {
 
     onMounted(async () => {
       await nextTick();
-      setTimeout(initMap, 100);
+      setTimeout(initMap, 300);
     });
 
     onUnmounted(() => {
