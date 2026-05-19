@@ -42,13 +42,14 @@
           <h2 class="section-title">{{ t.breakfastTitle }}</h2>
         </div>
         <div class="bento-grid">
-          <div v-for="item in breakfastItems" :key="item.name" class="apple-card food-card clickable" @click="searchOnNaver(currentLang === 'ko' ? item.name : item.name_en)">
+          <div v-for="item in breakfastItems" :key="item.name" class="apple-card food-card clickable" @click="focusOnMap(item)">
             <div class="card-content">
               <span class="card-tag morning">{{ currentLang === 'ko' ? '아침' : 'Breakfast' }}</span>
               <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>
               <p class="address">{{ item.address }}</p>
               <p class="menu-desc">{{ currentLang === 'ko' ? item.menu : item.menu_en }}</p>
               <p class="parking-info">🚗 {{ item.parking }}</p>
+              <button class="naver-btn" @click.stop="searchOnNaver(currentLang === 'ko' ? item.name : item.name_en)">Naver Search</button>
             </div>
           </div>
         </div>
@@ -60,13 +61,14 @@
           <h2 class="section-title">{{ t.lunchTitle }}</h2>
         </div>
         <div class="bento-grid">
-          <div v-for="item in lunchItems" :key="item.name" class="apple-card food-card clickable" @click="searchOnNaver(currentLang === 'ko' ? item.name : item.name_en)">
+          <div v-for="item in lunchItems" :key="item.name" class="apple-card food-card clickable" @click="focusOnMap(item)">
             <div class="card-content">
               <span class="card-tag afternoon">{{ currentLang === 'ko' ? '점심' : 'Lunch' }}</span>
               <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>
               <p class="address">{{ item.address }}</p>
               <p class="menu-desc">{{ currentLang === 'ko' ? item.menu : item.menu_en }}</p>
               <p class="parking-info">🚗 {{ item.parking }}</p>
+              <button class="naver-btn" @click.stop="searchOnNaver(currentLang === 'ko' ? item.name : item.name_en)">Naver Search</button>
             </div>
           </div>
         </div>
@@ -78,13 +80,14 @@
           <h2 class="section-title">{{ t.dinnerTitle }}</h2>
         </div>
         <div class="bento-grid">
-          <div v-for="item in dinnerItems" :key="item.name" class="apple-card food-card clickable" @click="searchOnNaver(currentLang === 'ko' ? item.name : item.name_en)">
+          <div v-for="item in dinnerItems" :key="item.name" class="apple-card food-card clickable" @click="focusOnMap(item)">
             <div class="card-content">
               <span class="card-tag evening">{{ currentLang === 'ko' ? '저녁' : 'Dinner' }}</span>
               <h3>{{ currentLang === 'ko' ? item.name : item.name_en }}</h3>
               <p class="address">{{ item.address }}</p>
               <p class="menu-desc">{{ currentLang === 'ko' ? item.menu : item.menu_en }}</p>
               <p class="parking-info">🚗 {{ item.parking }}</p>
+              <button class="naver-btn" @click.stop="searchOnNaver(currentLang === 'ko' ? item.name : item.name_en)">Naver Search</button>
             </div>
           </div>
         </div>
