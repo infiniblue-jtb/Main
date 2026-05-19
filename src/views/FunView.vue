@@ -156,6 +156,23 @@
                 <span class="count-val">{{ pCount }}명</span>
                 <button class="count-btn" @click="pCount = Math.min(6, pCount + 1)">＋</button>
               </div>
+
+              <!-- 트랙 선택 (차량 레이스만) -->
+              <div v-if="activeGame === 'car'" class="track-select-group">
+                <span class="group-label">트랙 선택:</span>
+                <div class="track-options">
+                  <button 
+                    v-for="t in ['circle', 'oval', 'square']" 
+                    :key="t"
+                    class="track-opt-btn"
+                    :class="{ active: raceTrackType === t }"
+                    @click="raceTrackType = t"
+                  >
+                    {{ t === 'circle' ? '원형' : t === 'oval' ? '타원형' : '사각형' }}
+                  </button>
+                </div>
+              </div>
+
               <div class="name-grid" :style="{ gridTemplateColumns: `repeat(${Math.min(pCount, 3)}, 1fr)` }">
                 <input
                   v-for="i in pCount" :key="i"
@@ -194,7 +211,7 @@
                 </div>
               </div>
 
-              <!-- 🏎️ 차량: 새로운 원형 트랙 -->
+              <!-- 🏎️ 차량: 향상된 트랙 -->
               <div v-else class="circuit-container">
                 <canvas ref="circuitCanvas" class="circuit-canvas"></canvas>
               </div>
@@ -206,6 +223,22 @@
                   <button class="action-btn sm" @click="resetRace">다시 하기</button>
                 </div>
               </Transition>
+            </div>
+          </div>
+
+          <!-- ===== 핀볼 ===== -->
+          <div v-if="activeGame === 'pinball'" class="game-wrap pinball-wrap">
+            <div class="game-title-row">
+              <span class="g-icon">🔮</span>
+              <h2>핀볼 복불복</h2>
+            </div>
+            <div class="pinball-container">
+              <canvas ref="pinballCanvas" class="pinball-canvas"></canvas>
+              <div v-if="!pinballActive" class="pinball-start-overlay">
+                <button class="action-btn" @click="startPinball">🔮 구슬 발사!</button>
+                <p class="pinball-hint">A/D 키 또는 좌우 화살표로 플리퍼 조작</p>
+              </div>
+              <div class="pinball-score">Score: {{ pinballScore }}</div>
             </div>
           </div>
 
@@ -272,8 +305,9 @@ const GAME_CARDS = [
   { id: 'lotto',    icon: '🎰', name: '로또 번호 생성기', desc: '행운의 번호를 자동으로 뽑아보세요!' },
   { id: 'ladder',   icon: '🪜', name: '사다리 타기',       desc: '긴장감 넘치는 사다리 타기 애니메이션!' },
   { id: 'horse',    icon: '🐎', name: '경마 복불복',       desc: '내 이름을 걸고 달리는 짜릿한 레이스!' },
-  { id: 'car',      icon: '🏎️', name: '차량 복불복',       desc: '분노의 질주! 승자는 누가 될까요?' },
+  { id: 'car',      icon: '🏎️', name: '차량 복불복',       desc: '3가지 트랙에서 펼쳐지는 분노의 질주!' },
   { id: 'roulette', icon: '🎡', name: '룰렛 복불복',       desc: '운명의 룰렛을 돌려보세요!' },
+  { id: 'pinball',  icon: '🔮', name: '핀볼 게임',         desc: '짜릿한 손맛! 고득점에 도전하세요!' },
 ];
 
 const WHEEL_COLORS = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff9f43','#a29bfe','#fd79a8','#00b894'];
@@ -294,6 +328,7 @@ export default {
     const activeGame = ref(null);
     const pCount     = ref(4);
     const pNames     = ref(Array.from({ length: 10 }, () => ''));
+    const raceTrackType = ref('circle');
 
     /* ── 공통 리셋 ─────────────────────────── */
     const resetAll = () => {
@@ -315,6 +350,7 @@ export default {
       wheelAngle.value       = 0;
       wheelTransition.value  = 'none';
       isSpinning.value       = false;
+      stopPinball();
     };
 
     const openGame  = (id) => { resetAll(); activeGame.value = id; };
@@ -344,6 +380,102 @@ export default {
     const ladderWinnerName = ref('');
     const ladderResultCol  = ref(-1);
     const ladderActiveCol  = ref(-1);
+
+    /* ══════════ 핀볼 ══════════ */
+    const pinballCanvas  = ref(null);
+    const pinballActive  = ref(false);
+    const pinballScore   = ref(0);
+    let pinballAnimId    = null;
+    let pinballState     = {
+      ball: { x: 230, y: 50, vx: (Math.random() - 0.5) * 4, vy: 2, r: 8 },
+      flippers: { left: 0, right: 0 },
+      bumpers: [{ x: 150, y: 150, r: 20 }, { x: 310, y: 150, r: 20 }, { x: 230, y: 250, r: 25 }]
+    };
+
+    const startPinball = async () => {
+      pinballActive.value = true;
+      pinballScore.value  = 0;
+      pinballState = {
+        ball: { x: 230, y: 50, vx: (Math.random() - 0.5) * 4, vy: 2, r: 8 },
+        flippers: { left: 0, right: 0 },
+        bumpers: [{ x: 150, y: 150, r: 20 }, { x: 310, y: 150, r: 20 }, { x: 230, y: 250, r: 25 }]
+      };
+      await nextTick();
+      runPinball();
+    };
+
+    const stopPinball = () => {
+      pinballActive.value = false;
+      if (pinballAnimId) { cancelAnimationFrame(pinballAnimId); pinballAnimId = null; }
+    };
+
+    const runPinball = () => {
+      if (!pinballActive.value) return;
+      const canvas = pinballCanvas.value;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const W = 460, H = 500;
+      canvas.width = W; canvas.height = H;
+
+      const update = () => {
+        if (!pinballActive.value) return;
+        let b = pinballState.ball;
+        b.x += b.vx; b.y += b.vy;
+        b.vy += 0.05;
+
+        if (b.x - b.r < 0 || b.x + b.r > W) b.vx *= -1;
+        if (b.y - b.r < 0) b.vy *= -1;
+        if (b.y + b.r > H) {
+          b.x = 230; b.y = 50; b.vx = (Math.random() - 0.5) * 4; b.vy = 2;
+        }
+
+        pinballState.bumpers.forEach(bump => {
+          let dx = b.x - bump.x, dy = b.y - bump.y;
+          let dist = Math.sqrt(dx*dx + dy*dy);
+          if (dist < b.r + bump.r) {
+            let angle = Math.atan2(dy, dx);
+            b.vx = Math.cos(angle) * 5; b.vy = Math.sin(angle) * 5;
+            pinballScore.value += 10;
+          }
+        });
+
+        const fL = { x: 100, y: 450, w: 100, h: 10, angle: pinballState.flippers.left ? -0.3 : 0.3 };
+        const fR = { x: 260, y: 450, w: 100, h: 10, angle: pinballState.flippers.right ? 0.3 : -0.3 };
+        
+        [fL, fR].forEach(f => {
+          if (b.y + b.r > f.y && b.y - b.r < f.y + f.h && b.x > f.x && b.x < f.x + f.w) {
+            b.vy = -Math.abs(b.vy) - 2;
+            b.vx += f.angle * 10;
+          }
+        });
+
+        draw();
+        pinballAnimId = requestAnimationFrame(update);
+      };
+
+      const draw = () => {
+        ctx.fillStyle = '#0d0d1a'; ctx.fillRect(0, 0, W, H);
+        ctx.beginPath(); ctx.arc(pinballState.ball.x, pinballState.ball.y, pinballState.ball.r, 0, Math.PI*2);
+        ctx.fillStyle = '#00f5ff'; ctx.fill();
+        ctx.fillStyle = '#a29bfe';
+        pinballState.bumpers.forEach(bump => {
+          ctx.beginPath(); ctx.arc(bump.x, bump.y, bump.r, 0, Math.PI*2); ctx.fill();
+        });
+        ctx.fillStyle = '#fd79a8';
+        ctx.fillRect(100, 450 + (pinballState.flippers.left ? -20 : 0), 100, 10);
+        ctx.fillRect(260, 450 + (pinballState.flippers.right ? -20 : 0), 100, 10);
+      };
+
+      const handleKey = (e) => {
+        const active = e.type === 'keydown';
+        if (e.key === 'a' || e.key === 'ArrowLeft') pinballState.flippers.left = active ? 1 : 0;
+        if (e.key === 'd' || e.key === 'ArrowRight') pinballState.flippers.right = active ? 1 : 0;
+      };
+      window.addEventListener('keydown', handleKey);
+      window.addEventListener('keyup', handleKey);
+
+      update();
+    };
 
     const startLadder = async () => {
       ladderStarted.value   = true;
@@ -980,6 +1112,16 @@ export default {
 @keyframes dust-fade { 0%,100%{ opacity:0.7; } 50%{ opacity:0.2; } }
 .finish-flag { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 1.3rem; }
 .place-badge { font-size: 0.7rem; font-weight: 700; color: #ffd93d; width: 28px; text-align: right; flex-shrink: 0; }
+
+/* 핀볼 */
+.pinball-container { position: relative; background: #000; border-radius: 12px; overflow: hidden; }
+.pinball-canvas { width: 100%; height: 500px; display: block; }
+.pinball-start-overlay {
+  position: absolute; inset: 0; display: flex; flex-direction: column; gap: 16px;
+  align-items: center; justify-content: center; background: rgba(0,0,0,0.6);
+}
+.pinball-score { position: absolute; top: 10px; right: 20px; font-weight: 800; color: #00f5ff; }
+.pinball-hint { color: rgba(255,255,255,0.6); font-size: 0.8rem; }
 
 /* 새로운 회로 스타일 */
 .circuit-container {
