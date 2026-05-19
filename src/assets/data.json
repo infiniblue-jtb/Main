@@ -232,13 +232,13 @@
         "parking": "건물 내 주차장 이용 가능"
       },
       {
-        "name": "화성 조개구이",
-        "name_en": "Hwaseong Grilled Shellfish",
-        "lat": 37.1650,
-        "lng": 126.6310,
-        "address": "경기도 화성시 서신면 제부리 일대",
-        "menu": "조개구이, 해산물",
-        "menu_en": "Grilled Shellfish, Seafood",
+        "name": "동탄조개구이무한리필",
+        "name_en": "Dongtan Shellfish Refill",
+        "lat": 37.2064,
+        "lng": 127.0715,
+        "address": "경기도 화성시 동탄중심상가1길 8",
+        "menu": "조개구이, 고기 무한리필",
+        "menu_en": "Grilled Shellfish, Meat Unlimited Refill",
         "parking": "건물 내 주차장 이용 가능"
       },
       {
