@@ -19,7 +19,7 @@
       <AdComponent slotId="9173007135" />
 
       <!-- Contact Form -->
-      <div id="contact-section" class="glass-card contact-container mt-80">
+      <div id="contact-section" class="glass-card contact-container mt-20">
         <h2 class="card-title">{{ t.contactTitle }}</h2>
         <form action="https://formspree.io/f/mrerkyqp" method="POST" class="apple-form">
           <div class="form-group">
