@@ -34,6 +34,9 @@ export default {
     const adContainer = ref(null);
 
     onMounted(() => {
+      // 서버 사이드 렌더링 환경인 경우 실행하지 않음
+      if (typeof window === 'undefined') return;
+
       // 로컬 개발 환경에서는 광고 로드를 건너뜁니다.
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         return;
