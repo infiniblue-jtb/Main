@@ -91,8 +91,8 @@
         <!-- 상단 4개 카드 -->
         <div v-if="filteredPosts.length > 0" class="blog-grid">
           <article v-for="post in filteredPosts.slice(0, 4)" :key="post.id" class="blog-card" @click="viewPost(post)">
-            <div class="card-image" :style="post.image_url ? { backgroundImage: `url(${post.image_url})` } : {}">
-              <div v-if="!post.image_url" class="placeholder-image">✨</div>
+            <div class="card-image" :style="getThumbnail(post) ? { backgroundImage: `url(${getThumbnail(post)})` } : {}">
+              <div v-if="!getThumbnail(post)" class="placeholder-image">✨</div>
               <!-- 체크박스 -->
               <div class="selection-overlay" @click.stop>
                 <input type="checkbox" :value="post.id" v-model="selectedIds" class="apple-checkbox">
@@ -197,7 +197,7 @@
       <div v-if="selectedPost" class="modal-overlay" @click="selectedPost = null">
         <div class="modal-content glass-card" @click.stop>
           <button class="close-btn" @click="selectedPost = null">✕</button>
-          <div v-if="selectedPost.image_url" class="modal-image" :style="{ backgroundImage: `url(${selectedPost.image_url})` }"></div>
+          <div v-if="getThumbnail(selectedPost)" class="modal-image" :style="{ backgroundImage: `url(${getThumbnail(selectedPost)})` }"></div>
           <div class="modal-body">
             <div class="modal-header">
               <span class="modal-date">{{ formatDate(selectedPost.created_at) }}</span>
@@ -211,7 +211,7 @@
               </div>
             </div>
             <h1>{{ selectedPost.title }}</h1>
-            <div class="modal-text">{{ selectedPost.content }}</div>
+            <div class="modal-text" v-html="parseContent(selectedPost.content)"></div>
           </div>
         </div>
       </div>
@@ -261,13 +261,30 @@ export default {
 
     const t = computed(() => TRANSLATIONS[currentLang.value] || TRANSLATIONS['ko']);
 
+    const getThumbnail = (post) => {
+      if (post.image_urls && post.image_urls.length > 0) return post.image_urls[0];
+      if (post.image_url) return post.image_url;
+      return null;
+    };
+
+    const parseContent = (content) => {
+      if (!content) return '';
+      // [IMG:url] -> <img src="url" loading="lazy" style="max-width:100%; border-radius:12px; margin: 10px 0;">
+      return content.replace(/\[IMG:(.*?)\]/g, '<img src="$1?auto=format,compress" loading="lazy" style="max-width:100%; border-radius:12px; margin: 15px 0; display: block;">');
+    };
+
     const fetchPosts = async () => {
       loading.value = true;
       try {
         const response = await fetch('https://dongtan-api.infiniblue.workers.dev/api/posts');
         if (!response.ok) throw new Error('Network response was not ok');
-        posts.value = await response.json();
-        selectedIds.value = []; // Reset selection on refresh
+        const data = await response.json();
+        // Ensure posts have image_urls array
+        posts.value = data.map(post => ({
+          ...post,
+          image_urls: post.image_urls || (post.image_url ? [post.image_url] : [])
+        }));
+        selectedIds.value = [];
       } catch (error) {
         console.error('Failed to fetch posts:', error);
       } finally {
