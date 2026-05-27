@@ -38,6 +38,12 @@ export default {
   },
   setup() {
     onMounted(() => {
+      // 로컬 개발 환경에서는 광고 로드를 건너뜁니다.
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('AdSense blocked in local development environment');
+        return;
+      }
+
       nextTick(() => {
         try {
           if (window.adsbygoogle) {
