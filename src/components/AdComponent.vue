@@ -1,23 +1,17 @@
 <template>
-  <div class="adsense-container" :style="containerStyle">
-    <ins class="adsbygoogle"
-         :style="adStyle"
-         data-ad-client="ca-pub-1969163891557217"
-         :data-ad-slot="slotId"
-         :data-ad-format="format"
-         :data-full-width-responsive="responsive"></ins>
+  <div class="adsense-container" :style="containerStyle" ref="adContainer">
   </div>
 </template>
 
 <script>
-import { onMounted, nextTick } from 'vue';
+import { onMounted, ref } from 'vue';
 
 export default {
   name: 'AdComponent',
   props: {
     slotId: {
       type: String,
-      default: '9173007135' // Default slot ID or placeholder
+      default: '9173007135'
     },
     format: {
       type: String,
@@ -36,24 +30,36 @@ export default {
       default: () => ({})
     }
   },
-  setup() {
+  setup(props) {
+    const adContainer = ref(null);
+
     onMounted(() => {
       // 로컬 개발 환경에서는 광고 로드를 건너뜁니다.
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        console.log('AdSense blocked in local development environment');
         return;
       }
 
-      nextTick(() => {
+      // 동적으로 <ins> 태그 생성
+      const ins = document.createElement('ins');
+      ins.className = 'adsbygoogle';
+      Object.assign(ins.style, props.adStyle);
+      ins.setAttribute('data-ad-client', 'ca-pub-1969163891557217');
+      ins.setAttribute('data-ad-slot', props.slotId);
+      ins.setAttribute('data-ad-format', props.format);
+      ins.setAttribute('data-full-width-responsive', props.responsive);
+
+      if (adContainer.value) {
+        adContainer.value.appendChild(ins);
+        
         try {
-          if (window.adsbygoogle) {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-          }
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
         } catch (e) {
           console.error('AdSense error:', e);
         }
-      });
+      }
     });
+
+    return { adContainer };
   }
 }
 </script>
