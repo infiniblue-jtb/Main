@@ -328,7 +328,6 @@ export default {
     const activeGame = ref(null);
     const pCount     = ref(4);
     const pNames     = ref(Array.from({ length: 10 }, () => ''));
-    const raceTrackType = ref('circle');
 
     /* ── 공통 리셋 ─────────────────────────── */
     const resetAll = () => {
