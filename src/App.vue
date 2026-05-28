@@ -19,7 +19,7 @@
           <router-link to="/" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '홈' : 'Home' }}</router-link>
           <router-link to="/blog" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '블로그' : 'Blog' }}</router-link>
           
-          <div class="nav-item-dropdown" @mouseenter="isDropdownOpen = true" @mouseleave="isDropdownOpen = false">
+          <div class="nav-item nav-item-dropdown" @mouseenter="isDropdownOpen = true" @mouseleave="isDropdownOpen = false">
             <span class="nav-item-label">{{ currentLang === 'ko' ? '카테고리' : 'Categories' }}</span>
             <div class="dropdown-content" :class="{ 'show': isDropdownOpen }">
               <router-link to="/kids" @click="isMenuOpen = false; isDropdownOpen = false">{{ currentLang === 'ko' ? '생활정보' : 'Life' }}</router-link>
