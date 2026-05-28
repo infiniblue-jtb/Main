@@ -78,7 +78,7 @@
         <div class="spinner"></div>
       </div>
       
-      <div v-else>
+      <div v-else-if="!loading" class="blog-content-wrapper">
         <!-- 검색 결과 없음 상태 -->
         <div v-if="filteredPosts.length === 0" class="no-results glass-card">
           <span class="no-results-icon">🔍</span>
