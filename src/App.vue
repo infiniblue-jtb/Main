@@ -205,8 +205,6 @@ body {
   background-color: var(--page-bg);
   color: var(--text-primary);
   transition: background-color 0.5s ease;
-}
-
 .apple-nav {
   position: fixed;
   top: 0;
@@ -216,11 +214,12 @@ body {
   backdrop-filter: var(--blur);
   -webkit-backdrop-filter: var(--blur);
   z-index: 9999;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  transition: border-color 0.3s ease;
 }
 
 [data-theme="dark"] .apple-nav {
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
 .nav-container {
@@ -230,26 +229,29 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 22px;
+  padding: 0 24px;
 }
 
 .nav-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 20px;
 }
 
 .logo-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
 }
 
-.clickable-logo {
-  text-decoration: none;
-  color: var(--text-primary);
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
   transition: opacity 0.3s;
 }
 
