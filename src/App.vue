@@ -18,10 +18,17 @@
         <div class="nav-links" :class="{ 'is-open': isMenuOpen }">
           <router-link to="/" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '홈' : 'Home' }}</router-link>
           <router-link to="/blog" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '블로그' : 'Blog' }}</router-link>
-          <router-link to="/kids" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '생활정보' : 'Life' }}</router-link>
-          <router-link to="/food" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '맛집' : 'Food' }}</router-link>
-          <router-link to="/cafe" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '카페' : 'Cafe' }}</router-link>
-          <router-link to="/health" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '병원' : 'Health' }}</router-link>
+          
+          <div class="nav-item-dropdown" @mouseenter="isDropdownOpen = true" @mouseleave="isDropdownOpen = false">
+            <span class="nav-item-label">{{ currentLang === 'ko' ? '카테고리' : 'Categories' }}</span>
+            <div class="dropdown-content" :class="{ 'show': isDropdownOpen }">
+              <router-link to="/kids" @click="isMenuOpen = false; isDropdownOpen = false">{{ currentLang === 'ko' ? '생활정보' : 'Life' }}</router-link>
+              <router-link to="/food" @click="isMenuOpen = false; isDropdownOpen = false">{{ currentLang === 'ko' ? '맛집' : 'Food' }}</router-link>
+              <router-link to="/cafe" @click="isMenuOpen = false; isDropdownOpen = false">{{ currentLang === 'ko' ? '카페' : 'Cafe' }}</router-link>
+              <router-link to="/health" @click="isMenuOpen = false; isDropdownOpen = false">{{ currentLang === 'ko' ? '병원' : 'Health' }}</router-link>
+            </div>
+          </div>
+
           <router-link to="/fun" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '놀거리' : 'Fun' }}</router-link>
           <router-link to="/board" class="nav-item" @click="isMenuOpen = false">{{ currentLang === 'ko' ? '자유게시판' : 'Board' }}</router-link>
         </div>
@@ -77,6 +84,7 @@ export default {
     const currentLang = ref(localStorage.getItem('lang') || 'ko');
     const theme = ref(localStorage.getItem('theme') || 'light');
     const isMenuOpen = ref(false);
+    const isDropdownOpen = ref(false);
     const currentTime = ref('');
     const weather = ref(null);
 
@@ -248,23 +256,94 @@ body {
   opacity: 0.7;
 }
 
-.nav-links {
+.nav-item-dropdown {
+  position: relative;
+  cursor: pointer;
   display: flex;
-  gap: 30px;
+  align-items: center;
 }
 
-.nav-item {
+.nav-item-label {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  transition: opacity 0.3s;
+}
+
+.nav-item-dropdown:hover .nav-item-label {
+  opacity: 1;
+}
+
+.dropdown-content {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--nav-bg);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  padding: 10px;
+  border-radius: 10px;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid rgba(0,0,0,0.1);
+  min-width: 120px;
+  margin-top: 5px;
+}
+
+.dropdown-content.show {
+  display: flex;
+}
+
+.dropdown-content a {
   text-decoration: none;
   color: var(--text-primary);
   font-size: 0.85rem;
   opacity: 0.8;
-  transition: opacity 0.3s;
-  font-weight: 400;
+  padding: 5px 10px;
+  border-radius: 6px;
 }
 
-.nav-item:hover {
+.dropdown-content a:hover {
+  background: rgba(0,0,0,0.05);
   opacity: 1;
 }
+
+[data-theme="dark"] .dropdown-content {
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+[data-theme="dark"] .dropdown-content a:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+/* Mobile Adjustments for Dropdown */
+@media (max-width: 834px) {
+  .nav-item-dropdown {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .nav-item-label {
+    padding: 10px 14px;
+    width: 100%;
+  }
+
+  .dropdown-content {
+    position: static;
+    background: transparent;
+    backdrop-filter: none;
+    border: none;
+    padding: 0 0 0 20px;
+    margin: 0;
+    width: 100%;
+  }
+
+  .dropdown-content a {
+    padding: 8px 14px;
+  }
+}
+
 
 /* Mobile Menu Button */
 .mobile-menu-btn {
