@@ -167,7 +167,7 @@ export default {
       if (weatherTimer) clearInterval(weatherTimer);
     });
 
-    return { currentLang, theme, isMenuOpen, currentTime, weather, toggleLang, toggleTheme, goToContact };
+    return { currentLang, theme, isMenuOpen, isDropdownOpen, currentTime, weather, toggleLang, toggleTheme, goToContact };
   }
 }
 </script>
