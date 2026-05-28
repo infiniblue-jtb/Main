@@ -257,6 +257,12 @@ body {
   opacity: 0.7;
 }
 
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
 .nav-item-dropdown {
   position: relative;
   cursor: pointer;
