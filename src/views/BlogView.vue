@@ -261,12 +261,14 @@ export default {
 
     const t = computed(() => TRANSLATIONS[currentLang.value] || TRANSLATIONS['ko']);
 
+    // eslint-disable-next-line no-unused-vars
     const getThumbnail = (post) => {
       if (post.image_urls && post.image_urls.length > 0) return post.image_urls[0];
       if (post.image_url) return post.image_url;
       return null;
     };
 
+    // eslint-disable-next-line no-unused-vars
     const parseContent = (content) => {
       if (!content) return '';
       // [IMG:url] -> <img src="url" loading="lazy" style="max-width:100%; border-radius:12px; margin: 10px 0;">

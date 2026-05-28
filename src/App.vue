@@ -84,6 +84,7 @@ export default {
     const currentLang = ref(localStorage.getItem('lang') || 'ko');
     const theme = ref(localStorage.getItem('theme') || 'light');
     const isMenuOpen = ref(false);
+    // eslint-disable-next-line no-unused-vars
     const isDropdownOpen = ref(false);
     const currentTime = ref('');
     const weather = ref(null);
