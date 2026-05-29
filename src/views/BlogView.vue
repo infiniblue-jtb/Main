@@ -114,7 +114,7 @@
                   <td class="col-title">
                     <div class="title-wrapper">
                       <span class="title-text">{{ post.title }}</span>
-                      <span class="excerpt-hint">{{ post.content.substring(0, 50) + '...' }}</span>
+                      <span class="excerpt-hint">{{ post.content ? post.content.substring(0, 50) + '...' : '' }}</span>
                     </div>
                   </td>
                   <td class="col-action">
