@@ -101,31 +101,29 @@
                   <th class="col-action"></th>
                 </tr>
               </thead>
-              <tbody>
-                <template v-for="post in paginatedPosts" :key="post.id">
-                  <tr v-if="post" @click="viewPost(post)">
-                    <td class="col-check" @click.stop>
-                      <input type="checkbox" :value="post.id" v-model="selectedIds" class="apple-checkbox">
-                    </td>
-                    <td class="col-thumb">
-                      <div v-if="getThumbnail(post)" class="thumb-img" :style="{ backgroundImage: `url(${getThumbnail(post)})` }"></div>
-                      <div v-else class="thumb-placeholder">✨</div>
-                    </td>
-                    <td class="col-date">{{ formatDate(post.created_at) }}</td>
-                    <td class="col-title">
-                      <div class="title-wrapper">
-                        <span class="title-text">{{ post.title || '제목 없음' }}</span>
-                        <span class="excerpt-hint">{{ post.content ? post.content.substring(0, 50) + '...' : '' }}</span>
-                      </div>
-                    </td>
-                    <td class="col-action">
-                      <div class="action-btns">
-                        <button class="table-delete-btn" @click.stop="confirmDelete(post.id, post.title)">✕</button>
-                        <span class="arrow">→</span>
-                      </div>
-                    </td>
-                  </tr>
-                </template>
+              <tbody v-if="paginatedPosts && paginatedPosts.length > 0">
+                <tr v-for="post in paginatedPosts" :key="post.id" @click="viewPost(post)">
+                  <td class="col-check" @click.stop>
+                    <input type="checkbox" :value="post.id" v-model="selectedIds" class="apple-checkbox">
+                  </td>
+                  <td class="col-thumb">
+                    <div v-if="post && getThumbnail(post)" class="thumb-img" :style="{ backgroundImage: `url(${getThumbnail(post)})` }"></div>
+                    <div v-else class="thumb-placeholder">✨</div>
+                  </td>
+                  <td class="col-date">{{ post ? formatDate(post.created_at) : '' }}</td>
+                  <td class="col-title">
+                    <div class="title-wrapper">
+                      <span class="title-text">{{ post ? (post.title || '제목 없음') : '' }}</span>
+                      <span class="excerpt-hint">{{ post && post.content ? post.content.substring(0, 50) + '...' : '' }}</span>
+                    </div>
+                  </td>
+                  <td class="col-action">
+                    <div class="action-btns">
+                      <button class="table-delete-btn" @click.stop="post && confirmDelete(post.id, post.title)">✕</button>
+                      <span class="arrow">→</span>
+                    </div>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
