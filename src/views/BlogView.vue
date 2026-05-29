@@ -52,16 +52,8 @@
               <input v-model="newPost.title" required placeholder="글 제목을 입력하세요">
             </div>
             <div class="form-group">
-              <label>{{ currentLang === 'ko' ? '요약' : 'Excerpt' }}</label>
-              <input v-model="newPost.excerpt" placeholder="목록에 표시될 짧은 요약">
-            </div>
-            <div class="form-group">
-              <label>{{ currentLang === 'ko' ? '이미지 URL' : 'Image URL' }}</label>
-              <input v-model="newPost.image_url" placeholder="https://example.com/image.jpg">
-            </div>
-            <div class="form-group">
               <label>{{ currentLang === 'ko' ? '본문 내용' : 'Content' }}</label>
-              <textarea v-model="newPost.content" required rows="10" placeholder="상세 내용을 입력하세요"></textarea>
+              <textarea v-model="newPost.content" required rows="10" placeholder="본문에 [IMG:url] 형식으로 이미지를 넣으세요"></textarea>
             </div>
             <div class="form-group admin-key">
               <label>{{ currentLang === 'ko' ? '관리자 비밀번호' : 'Admin Key' }}</label>
@@ -94,62 +86,35 @@
           <p>{{ currentLang === 'ko' ? '아직 작성된 포스트가 없습니다.' : 'No posts yet.' }}</p>
         </div>
 
-        <!-- 상단 4개 카드 -->
-        <div v-if="filteredPosts.length > 0" class="blog-grid">
-          <article v-for="post in filteredPosts.slice(0, 4)" :key="post.id" class="blog-card" @click="viewPost(post)">
-            <div class="card-image" :style="getThumbnail(post) ? { backgroundImage: `url(${getThumbnail(post)})` } : {}">
-              <div v-if="!getThumbnail(post)" class="placeholder-image">✨</div>
-              <!-- 체크박스 -->
-              <div class="selection-overlay" @click.stop>
-                <input type="checkbox" :value="post.id" v-model="selectedIds" class="apple-checkbox">
-              </div>
-              <!-- 삭제 버튼 -->
-              <button class="delete-icon-btn" @click.stop="confirmDelete(post.id, post.title)" :title="currentLang === 'ko' ? '삭제' : 'Delete'">
-                ✕
-              </button>
-            </div>
-            <div class="card-body">
-              <span class="card-date">{{ formatDate(post.created_at) }}</span>
-              <h3 class="card-title">{{ post.title }}</h3>
-              <p class="card-excerpt">{{ post.excerpt || post.content.substring(0, 100) + '...' }}</p>
-              <div class="card-footer">
-                <span class="read-more">{{ currentLang === 'ko' ? '자세히 보기' : 'Read More' }} →</span>
-              </div>
-            </div>
-          </article>
-        </div>
-
-        <!-- 나머지 정보 테이블 -->
-        <div v-if="tablePosts.length > 0" class="other-posts-section">
-          <div class="section-header">
-            <h2 class="section-title">{{ currentLang === 'ko' ? '이전 소식' : 'Previous News' }}</h2>
-            <div class="table-controls">
-              <label class="select-all-label">
-                <input type="checkbox" :checked="isAllTableSelected" @change="toggleSelectAllTable" class="apple-checkbox">
-                <span>{{ currentLang === 'ko' ? '전체 선택' : 'Select All' }}</span>
-              </label>
-            </div>
-          </div>
+        <!-- 표 리스트 -->
+        <div v-if="filteredPosts.length > 0" class="other-posts-section">
           <div class="table-container glass-card">
             <table class="info-table">
               <thead>
                 <tr>
-                  <th class="col-check"></th>
+                  <th class="col-check">
+                    <input type="checkbox" :checked="isAllSelected" @change="toggleSelectAll" class="apple-checkbox">
+                  </th>
+                  <th class="col-thumb">{{ currentLang === 'ko' ? '사진' : 'Thumb' }}</th>
                   <th class="col-date">{{ currentLang === 'ko' ? '날짜' : 'Date' }}</th>
                   <th class="col-title">{{ currentLang === 'ko' ? '제목' : 'Title' }}</th>
                   <th class="col-action"></th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="post in paginatedTablePosts" :key="post.id" @click="viewPost(post)">
+                <tr v-for="post in paginatedPosts" :key="post.id" @click="viewPost(post)">
                   <td class="col-check" @click.stop>
                     <input type="checkbox" :value="post.id" v-model="selectedIds" class="apple-checkbox">
+                  </td>
+                  <td class="col-thumb">
+                    <div v-if="getThumbnail(post)" class="thumb-img" :style="{ backgroundImage: `url(${getThumbnail(post)})` }"></div>
+                    <div v-else class="thumb-placeholder">✨</div>
                   </td>
                   <td class="col-date">{{ formatDate(post.created_at) }}</td>
                   <td class="col-title">
                     <div class="title-wrapper">
                       <span class="title-text">{{ post.title }}</span>
-                      <span class="excerpt-hint">{{ post.excerpt || post.content.substring(0, 50) + '...' }}</span>
+                      <span class="excerpt-hint">{{ post.content.substring(0, 50) + '...' }}</span>
                     </div>
                   </td>
                   <td class="col-action">
@@ -256,8 +221,6 @@ export default {
 
     const newPost = ref({
       title: '',
-      excerpt: '',
-      image_url: '',
       content: ''
     });
 
@@ -269,16 +232,16 @@ export default {
 
     // eslint-disable-next-line no-unused-vars
     const getThumbnail = (post) => {
-      if (post.image_urls && post.image_urls.length > 0) return post.image_urls[0];
-      if (post.image_url) return post.image_url;
-      return null;
+      if (!post.content) return null;
+      const match = post.content.match(/\[IMG:(.*?)\]/);
+      return match ? match[1] : null;
     };
 
-    // eslint-disable-next-line no-unused-vars
     const parseContent = (content) => {
       if (!content) return '';
-      // [IMG:url] -> <img src="url" loading="lazy" style="max-width:100%; border-radius:12px; margin: 10px 0;">
+      // [IMG:url] -> <img src="url" loading="lazy" style="max-width:100%; border-radius:12px; margin: 15px 0; display: block;">
       return content.replace(/\[IMG:(.*?)\]/g, '<img src="$1?auto=format,compress" loading="lazy" style="max-width:100%; border-radius:12px; margin: 15px 0; display: block;">');
+    };
     };
 
     const fetchPosts = async () => {
@@ -312,24 +275,23 @@ export default {
       });
     });
 
-    const tablePosts = computed(() => filteredPosts.value.slice(4));
-    const totalPages = computed(() => Math.ceil(tablePosts.value.length / pageSize));
+    const totalPages = computed(() => Math.ceil(filteredPosts.value.length / pageSize));
     
-    const paginatedTablePosts = computed(() => {
+    const paginatedPosts = computed(() => {
       const start = (currentPage.value - 1) * pageSize;
       const end = start + pageSize;
-      return tablePosts.value.slice(start, end);
+      return filteredPosts.value.slice(start, end);
     });
 
-    // Multi-select logic
-    const isAllTableSelected = computed(() => {
-      if (paginatedTablePosts.value.length === 0) return false;
-      return paginatedTablePosts.value.every(post => selectedIds.value.includes(post.id));
+    // Multi-select logic (Update for table)
+    const isAllSelected = computed(() => {
+      if (paginatedPosts.value.length === 0) return false;
+      return paginatedPosts.value.every(post => selectedIds.value.includes(post.id));
     });
 
-    const toggleSelectAllTable = () => {
-      const currentIds = paginatedTablePosts.value.map(p => p.id);
-      if (isAllTableSelected.value) {
+    const toggleSelectAll = () => {
+      const currentIds = paginatedPosts.value.map(p => p.id);
+      if (isAllSelected.value) {
         selectedIds.value = selectedIds.value.filter(id => !currentIds.includes(id));
       } else {
         const newIds = [...selectedIds.value];
@@ -343,17 +305,13 @@ export default {
     const setPage = (page) => {
       if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page;
-        // 스크롤을 테이블 상단으로 이동시킬 수 있음
-        const tableElement = document.querySelector('.other-posts-section');
-        if (tableElement) {
-          tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     };
 
     const openEditor = () => {
       isEditing.value = false;
-      newPost.value = { title: '', excerpt: '', image_url: '', content: '' };
+      newPost.value = { title: '', content: '' };
       showEditor.value = true;
     };
 
@@ -366,7 +324,7 @@ export default {
     const startEdit = (post) => {
       isEditing.value = true;
       editId.value = post.id;
-      newPost.value = { ...post };
+      newPost.value = { title: post.title, content: post.content };
       selectedPost.value = null;
       showEditor.value = true;
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -391,7 +349,7 @@ export default {
 
         if (response.ok) {
           alert(isEditing.value ? '수정되었습니다!' : '성공적으로 저장되었습니다!');
-          newPost.value = { title: '', excerpt: '', image_url: '', content: '' };
+          newPost.value = { title: '', content: '' };
           adminKey.value = ''; // 비밀번호 자동 삭제
           showEditor.value = false;
           isEditing.value = false;
@@ -516,8 +474,8 @@ export default {
       currentLang, t, posts, loading, formatDate, viewPost,
       showEditor, newPost, submitPost, submitting, adminKey, selectedPost, 
       confirmDelete, isEditing, startEdit, openEditor, closeEditor,
-      currentPage, totalPages, paginatedTablePosts, setPage, tablePosts,
-      selectedIds, confirmBatchDelete, isAllTableSelected, toggleSelectAllTable,
+      currentPage, totalPages, paginatedPosts, setPage,
+      selectedIds, confirmBatchDelete, isAllSelected, toggleSelectAll,
       searchQuery, filteredPosts,
       getThumbnail, parseContent
     };
@@ -1095,8 +1053,28 @@ export default {
   background: rgba(0,0,0,0.01);
 }
 
-.col-check {
+.col-thumb {
+  width: 80px;
+}
+
+.thumb-img {
   width: 50px;
+  height: 50px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  background-color: #e5e5e7;
+}
+
+.thumb-placeholder {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: rgba(0,0,0,0.05);
+  border-radius: 8px;
 }
 
 .col-date {

@@ -74,10 +74,10 @@ app.post('/api/posts', async (c) => {
   }
   try {
     const body = await c.req.json();
-    const { title, content, excerpt, image_url } = body;
+    const { title, content } = body;
     await c.env.DB.prepare(
-      "INSERT INTO posts (title, content, excerpt, image_url) VALUES (?, ?, ?, ?)"
-    ).bind(title, content, excerpt, image_url).run();
+      "INSERT INTO posts (title, content) VALUES (?, ?)"
+    ).bind(title, content).run();
     return c.json({ success: true }, 201);
   } catch (e) {
     return c.json({ error: e.message }, 500);
@@ -111,10 +111,10 @@ app.put('/api/posts/:id', async (c) => {
   const id = c.req.param('id');
   try {
     const body = await c.req.json();
-    const { title, content, excerpt, image_url } = body;
+    const { title, content } = body;
     await c.env.DB.prepare(
-      "UPDATE posts SET title = ?, content = ?, excerpt = ?, image_url = ? WHERE id = ?"
-    ).bind(title, content, excerpt, image_url, id).run();
+      "UPDATE posts SET title = ?, content = ? WHERE id = ?"
+    ).bind(title, content, id).run();
     return c.json({ success: true });
   } catch (e) {
     return c.json({ error: e.message }, 500);
