@@ -20,7 +20,7 @@
 
           <div class="nav-dropdown" @mouseenter="isDropdownOpen = true" @mouseleave="isDropdownOpen = false">
             <span class="nav-link dropdown-trigger">
-              {{ currentLang === 'ko' ? '카테고리' : 'Categories' }}
+              {{ currentLang === 'ko' ? '동탄정보' : 'Categories' }}
               <svg class="chevron" viewBox="0 0 10 6" fill="none">
                 <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
               </svg>
@@ -93,7 +93,7 @@
               <span>{{ currentLang === 'ko' ? '블로그' : 'Blog' }}</span>
               <span class="drawer-arrow">→</span>
             </router-link>
-            <div class="drawer-section-label">{{ currentLang === 'ko' ? '카테고리' : 'Categories' }}</div>
+            <div class="drawer-section-label">{{ currentLang === 'ko' ? '동탄정보' : 'Categories' }}</div>
             <router-link to="/kids" class="drawer-link sub" @click="isMenuOpen = false">
               <span>🏘️ {{ currentLang === 'ko' ? '생활정보' : 'Life' }}</span>
             </router-link>
