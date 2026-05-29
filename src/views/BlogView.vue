@@ -111,9 +111,9 @@
                     <div v-else class="thumb-placeholder">✨</div>
                   </td>
                   <td class="col-date">{{ formatDate(post.created_at) }}</td>
-                  <td class="col-title">
+                  <td class="col-title" v-if="post">
                     <div class="title-wrapper">
-                      <span class="title-text">{{ post.title }}</span>
+                      <span class="title-text">{{ post.title || '제목 없음' }}</span>
                       <span class="excerpt-hint">{{ post.content ? post.content.substring(0, 50) + '...' : '' }}</span>
                     </div>
                   </td>
