@@ -3,9 +3,9 @@ name: Weekly Data and News Update
 on:
   schedule:
     - cron: '0 0 * * 1' # Every Monday at 00:00 UTC
-  push:
-    branches:
-      - main
+#  push:
+#    branches:
+#      - main
   workflow_dispatch: # Allow manual trigger from GitHub Actions tab
 
 jobs:
