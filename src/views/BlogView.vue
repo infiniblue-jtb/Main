@@ -518,7 +518,8 @@ export default {
       confirmDelete, isEditing, startEdit, openEditor, closeEditor,
       currentPage, totalPages, paginatedTablePosts, setPage, tablePosts,
       selectedIds, confirmBatchDelete, isAllTableSelected, toggleSelectAllTable,
-      searchQuery, filteredPosts
+      searchQuery, filteredPosts,
+      getThumbnail, parseContent
     };
   }
 }
