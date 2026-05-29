@@ -101,25 +101,25 @@
                   <th class="col-action"></th>
                 </tr>
               </thead>
-              <tbody v-if="paginatedPosts && paginatedPosts.length > 0">
-                <tr v-for="post in paginatedPosts" :key="post.id" @click="viewPost(post)">
+              <tbody v-if="safePaginatedPosts && safePaginatedPosts.length > 0">
+                <tr v-for="post in safePaginatedPosts" :key="post.id" @click="viewPostById(post.id)">
                   <td class="col-check" @click.stop>
                     <input type="checkbox" :value="post.id" v-model="selectedIds" class="apple-checkbox">
                   </td>
                   <td class="col-thumb">
-                    <div v-if="post && getThumbnail(post)" class="thumb-img" :style="{ backgroundImage: `url(${getThumbnail(post)})` }"></div>
+                    <div v-if="post.thumbnail" class="thumb-img" :style="{ backgroundImage: `url(${post.thumbnail})` }"></div>
                     <div v-else class="thumb-placeholder">✨</div>
                   </td>
-                  <td class="col-date">{{ post ? formatDate(post.created_at) : '' }}</td>
+                  <td class="col-date">{{ post.date }}</td>
                   <td class="col-title">
                     <div class="title-wrapper">
-                      <span class="title-text">{{ post ? (post.title || '제목 없음') : '' }}</span>
-                      <span class="excerpt-hint">{{ post && post.content ? post.content.substring(0, 50) + '...' : '' }}</span>
+                      <span class="title-text">{{ post.title }}</span>
+                      <span class="excerpt-hint">{{ post.excerpt }}</span>
                     </div>
                   </td>
                   <td class="col-action">
                     <div class="action-btns">
-                      <button class="table-delete-btn" @click.stop="post && confirmDelete(post.id, post.title)">✕</button>
+                      <button class="table-delete-btn" @click.stop="confirmDeleteById(post.id, post.title)">✕</button>
                       <span class="arrow">→</span>
                     </div>
                   </td>
@@ -280,21 +280,27 @@ export default {
       return Math.ceil(posts.length / pageSize);
     });
     
-    const paginatedPosts = computed(() => {
+    const safePaginatedPosts = computed(() => {
       const posts = filteredPosts.value || [];
       const start = (currentPage.value - 1) * pageSize;
       const end = start + pageSize;
-      return posts.slice(start, end);
+      return posts.slice(start, end).map(post => ({
+        id: post?.id || 0,
+        title: post?.title || '제목 없음',
+        date: post?.created_at ? formatDate(post.created_at) : '',
+        excerpt: post?.content ? post.content.substring(0, 50) + '...' : '',
+        thumbnail: getThumbnail(post)
+      }));
     });
 
     // Multi-select logic (Update for table)
     const isAllSelected = computed(() => {
-      if (paginatedPosts.value.length === 0) return false;
-      return paginatedPosts.value.every(post => selectedIds.value.includes(post.id));
+      if (safePaginatedPosts.value.length === 0) return false;
+      return safePaginatedPosts.value.every(post => selectedIds.value.includes(post.id));
     });
 
     const toggleSelectAll = () => {
-      const currentIds = paginatedPosts.value.map(p => p.id);
+      const currentIds = safePaginatedPosts.value.map(p => p.id);
       if (isAllSelected.value) {
         selectedIds.value = selectedIds.value.filter(id => !currentIds.includes(id));
       } else {
@@ -468,8 +474,13 @@ export default {
       });
     };
 
-    const viewPost = (post) => {
-      selectedPost.value = post;
+    const viewPostById = (id) => {
+      const post = posts.value.find(p => p.id === id);
+      if (post) selectedPost.value = post;
+    };
+
+    const confirmDeleteById = (id, title) => {
+      confirmDelete(id, title);
     };
 
     onMounted(fetchPosts);
@@ -478,7 +489,7 @@ export default {
       currentLang, t, posts, loading, formatDate, viewPost,
       showEditor, newPost, submitPost, submitting, adminKey, selectedPost, 
       confirmDelete, isEditing, startEdit, openEditor, closeEditor,
-      currentPage, totalPages, paginatedPosts, setPage,
+      currentPage, totalPages, safePaginatedPosts, setPage, viewPostById, confirmDeleteById,
       selectedIds, confirmBatchDelete, isAllSelected, toggleSelectAll,
       searchQuery, filteredPosts,
       getThumbnail, parseContent
