@@ -264,14 +264,14 @@ export default {
     };
 
     const filteredPosts = computed(() => {
-      if (!searchQuery.value.trim()) return posts.value;
+      if (!searchQuery.value.trim()) return posts.value || [];
       const q = searchQuery.value.toLowerCase();
-      return posts.value.filter(post => {
+      return (posts.value || []).filter(post => {
+        if (!post) return false;
         const title = (post.title || '').toLowerCase();
         const content = (post.content || '').toLowerCase();
-        const excerpt = (post.excerpt || '').toLowerCase();
         const date = formatDate(post.created_at).toLowerCase();
-        return title.includes(q) || content.includes(q) || excerpt.includes(q) || date.includes(q);
+        return title.includes(q) || content.includes(q) || date.includes(q);
       });
     });
 
