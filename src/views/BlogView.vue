@@ -275,12 +275,16 @@ export default {
       });
     });
 
-    const totalPages = computed(() => Math.ceil(filteredPosts.value.length / pageSize));
+    const totalPages = computed(() => {
+      const posts = filteredPosts.value || [];
+      return Math.ceil(posts.length / pageSize);
+    });
     
     const paginatedPosts = computed(() => {
+      const posts = filteredPosts.value || [];
       const start = (currentPage.value - 1) * pageSize;
       const end = start + pageSize;
-      return filteredPosts.value.slice(start, end);
+      return posts.slice(start, end);
     });
 
     // Multi-select logic (Update for table)
