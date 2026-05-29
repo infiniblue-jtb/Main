@@ -101,7 +101,7 @@
                   <th class="col-action"></th>
                 </tr>
               </thead>
-              <tbody v-if="safePaginatedPosts && safePaginatedPosts.length > 0">
+              <tbody v-if="!loading && safePaginatedPosts && safePaginatedPosts.length > 0">
                 <tr v-for="post in safePaginatedPosts" :key="post.id" @click="viewPostById(post.id)">
                   <td class="col-check" @click.stop>
                     <input type="checkbox" :value="post.id" v-model="selectedIds" class="apple-checkbox">
