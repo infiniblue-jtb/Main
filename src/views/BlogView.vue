@@ -78,14 +78,20 @@
         <div class="spinner"></div>
       </div>
       
-      <div v-else-if="!loading" class="blog-content-wrapper">
-        <!-- 검색 결과 없음 상태 -->
-        <div v-if="filteredPosts.length === 0" class="no-results glass-card">
+      <div v-else class="blog-content-wrapper">
+        <!-- 검색 결과 없음 상태 (검색어가 있는데 결과가 없을 때만) -->
+        <div v-if="filteredPosts.length === 0 && searchQuery.trim()" class="no-results glass-card">
           <span class="no-results-icon">🔍</span>
           <p>{{ currentLang === 'ko' ? '검색 결과가 없습니다.' : 'No results found.' }}</p>
           <button @click="searchQuery = ''" class="clear-search-link">
             {{ currentLang === 'ko' ? '검색 초기화' : 'Clear search' }}
           </button>
+        </div>
+
+        <!-- 포스트가 아예 없는 상태 (검색어 없이 포스트가 0개일 때) -->
+        <div v-else-if="filteredPosts.length === 0 && !searchQuery.trim()" class="no-results glass-card">
+          <span class="no-results-icon">📝</span>
+          <p>{{ currentLang === 'ko' ? '아직 작성된 포스트가 없습니다.' : 'No posts yet.' }}</p>
         </div>
 
         <!-- 상단 4개 카드 -->
