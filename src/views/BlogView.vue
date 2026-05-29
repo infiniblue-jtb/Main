@@ -284,13 +284,16 @@ export default {
       const posts = filteredPosts.value || [];
       const start = (currentPage.value - 1) * pageSize;
       const end = start + pageSize;
-      return posts.slice(start, end).map(post => ({
-        id: post?.id || 0,
-        title: post?.title || '제목 없음',
-        date: post?.created_at ? formatDate(post.created_at) : '',
-        excerpt: post?.content ? post.content.substring(0, 50) + '...' : '',
-        thumbnail: getThumbnail(post)
-      }));
+      return posts.slice(start, end).map(post => {
+        if (!post) return { id: 0, title: '', date: '', excerpt: '', thumbnail: null };
+        return {
+          id: post.id || 0,
+          title: post.title || '제목 없음',
+          date: post.created_at ? formatDate(post.created_at) : '',
+          excerpt: post.content ? post.content.substring(0, 50) + '...' : '',
+          thumbnail: getThumbnail(post)
+        };
+      });
     });
 
     // Multi-select logic (Update for table)
