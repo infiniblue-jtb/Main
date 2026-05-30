@@ -909,9 +909,10 @@ export default {
 
 .card-body {
   padding: 24px;
-  flex-grow: 1;
+  flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .card-date {
@@ -936,6 +937,7 @@ export default {
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.5;
+  flex: 1;
 }
 
 .read-more {
