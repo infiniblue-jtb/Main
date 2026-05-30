@@ -43,28 +43,26 @@
 
     <section class="content-section">
       <!-- 글쓰기/수정 에디터 폼 -->
-      <transition name="apple-fade">
-        <div v-if="showEditor" class="editor-container glass-card">
-          <h2>{{ isEditing ? (currentLang === 'ko' ? '포스트 수정하기' : 'Edit Post') : (currentLang === 'ko' ? '새로운 포스트 작성' : 'Write New Post') }}</h2>
-          <form @submit.prevent="submitPost" class="apple-form">
-            <div class="form-group">
-              <label>{{ currentLang === 'ko' ? '제목' : 'Title' }}</label>
-              <input v-model="newPost.title" required placeholder="글 제목을 입력하세요">
-            </div>
-            <div class="form-group">
-              <label>{{ currentLang === 'ko' ? '본문 내용' : 'Content' }}</label>
-              <editor-content :editor="editor" class="tiptap-editor" />
-            </div>
-            <div class="form-group admin-key">
-              <label>{{ currentLang === 'ko' ? '관리자 비밀번호' : 'Admin Key' }}</label>
-              <input v-model="adminKey" type="password" required placeholder="API SECRET을 입력하세요" autocomplete="new-password">
-            </div>
-            <button type="submit" class="submit-btn" :disabled="submitting">
-              {{ submitting ? (currentLang === 'ko' ? '처리 중...' : 'Processing...') : (currentLang === 'ko' ? '저장' : 'Save') }}
-            </button>
-          </form>
-        </div>
-      </transition>
+      <div v-show="showEditor" class="editor-container glass-card">
+        <h2>{{ isEditing ? (currentLang === 'ko' ? '포스트 수정하기' : 'Edit Post') : (currentLang === 'ko' ? '새로운 포스트 작성' : 'Write New Post') }}</h2>
+        <form @submit.prevent="submitPost" class="apple-form">
+          <div class="form-group">
+            <label>{{ currentLang === 'ko' ? '제목' : 'Title' }}</label>
+            <input v-model="newPost.title" required placeholder="글 제목을 입력하세요">
+          </div>
+          <div class="form-group">
+            <label>{{ currentLang === 'ko' ? '본문 내용' : 'Content' }}</label>
+            <editor-content :editor="editor" class="tiptap-editor" />
+          </div>
+          <div class="form-group admin-key">
+            <label>{{ currentLang === 'ko' ? '관리자 비밀번호' : 'Admin Key' }}</label>
+            <input v-model="adminKey" type="password" required placeholder="API SECRET을 입력하세요" autocomplete="new-password">
+          </div>
+          <button type="submit" class="submit-btn" :disabled="submitting">
+            {{ submitting ? (currentLang === 'ko' ? '처리 중...' : 'Processing...') : (currentLang === 'ko' ? '저장' : 'Save') }}
+          </button>
+        </form>
+      </div>
 
       <div v-if="loading" class="loading-state">
         <div class="spinner"></div>
