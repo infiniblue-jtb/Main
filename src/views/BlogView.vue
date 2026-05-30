@@ -375,17 +375,18 @@ export default {
     };
 
     const openEditor = () => {
-      console.log('Opening editor, resetting state');
+      console.log('>>> [DEBUG] openEditor() called');
       isEditing.value = false;
       newPost.value = { title: '', content: '' };
       adminKey.value = ''; 
       if (editor.value) {
-          console.log('Editor instance found, resetting content');
+          console.log('>>> [DEBUG] Editor instance exists, clearing content');
           editor.value.commands.setContent('');
       } else {
-          console.warn('Editor instance not found');
+          console.error('>>> [DEBUG] Editor instance is null/undefined');
       }
       showEditor.value = true;
+      console.log('>>> [DEBUG] showEditor set to:', showEditor.value);
     };
 
     const closeEditor = () => {
