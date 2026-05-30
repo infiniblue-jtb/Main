@@ -244,7 +244,9 @@ export default {
             content: newPost.value.content,
             editable: true, // Ensure it's editable
             onUpdate: ({ editor }) => {
-                newPost.value.content = editor.getHTML();
+                if (newPost.value) {
+                    newPost.value.content = editor.getHTML();
+                }
             },
             editorProps: {
                 attributes: {
