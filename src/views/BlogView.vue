@@ -550,7 +550,7 @@ export default {
       confirmDelete(id, title);
     };
 
-    onMounted(fetchPosts);
+    
 
     return { 
       currentLang, t, posts, loading, formatDate, viewPostById,
@@ -560,6 +560,7 @@ export default {
       selectedIds, confirmBatchDelete, isAllSelected, toggleSelectAll,
       searchQuery, filteredPosts,
       getThumbnail, parseContent
+      editor
     };
   }
 }
