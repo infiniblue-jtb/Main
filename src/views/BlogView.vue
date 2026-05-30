@@ -1322,7 +1322,7 @@ tr:hover .arrow {
   border-radius: 12px;
   min-height: 250px;
   padding: 16px;
-  background: var(--card-bg, #fff);
+  background: #ffffff;
   cursor: text;
 }
 
