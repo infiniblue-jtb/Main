@@ -306,6 +306,11 @@ export default {
     };
 
     const uploadImage = async (file) => {
+        if (!adminKey.value) {
+            alert('이미지를 업로드하려면 먼저 관리자 비밀번호를 입력해주세요.');
+            throw new Error('No admin key');
+        }
+        
         const formData = new FormData();
         formData.append('file', file);
         
