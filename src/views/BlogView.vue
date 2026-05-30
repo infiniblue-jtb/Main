@@ -189,7 +189,7 @@
 </template>
 
 <script>
-import { ref, computed, inject, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, inject, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { Editor, EditorContent } from '@tiptap/vue-3';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -373,7 +373,7 @@ export default {
       }
     };
 
-    const openEditor = () => {
+    const openEditor = async () => {
       isEditing.value = false;
       newPost.value = { title: '', content: '' };
       adminKey.value = ''; 
@@ -381,6 +381,8 @@ export default {
           editor.value.commands.setContent('');
       }
       showEditor.value = true;
+      await nextTick();
+      editor.value?.commands.focus();
     };
 
     const closeEditor = () => {
@@ -390,7 +392,7 @@ export default {
       adminKey.value = '';
     };
 
-    const startEdit = (post) => {
+    const startEdit = async (post) => {
       isEditing.value = true;
       editId.value = post.id;
       newPost.value = { title: post.title, content: post.content };
@@ -399,6 +401,8 @@ export default {
       selectedPost.value = null;
       showEditor.value = true;
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      await nextTick();
+      editor.value?.commands.focus();
     };
 
     const submitPost = async () => {
