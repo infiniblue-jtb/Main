@@ -492,7 +492,7 @@ export default {
       currentLang, t, posts, loading, formatDate, viewPostById,
       showEditor, newPost, submitPost, submitting, adminKey, selectedPost, 
       confirmDelete, isEditing, startEdit, openEditor, closeEditor,
-      currentPage, totalPages, safePaginatedPosts, setPage, viewPostById, confirmDeleteById,
+      currentPage, totalPages, safePaginatedPosts, setPage, confirmDeleteById,
       selectedIds, confirmBatchDelete, isAllSelected, toggleSelectAll,
       searchQuery, filteredPosts,
       getThumbnail, parseContent
