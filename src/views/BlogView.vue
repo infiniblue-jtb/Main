@@ -53,7 +53,11 @@
           <div class="form-group" @click="editor?.commands.focus()">
             <label>{{ currentLang === 'ko' ? '본문 내용' : 'Content' }}</label>
             <div class="editor-toolbar" v-if="editor">
-                <button type="button" @click.prevent="editor.chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }">Bold</button>
+                <button type="button" @click.prevent="editor.chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }">B</button>
+                <button type="button" @click.prevent="editor.chain().focus().toggleItalic().run()" :class="{ 'is-active': editor.isActive('italic') }">I</button>
+                <button type="button" @click.prevent="editor.chain().focus().toggleHeading({ level: 1 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }">H1</button>
+                <button type="button" @click.prevent="editor.chain().focus().toggleHeading({ level: 2 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }">H2</button>
+                <button type="button" @click.prevent="editor.chain().focus().setParagraph().run()" :class="{ 'is-active': editor.isActive('paragraph') }">P</button>
             </div>
             <editor-content :editor="editor" class="tiptap-editor" />
           </div>
@@ -1360,9 +1364,34 @@ tr:hover .arrow {
 
 .tiptap-editor .ProseMirror img {
   max-width: 100%;
+  height: auto;
   border-radius: 10px;
   margin: 10px 0;
   display: block;
+}
+
+.editor-toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.editor-toolbar button {
+    padding: 4px 12px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.editor-toolbar button.is-active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
 }
 
 /* placeholder */
