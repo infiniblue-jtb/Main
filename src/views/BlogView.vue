@@ -227,8 +227,7 @@ export default {
       content: ''
     });
 
-    // ... (keep existing setup code, just updating Tiptap CSS)
-
+    
     // Pagination
     const currentPage = ref(1);
     const pageSize = 10;
