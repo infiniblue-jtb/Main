@@ -375,18 +375,13 @@ export default {
     };
 
     const openEditor = () => {
-      console.log('>>> [DEBUG] openEditor() called');
       isEditing.value = false;
       newPost.value = { title: '', content: '' };
       adminKey.value = ''; 
       if (editor.value) {
-          console.log('>>> [DEBUG] Editor instance exists, clearing content');
           editor.value.commands.setContent('');
-      } else {
-          console.error('>>> [DEBUG] Editor instance is null/undefined');
       }
       showEditor.value = true;
-      console.log('>>> [DEBUG] showEditor set to:', showEditor.value);
     };
 
     const closeEditor = () => {
@@ -400,7 +395,7 @@ export default {
       isEditing.value = true;
       editId.value = post.id;
       newPost.value = { title: post.title, content: post.content };
-      adminKey.value = ''; // Reset password
+      adminKey.value = ''; 
       if (editor.value) editor.value.commands.setContent(post.content);
       selectedPost.value = null;
       showEditor.value = true;
@@ -1083,11 +1078,15 @@ export default {
     border-radius: 12px;
     padding: 14px;
     background: var(--page-bg);
+    position: relative;
+    z-index: 9999;
+    pointer-events: auto !important;
 }
 
 .tiptap-editor .ProseMirror {
     outline: none;
     min-height: 200px;
+    pointer-events: auto !important;
 }
 
 .editor-toolbar {
