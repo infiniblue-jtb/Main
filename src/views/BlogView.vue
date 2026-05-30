@@ -571,7 +571,7 @@ export default {
       currentPage, totalPages, safePaginatedPosts, setPage, confirmDeleteById,
       selectedIds, confirmBatchDelete, isAllSelected, toggleSelectAll,
       searchQuery, filteredPosts,
-      getThumbnail, parseContent
+      getThumbnail, parseContent,
       editor
     };
   }
