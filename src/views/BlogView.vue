@@ -242,7 +242,7 @@ export default {
       // [IMG:url] -> <img src="url" loading="lazy" style="max-width:100%; border-radius:12px; margin: 15px 0; display: block;">
       return content.replace(/\[IMG:(.*?)\]/g, '<img src="$1?auto=format,compress" loading="lazy" style="max-width:100%; border-radius:12px; margin: 15px 0; display: block;">');
     };
-    };
+    
 
     const fetchPosts = async () => {
       loading.value = true;
