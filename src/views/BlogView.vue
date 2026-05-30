@@ -222,10 +222,7 @@ export default {
     const searchQuery = ref('');
     const editor = ref(null);
 
-    const newPost = ref({
-      title: '',
-      content: ''
-    });
+    const newPost = ref(null);
 
     
     // Pagination
@@ -242,7 +239,7 @@ export default {
                     StarterKit,
                     Image.configure({ inline: true })
                 ],
-                content: newPost.value.content || '',
+                content: (newPost.value && newPost.value.content) || '',
                 editable: true, // Ensure it's editable
                 onUpdate: ({ editor }) => {
                     if (newPost.value) {
