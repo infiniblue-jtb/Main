@@ -245,10 +245,14 @@ export default {
                 Image.configure({ inline: true })
             ],
             content: newPost.value.content,
-            onUpdate: () => {
-                newPost.value.content = editor.value.getHTML();
+            editable: true, // Ensure it's editable
+            onUpdate: ({ editor }) => {
+                newPost.value.content = editor.getHTML();
             },
             editorProps: {
+                attributes: {
+                    class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none',
+                },
                 handlePaste: (view, event) => {
                     const items = event.clipboardData.items;
                     for (let i = 0; i < items.length; i++) {
