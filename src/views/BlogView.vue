@@ -377,12 +377,14 @@ export default {
       isEditing.value = false;
       newPost.value = { title: '', content: '' };
       adminKey.value = ''; 
-      if (editor.value) {
+      if (editor.value && editor.value.commands) {
           editor.value.commands.setContent('');
       }
       showEditor.value = true;
       await nextTick();
-      editor.value?.commands.focus();
+      if (editor.value && editor.value.commands) {
+        editor.value.commands.focus();
+      }
     };
 
     const closeEditor = () => {
@@ -397,12 +399,14 @@ export default {
       editId.value = post.id;
       newPost.value = { title: post.title, content: post.content };
       adminKey.value = ''; 
-      if (editor.value) editor.value.commands.setContent(post.content);
+      if (editor.value && editor.value.commands) editor.value.commands.setContent(post.content);
       selectedPost.value = null;
       showEditor.value = true;
       window.scrollTo({ top: 0, behavior: 'smooth' });
       await nextTick();
-      editor.value?.commands.focus();
+      if (editor.value && editor.value.commands) {
+        editor.value.commands.focus();
+      }
     };
 
     const submitPost = async () => {
