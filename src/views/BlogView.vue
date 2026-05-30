@@ -52,6 +52,9 @@
           </div>
           <div class="form-group" @click="editor?.commands.focus()">
             <label>{{ currentLang === 'ko' ? '본문 내용' : 'Content' }}</label>
+            <div class="editor-toolbar" v-if="editor">
+                <button type="button" @click.prevent="editor.chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }">Bold</button>
+            </div>
             <editor-content :editor="editor" class="tiptap-editor" />
           </div>
           <div class="form-group admin-key">
@@ -193,6 +196,7 @@ import { ref, computed, inject, onMounted, onBeforeUnmount, nextTick } from 'vue
 import { Editor, EditorContent } from '@tiptap/vue-3';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
+import TextStyle from '@tiptap/extension-text-style';
 
 const TRANSLATIONS = {
   ko: {
@@ -240,7 +244,8 @@ export default {
             editor.value = new Editor({
                 extensions: [
                     StarterKit,
-                    Image.configure({ inline: true })
+                    TextStyle,
+                    Image.configure({ inline: true, allowResizing: true })
                 ],
                 content: (newPost.value && newPost.value.content) || '',
                 editable: true, // Ensure it's editable
