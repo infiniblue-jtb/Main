@@ -375,6 +375,8 @@ export default {
     const openEditor = () => {
       isEditing.value = false;
       newPost.value = { title: '', content: '' };
+      adminKey.value = ''; // Reset password
+      if (editor.value) editor.value.commands.setContent('');
       showEditor.value = true;
     };
 
@@ -382,12 +384,15 @@ export default {
       showEditor.value = false;
       isEditing.value = false;
       editId.value = null;
+      adminKey.value = '';
     };
 
     const startEdit = (post) => {
       isEditing.value = true;
       editId.value = post.id;
       newPost.value = { title: post.title, content: post.content };
+      adminKey.value = ''; // Reset password
+      if (editor.value) editor.value.commands.setContent(post.content);
       selectedPost.value = null;
       showEditor.value = true;
       window.scrollTo({ top: 0, behavior: 'smooth' });
