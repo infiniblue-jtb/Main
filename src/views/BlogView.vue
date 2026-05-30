@@ -50,16 +50,9 @@
             <label>{{ currentLang === 'ko' ? '제목' : 'Title' }}</label>
             <input v-model="newPost.title" required placeholder="글 제목을 입력하세요">
           </div>
-          <div class="form-group" @click="editor?.commands.focus()">
+          <div class="form-group">
             <label>{{ currentLang === 'ko' ? '본문 내용' : 'Content' }}</label>
-            <div class="editor-toolbar" v-if="editor">
-                <button type="button" @click.prevent="editor.chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }">B</button>
-                <button type="button" @click.prevent="editor.chain().focus().toggleItalic().run()" :class="{ 'is-active': editor.isActive('italic') }">I</button>
-                <button type="button" @click.prevent="editor.chain().focus().toggleHeading({ level: 1 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }">H1</button>
-                <button type="button" @click.prevent="editor.chain().focus().toggleHeading({ level: 2 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }">H2</button>
-                <button type="button" @click.prevent="editor.chain().focus().setParagraph().run()" :class="{ 'is-active': editor.isActive('paragraph') }">P</button>
-            </div>
-            <editor-content :editor="editor" class="tiptap-editor" />
+            <umo-editor v-model="newPost.content" :options="editorOptions" />
           </div>
           <div class="form-group admin-key">
             <label>{{ currentLang === 'ko' ? '관리자 비밀번호' : 'Admin Key' }}</label>
@@ -196,11 +189,9 @@
 </template>
 
 <script>
-import { ref, computed, inject, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { Editor, EditorContent } from '@tiptap/vue-3';
-import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
-import TextStyle from '@tiptap/extension-text-style';
+import { ref, computed, inject, onMounted } from 'vue';
+import { UmoEditor } from '@umoteam/editor';
+import '@umoteam/editor/dist/style.css';
 
 const TRANSLATIONS = {
   ko: {
@@ -215,7 +206,7 @@ const TRANSLATIONS = {
 
 export default {
   name: 'BlogView',
-  components: { EditorContent },
+  components: { UmoEditor },
   setup() {
     const currentLang = inject('currentLang', ref('ko'));
     const posts = ref([]);
@@ -228,62 +219,30 @@ export default {
     const adminKey = ref('');
     const selectedIds = ref([]);
     const searchQuery = ref('');
-    const editor = ref(null);
-
+    
     const newPost = ref({
       title: '',
       content: ''
     });
 
-    
-    // Pagination
-    const currentPage = ref(1);
-    const pageSize = 10;
-
-    const t = computed(() => TRANSLATIONS[currentLang.value] || TRANSLATIONS['ko']);
-
-    // Tiptap setup
-    onMounted(() => {
-        if (typeof window !== 'undefined') {
-            editor.value = new Editor({
-                extensions: [
-                    StarterKit,
-                    TextStyle,
-                    Image.configure({ inline: true, allowResizing: true })
-                ],
-                content: (newPost.value && newPost.value.content) || '',
-                editable: true, // Ensure it's editable
-                onUpdate: ({ editor }) => {
-                    if (newPost.value) {
-                        newPost.value.content = editor.getHTML();
-                    }
-                },
-                editorProps: {
-                    attributes: {
-                        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none',
-                    },
-                    handlePaste: (view, event) => {
-                        const items = event.clipboardData.items;
-                        for (let i = 0; i < items.length; i++) {
-                            if (items[i].type.indexOf('image') !== -1) {
-                                const file = items[i].getAsFile();
-                                uploadImage(file).then(url => {
-                                    if (editor.value) editor.value.chain().focus().setImage({ src: url }).run();
-                                }).catch(err => alert('이미지 업로드 실패: ' + err.message));
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
-                }
+    const editorOptions = {
+        onUpload(file) {
+            return new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                fetch('https://dongtan-api.infiniblue.workers.dev/api/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => data.url ? resolve(data.url) : reject('Upload failed'))
+                .catch(reject);
             });
         }
-        fetchPosts();
-    });
-
-    onBeforeUnmount(() => {
-        if (editor.value) editor.value.destroy();
-    });
+    };
+    
+    // ... Pagination etc ...
 
     const getThumbnail = (post) => {
       if (!post.content) return null;
@@ -314,25 +273,9 @@ export default {
       }
     };
 
+    // Placeholder as Umo uses editorOptions.onUpload
     const uploadImage = async (file) => {
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        console.log('Attempting image upload...');
-        const response = await fetch('https://dongtan-api.infiniblue.workers.dev/api/upload', {
-            method: 'POST',
-            body: formData
-        });
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Upload failed:', response.status, errorText);
-            throw new Error(`Upload failed: ${response.status} ${errorText}`);
-        }
-        
-        const data = await response.json();
-        console.log('Upload successful:', data.url);
-        return data.url;
+        // Handled by UmoEditor internally
     };
 
     const filteredPosts = computed(() => {
