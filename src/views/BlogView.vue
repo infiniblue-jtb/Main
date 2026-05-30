@@ -50,7 +50,7 @@
             <label>{{ currentLang === 'ko' ? '제목' : 'Title' }}</label>
             <input v-model="newPost.title" required placeholder="글 제목을 입력하세요">
           </div>
-          <div class="form-group">
+          <div class="form-group" @click="editor?.commands.focus()">
             <label>{{ currentLang === 'ko' ? '본문 내용' : 'Content' }}</label>
             <editor-content :editor="editor" class="tiptap-editor" />
           </div>
@@ -308,13 +308,22 @@ export default {
     const uploadImage = async (file) => {
         const formData = new FormData();
         formData.append('file', file);
+        
+        console.log('Attempting image upload...');
         const response = await fetch('https://dongtan-api.infiniblue.workers.dev/api/upload', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${adminKey.value.trim()}` },
             body: formData
         });
-        if (!response.ok) throw new Error('Upload failed');
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Upload failed:', response.status, errorText);
+            throw new Error(`Upload failed: ${response.status} ${errorText}`);
+        }
+        
         const data = await response.json();
+        console.log('Upload successful:', data.url);
         return data.url;
     };
 
