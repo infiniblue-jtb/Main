@@ -242,7 +242,7 @@ export default {
                     StarterKit,
                     Image.configure({ inline: true })
                 ],
-                content: newPost.value.content,
+                content: newPost.value.content || '',
                 editable: true, // Ensure it's editable
                 onUpdate: ({ editor }) => {
                     if (newPost.value) {
