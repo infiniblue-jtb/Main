@@ -1364,10 +1364,15 @@ tr:hover .arrow {
 
 .tiptap-editor .ProseMirror img {
   max-width: 100%;
-  height: auto;
+  height: auto !important;
   border-radius: 10px;
   margin: 10px 0;
-  display: block;
+  display: block !important;
+  cursor: default;
+}
+
+.tiptap-editor .ProseMirror img.ProseMirror-selectednode {
+  outline: 3px solid var(--accent);
 }
 
 .editor-toolbar {
