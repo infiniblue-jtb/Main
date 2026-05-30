@@ -242,7 +242,7 @@ export default {
                 StarterKit,
                 Image.configure({ inline: true })
             ],
-            content: '',
+            content: newPost.value.content,
             onUpdate: () => {
                 newPost.value.content = editor.value.getHTML();
             },
@@ -268,6 +268,35 @@ export default {
     onBeforeUnmount(() => {
         if (editor.value) editor.value.destroy();
     });
+
+    const getThumbnail = (post) => {
+      if (!post.content) return null;
+      // Tiptap saves HTML, so we might need a better way to extract image, but this keeps the old logic for now.
+      const match = post.content.match(/src="(.*?)"/);
+      return match ? match[1] : null;
+    };
+
+    const parseContent = (content) => {
+        return content; // Tiptap content is already HTML
+    };
+
+    const fetchPosts = async () => {
+      loading.value = true;
+      try {
+        const response = await fetch('https://dongtan-api.infiniblue.workers.dev/api/posts');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        posts.value = data.map(post => ({
+          ...post,
+          image_urls: post.image_urls || (post.image_url ? [post.image_url] : [])
+        }));
+        selectedIds.value = [];
+      } catch (error) {
+        console.error('Failed to fetch posts:', error);
+      } finally {
+        loading.value = false;
+      }
+    };
 
     const uploadImage = async (file) => {
         const formData = new FormData();
