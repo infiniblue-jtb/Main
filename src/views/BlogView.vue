@@ -57,7 +57,7 @@
             </div>
             <div class="form-group admin-key">
               <label>{{ currentLang === 'ko' ? '관리자 비밀번호' : 'Admin Key' }}</label>
-              <input v-model="adminKey" type="password" required placeholder="API SECRET을 입력하세요">
+              <input v-model="adminKey" type="password" required placeholder="API SECRET을 입력하세요" autocomplete="new-password">
             </div>
             <button type="submit" class="submit-btn" :disabled="submitting">
               {{ submitting ? (currentLang === 'ko' ? '처리 중...' : 'Processing...') : (currentLang === 'ko' ? '저장' : 'Save') }}
@@ -400,6 +400,10 @@ export default {
 
     const submitPost = async () => {
       submitting.value = true;
+      // Sync editor content before submit
+      newPost.value.content = editor.value.getHTML();
+      console.log('Submitting post:', newPost.value);
+      
       const method = isEditing.value ? 'PUT' : 'POST';
       const url = isEditing.value 
         ? `https://dongtan-api.infiniblue.workers.dev/api/posts/${editId.value}`
@@ -419,6 +423,7 @@ export default {
           alert(isEditing.value ? '수정되었습니다!' : '성공적으로 저장되었습니다!');
           newPost.value = { title: '', content: '' };
           adminKey.value = ''; // 비밀번호 자동 삭제
+          if (editor.value) editor.value.commands.setContent('');
           showEditor.value = false;
           isEditing.value = false;
           await fetchPosts();
