@@ -489,7 +489,7 @@ export default {
     onMounted(fetchPosts);
 
     return { 
-      currentLang, t, posts, loading, formatDate, viewPost,
+      currentLang, t, posts, loading, formatDate, viewPostById,
       showEditor, newPost, submitPost, submitting, adminKey, selectedPost, 
       confirmDelete, isEditing, startEdit, openEditor, closeEditor,
       currentPage, totalPages, safePaginatedPosts, setPage, viewPostById, confirmDeleteById,
