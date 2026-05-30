@@ -229,6 +229,8 @@ export default {
       content: ''
     });
 
+    // ... (keep existing setup code, just updating Tiptap CSS)
+
     // Pagination
     const currentPage = ref(1);
     const pageSize = 10;
@@ -1054,10 +1056,36 @@ export default {
   to { transform: rotate(360deg); }
 }
 
-/* 추가된 테이블 스타일 */
-.other-posts-section {
-  margin-top: 60px;
-  animation: apple-fade 0.8s ease-out;
+.tiptap-editor {
+    min-height: 200px;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
+    padding: 14px;
+    background: var(--page-bg);
+}
+
+.tiptap-editor .ProseMirror {
+    outline: none;
+    min-height: 200px;
+}
+
+.editor-toolbar {
+    margin-bottom: 8px;
+    display: flex;
+    gap: 8px;
+}
+
+.editor-toolbar button {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: white;
+    cursor: pointer;
+}
+
+.editor-toolbar button.is-active {
+    background: var(--accent);
+    color: white;
 }
 
 .section-header {
