@@ -236,37 +236,39 @@ export default {
 
     // Tiptap setup
     onMounted(() => {
-        editor.value = new Editor({
-            extensions: [
-                StarterKit,
-                Image.configure({ inline: true })
-            ],
-            content: newPost.value.content,
-            editable: true, // Ensure it's editable
-            onUpdate: ({ editor }) => {
-                if (newPost.value) {
-                    newPost.value.content = editor.getHTML();
-                }
-            },
-            editorProps: {
-                attributes: {
-                    class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none',
-                },
-                handlePaste: (view, event) => {
-                    const items = event.clipboardData.items;
-                    for (let i = 0; i < items.length; i++) {
-                        if (items[i].type.indexOf('image') !== -1) {
-                            const file = items[i].getAsFile();
-                            uploadImage(file).then(url => {
-                                editor.value.chain().focus().setImage({ src: url }).run();
-                            }).catch(err => alert('이미지 업로드 실패: ' + err.message));
-                            return true;
-                        }
+        if (typeof window !== 'undefined') {
+            editor.value = new Editor({
+                extensions: [
+                    StarterKit,
+                    Image.configure({ inline: true })
+                ],
+                content: newPost.value.content,
+                editable: true, // Ensure it's editable
+                onUpdate: ({ editor }) => {
+                    if (newPost.value) {
+                        newPost.value.content = editor.getHTML();
                     }
-                    return false;
+                },
+                editorProps: {
+                    attributes: {
+                        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none',
+                    },
+                    handlePaste: (view, event) => {
+                        const items = event.clipboardData.items;
+                        for (let i = 0; i < items.length; i++) {
+                            if (items[i].type.indexOf('image') !== -1) {
+                                const file = items[i].getAsFile();
+                                uploadImage(file).then(url => {
+                                    if (editor.value) editor.value.chain().focus().setImage({ src: url }).run();
+                                }).catch(err => alert('이미지 업로드 실패: ' + err.message));
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
                 }
-            }
-        });
+            });
+        }
         fetchPosts();
     });
 
