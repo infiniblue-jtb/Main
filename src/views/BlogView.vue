@@ -1303,6 +1303,53 @@ tr:hover .arrow {
   font-size: 1.2rem;
 }
 
+/* Tiptap 에디터 */
+.tiptap-editor {
+  border: 1.5px solid rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  min-height: 250px;
+  padding: 16px;
+  background: var(--card-bg, #fff);
+  cursor: text;
+}
+
+.tiptap-editor:focus-within {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+}
+
+/* Tiptap 내부 ProseMirror div */
+.tiptap-editor .ProseMirror {
+  min-height: 220px;
+  outline: none;
+  line-height: 1.7;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.tiptap-editor .ProseMirror p {
+  margin: 0 0 10px;
+}
+
+.tiptap-editor .ProseMirror img {
+  max-width: 100%;
+  border-radius: 10px;
+  margin: 10px 0;
+  display: block;
+}
+
+/* placeholder */
+.tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: '본문을 입력하세요...';
+  color: #aaa;
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+
+
 @media (max-width: 734px) {
   .hero-title { font-size: 2.5rem; }
   .modal-image { height: 250px; }
