@@ -222,7 +222,10 @@ export default {
     const searchQuery = ref('');
     const editor = ref(null);
 
-    const newPost = ref(null);
+    const newPost = ref({
+      title: '',
+      content: ''
+    });
 
     
     // Pagination
