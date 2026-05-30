@@ -375,10 +375,16 @@ export default {
     };
 
     const openEditor = () => {
+      console.log('Opening editor, resetting state');
       isEditing.value = false;
       newPost.value = { title: '', content: '' };
-      adminKey.value = ''; // Reset password
-      if (editor.value) editor.value.commands.setContent('');
+      adminKey.value = ''; 
+      if (editor.value) {
+          console.log('Editor instance found, resetting content');
+          editor.value.commands.setContent('');
+      } else {
+          console.warn('Editor instance not found');
+      }
       showEditor.value = true;
     };
 
