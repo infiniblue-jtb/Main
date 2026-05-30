@@ -102,20 +102,29 @@ app.delete('/api/posts/:id', async (c) => {
   }
 });
 
-// 5. 단일 항목 수정
-app.put('/api/posts/:id', async (c) => {
+// 6. 이미지 업로드 (R2)
+app.post('/api/upload', async (c) => {
   const authHeader = c.req.header('Authorization');
   if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
-  const id = c.req.param('id');
+
   try {
-    const body = await c.req.json();
-    const { title, content } = body;
-    await c.env.DB.prepare(
-      "UPDATE posts SET title = ?, content = ? WHERE id = ?"
-    ).bind(title, content, id).run();
-    return c.json({ success: true });
+    const formData = await c.req.formData();
+    const file = formData.get('file');
+    
+    if (!file) {
+      return c.json({ error: 'No file provided' }, 400);
+    }
+
+    const filename = `${Date.now()}-${file.name}`;
+    await c.env.IMAGES.put(filename, file);
+    
+    // R2 public URL format depends on your custom domain or Cloudflare Workers settings.
+    // Assuming custom domain or public bucket URL format.
+    const publicUrl = `https://images.dongtan.infiniblue.com/${filename}`;
+    
+    return c.json({ success: true, url: publicUrl });
   } catch (e) {
     return c.json({ error: e.message }, 500);
   }

@@ -6,3 +6,7 @@ compatibility_date = "2024-04-25"
 binding = "DB"
 database_name = "dongtan-db"
 database_id = "b8b2c548-25fd-4b9e-be64-9fa7fbc3e766"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "dongtan-images"

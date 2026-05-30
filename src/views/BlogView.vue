@@ -53,11 +53,11 @@
             </div>
             <div class="form-group">
               <label>{{ currentLang === 'ko' ? '본문 내용' : 'Content' }}</label>
-              <textarea v-model="newPost.content" required rows="10" placeholder="본문에 [IMG:url] 형식으로 이미지를 넣으세요"></textarea>
+              <editor-content :editor="editor" class="tiptap-editor" />
             </div>
             <div class="form-group admin-key">
               <label>{{ currentLang === 'ko' ? '관리자 비밀번호' : 'Admin Key' }}</label>
-              <input v-model="adminKey" type="password" required placeholder="API SECRET 입력 (저장 후 자동 삭제)">
+              <input v-model="adminKey" type="password" required placeholder="API SECRET을 입력하세요">
             </div>
             <button type="submit" class="submit-btn" :disabled="submitting">
               {{ submitting ? (currentLang === 'ko' ? '처리 중...' : 'Processing...') : (currentLang === 'ko' ? '저장' : 'Save') }}
@@ -191,7 +191,10 @@
 </template>
 
 <script>
-import { ref, computed, inject, onMounted } from 'vue';
+import { ref, computed, inject, onMounted, onBeforeUnmount } from 'vue';
+import { Editor, EditorContent } from '@tiptap/vue-3';
+import StarterKit from '@tiptap/starter-kit';
+import Image from '@tiptap/extension-image';
 
 const TRANSLATIONS = {
   ko: {
@@ -206,6 +209,7 @@ const TRANSLATIONS = {
 
 export default {
   name: 'BlogView',
+  components: { EditorContent },
   setup() {
     const currentLang = inject('currentLang', ref('ko'));
     const posts = ref([]);
@@ -218,6 +222,7 @@ export default {
     const adminKey = ref('');
     const selectedIds = ref([]);
     const searchQuery = ref('');
+    const editor = ref(null);
 
     const newPost = ref({
       title: '',
@@ -230,37 +235,51 @@ export default {
 
     const t = computed(() => TRANSLATIONS[currentLang.value] || TRANSLATIONS['ko']);
 
-    // eslint-disable-next-line no-unused-vars
-    const getThumbnail = (post) => {
-      if (!post.content) return null;
-      const match = post.content.match(/\[IMG:(.*?)\]/);
-      return match ? match[1] : null;
-    };
+    // Tiptap setup
+    onMounted(() => {
+        editor.value = new Editor({
+            extensions: [
+                StarterKit,
+                Image.configure({ inline: true })
+            ],
+            content: '',
+            onUpdate: () => {
+                newPost.value.content = editor.value.getHTML();
+            },
+            editorProps: {
+                handlePaste: (view, event) => {
+                    const items = event.clipboardData.items;
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf('image') !== -1) {
+                            const file = items[i].getAsFile();
+                            uploadImage(file).then(url => {
+                                editor.value.chain().focus().setImage({ src: url }).run();
+                            }).catch(err => alert('이미지 업로드 실패: ' + err.message));
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+        });
+        fetchPosts();
+    });
 
-    const parseContent = (content) => {
-      if (!content) return '';
-      // [IMG:url] -> <img src="url" loading="lazy" style="max-width:100%; border-radius:12px; margin: 15px 0; display: block;">
-      return content.replace(/\[IMG:(.*?)\]/g, '<img src="$1?auto=format,compress" loading="lazy" style="max-width:100%; border-radius:12px; margin: 15px 0; display: block;">');
-    };
-    
+    onBeforeUnmount(() => {
+        if (editor.value) editor.value.destroy();
+    });
 
-    const fetchPosts = async () => {
-      loading.value = true;
-      try {
-        const response = await fetch('https://dongtan-api.infiniblue.workers.dev/api/posts');
-        if (!response.ok) throw new Error('Network response was not ok');
+    const uploadImage = async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await fetch('https://dongtan-api.infiniblue.workers.dev/api/upload', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${adminKey.value.trim()}` },
+            body: formData
+        });
+        if (!response.ok) throw new Error('Upload failed');
         const data = await response.json();
-        // Ensure posts have image_urls array
-        posts.value = data.map(post => ({
-          ...post,
-          image_urls: post.image_urls || (post.image_url ? [post.image_url] : [])
-        }));
-        selectedIds.value = [];
-      } catch (error) {
-        console.error('Failed to fetch posts:', error);
-      } finally {
-        loading.value = false;
-      }
+        return data.url;
     };
 
     const filteredPosts = computed(() => {
