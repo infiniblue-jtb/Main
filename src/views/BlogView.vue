@@ -306,27 +306,18 @@ export default {
     };
 
     const uploadImage = async (file) => {
-        if (!adminKey.value) {
-            const key = prompt('이미지 업로드를 위해 관리자 비밀번호를 입력해주세요:');
-            if (!key) throw new Error('No admin key');
-            adminKey.value = key.trim();
-        }
-        
         const formData = new FormData();
         formData.append('file', file);
         
         console.log('Attempting image upload...');
         const response = await fetch('https://dongtan-api.infiniblue.workers.dev/api/upload', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${adminKey.value.trim()}` },
             body: formData
         });
         
         if (!response.ok) {
             const errorText = await response.text();
             console.error('Upload failed:', response.status, errorText);
-            // If unauthorized, clear the key so user can re-enter it next time
-            if (response.status === 401) adminKey.value = '';
             throw new Error(`Upload failed: ${response.status} ${errorText}`);
         }
         

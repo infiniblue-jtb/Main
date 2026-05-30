@@ -104,11 +104,6 @@ app.delete('/api/posts/:id', async (c) => {
 
 // 6. 이미지 업로드 (R2)
 app.post('/api/upload', async (c) => {
-  const authHeader = c.req.header('Authorization');
-  if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
-    return c.json({ error: 'Unauthorized' }, 401);
-  }
-
   try {
     const formData = await c.req.formData();
     const file = formData.get('file');
@@ -120,8 +115,6 @@ app.post('/api/upload', async (c) => {
     const filename = `${Date.now()}-${file.name}`;
     await c.env.IMAGES.put(filename, file);
     
-    // R2 public URL format depends on your custom domain or Cloudflare Workers settings.
-    // Assuming custom domain or public bucket URL format.
     const publicUrl = `https://images.dongtan.infiniblue.com/${filename}`;
     
     return c.json({ success: true, url: publicUrl });
