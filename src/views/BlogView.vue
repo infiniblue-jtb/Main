@@ -404,8 +404,9 @@ export default {
     const submitPost = async () => {
       submitting.value = true;
       // Sync editor content before submit
-      newPost.value.content = editor.value.getHTML();
-      console.log('Submitting post:', newPost.value);
+      if (editor.value) {
+          newPost.value.content = editor.value.getHTML();
+      }
       
       const method = isEditing.value ? 'PUT' : 'POST';
       const url = isEditing.value 
