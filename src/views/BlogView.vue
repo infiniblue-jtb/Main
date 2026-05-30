@@ -416,7 +416,7 @@ export default {
     const submitPost = async () => {
       submitting.value = true;
       // Sync editor content before submit
-      if (editor.value) {
+      if (editor.value && newPost.value) {
           newPost.value.content = editor.value.getHTML();
       }
       
