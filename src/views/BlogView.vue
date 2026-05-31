@@ -102,6 +102,11 @@
                     그림 첨부
                     <input type="file" accept="image/*" style="display:none" @change="insertImageFile($event)">
                   </label>
+                  <div class="toolbar-sep"></div>
+                  <span class="toolbar-label">이미지 배치:</span>
+                  <button type="button" @mousedown.prevent="setImgLayout('100%')" :class="['layout-btn', { active: imgLayout === '100%' }]" title="전체 폭">■</button>
+                  <button type="button" @mousedown.prevent="setImgLayout('48%')" :class="['layout-btn', { active: imgLayout === '48%' }]" title="2열 나란히">▪▪</button>
+                  <button type="button" @mousedown.prevent="setImgLayout('30%')" :class="['layout-btn', { active: imgLayout === '30%' }]" title="3열 나란히">▫▫▫</button>
                 </div>
                 <div style="position:relative">
                   <div
@@ -325,6 +330,8 @@ export default {
     // 리치 에디터
     const editorEl = ref(null);
     const imageUploading = ref(false);
+    const imgLayout = ref('100%'); // 이미지 배치 모드: 100% / 48% / 30%
+    const setImgLayout = (v) => { imgLayout.value = v; };
 
     const exec = (cmd, val = null) => {
       document.execCommand(cmd, false, val);
@@ -371,7 +378,11 @@ export default {
     const insertImgNode = (src, savedRange) => {
       const img = document.createElement('img');
       img.src = src;
-      img.style.cssText = 'max-width:100%;border-radius:8px;margin:8px 0;display:block;cursor:default;';
+      const w = imgLayout.value;
+      const isWide = w === '100%';
+      img.style.cssText = isWide
+        ? 'width:100%;max-width:100%;border-radius:8px;margin:8px 0;display:block;cursor:default;'
+        : `width:${w};max-width:100%;border-radius:8px;margin:4px 1%;display:inline-block;vertical-align:top;cursor:default;`;
       if (savedRange && editorEl.value && editorEl.value.contains(savedRange.commonAncestorContainer)) {
         savedRange.deleteContents();
         savedRange.insertNode(img);
@@ -638,7 +649,7 @@ export default {
       getThumbnail, parseContent, catStyle,
       editorEl, imageUploading, exec, execFontSize, execFormatBlock,
       saveColorRange, execColor,
-      onEditorInput, onPaste, insertImageFile,
+      onEditorInput, onPaste, insertImageFile, imgLayout, setImgLayout,
       resizeHandle, onEditorMouseover, onEditorMouseleave, onHandleMouseleave, startResize
     };
   }
@@ -797,9 +808,15 @@ export default {
   margin-bottom: 28px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
   border: 1px solid rgba(0,0,0,0.06);
-  /* 에디터는 body보다 넓게 */
-  margin-left: -60px;
-  margin-right: -60px;
+  /* 에디터 1.3배 확장 */
+  margin-left: -222px;
+  margin-right: -222px;
+}
+@media (max-width: 1460px) {
+  .editor-card { margin-left: -80px; margin-right: -80px; }
+}
+@media (max-width: 1160px) {
+  .editor-card { margin-left: -20px; margin-right: -20px; }
 }
 .editor-title { font-size: 1.4rem; font-weight: 700; margin: 0 0 24px; }
 
@@ -868,6 +885,13 @@ export default {
   cursor: pointer; font-size: 0.85rem; transition: all 0.15s; display: inline-flex; align-items: center;
 }
 .img-upload-btn:hover { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+
+.toolbar-label { font-size: 0.78rem; color: #666; white-space: nowrap; }
+.layout-btn {
+  padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.12);
+  background: #fff; cursor: pointer; font-size: 0.8rem; transition: all 0.15s;
+}
+.layout-btn:hover, .layout-btn.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
 
 .rich-editor {
   min-height: 280px; padding: 16px; outline: none;
@@ -1064,7 +1088,12 @@ export default {
 .delete-pill-btn:hover { background: #dc2626; color: #fff; }
 
 .modal-title { font-size: 2rem; font-weight: 800; margin: 0 0 24px; line-height: 1.25; }
-.modal-content { font-size: 1.05rem; line-height: 1.85; word-break: break-word; }
+.modal-content {
+  font-size: 1.05rem; line-height: 1.85; word-break: break-word;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
 .modal-content img { max-width: 100%; border-radius: 10px; margin: 12px 0; display: block; }
 
 /* ─── 트랜지션 ─── */

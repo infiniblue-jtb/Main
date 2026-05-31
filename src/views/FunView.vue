@@ -399,7 +399,7 @@ export default {
 
     const pbInit = () => {
       PB.W = 340; PB.H = 520;
-      PB.ball = { x: PB.W/2 + (Math.random()-0.5)*30, y: 60, vx: (Math.random()-0.5)*3, vy: 3, r: 9 };
+      PB.ball = { x: PB.W/2 + (Math.random()-0.5)*20, y: 60, vx: (Math.random()-0.5)*1.5, vy: 1.5, r: 9 };
       PB.livesLeft = 3;
       PB.bumpers = [
         { x: PB.W/2,      y: 160, r: 24, flash: 0 },
@@ -408,17 +408,19 @@ export default {
         { x: PB.W/2-45,   y: 310, r: 16, flash: 0 },
         { x: PB.W/2+45,   y: 310, r: 16, flash: 0 },
       ];
-      PB.lp = { x: 60,        y: PB.H - 70 };
-      PB.rp = { x: PB.W - 60, y: PB.H - 70 };
+      PB.lp = { x: 70,        y: PB.H - 65 };
+      PB.rp = { x: PB.W - 70, y: PB.H - 65 };
       PB.leftFlipperUp  = false;
       PB.rightFlipperUp = false;
       pbKeys = { left: false, right: false };
     };
 
     const pbFlipperEndpoints = () => {
-      const len = 70, upAngle = -0.45, downAngle = 0.45;
-      const la = PB.leftFlipperUp  ? -upAngle   : downAngle;
-      const ra = PB.rightFlipperUp ? upAngle     : -downAngle;
+      const len = 82;
+      // 내려갔을 때(resting): +0.42 → 팁이 아래쪽으로 오므림 (V자)
+      // 올라갔을 때(active):  -0.42 → 팁이 위쪽으로 솟아오름
+      const la = PB.leftFlipperUp  ? -0.42 :  0.42;
+      const ra = PB.rightFlipperUp ? -0.42 :  0.42;
       return {
         lEnd: { x: PB.lp.x + Math.cos(la)*len, y: PB.lp.y + Math.sin(la)*len },
         rEnd: { x: PB.rp.x - Math.cos(ra)*len, y: PB.rp.y + Math.sin(ra)*len },
@@ -446,9 +448,9 @@ export default {
         ball.vx = (ball.vx - 2*dot*nx) * 0.75;
         ball.vy = (ball.vy - 2*dot*ny) * 0.75;
         // 플리퍼 힘 추가
-        if (PB.leftFlipperUp  && t < 0.6) ball.vy -= 4;
-        if (PB.rightFlipperUp && t < 0.6) ball.vy -= 4;
-        if (Math.abs(ball.vy) < 2) ball.vy = -5;
+        if (PB.leftFlipperUp  && t < 0.6) ball.vy -= 2;
+        if (PB.rightFlipperUp && t < 0.6) ball.vy -= 2;
+        if (Math.abs(ball.vy) < 1) ball.vy = -2.5;
       }
     };
 
@@ -458,7 +460,7 @@ export default {
       PB.leftFlipperUp  = pbKeys.left;
       PB.rightFlipperUp = pbKeys.right;
 
-      b.vy += 0.22; // 중력
+      b.vy += 0.11; // 중력 (절반 속도)
       b.vx *= 0.995;
       b.x += b.vx; b.y += b.vy;
 
@@ -473,7 +475,7 @@ export default {
         const dist = Math.sqrt(dx*dx+dy*dy);
         if (dist < b.r+bump.r) {
           const nx=dx/dist, ny=dy/dist;
-          const speed = Math.max(Math.sqrt(b.vx*b.vx+b.vy*b.vy), 5);
+          const speed = Math.max(Math.sqrt(b.vx*b.vx+b.vy*b.vy), 2.5);
           b.vx = nx*speed*1.3; b.vy = ny*speed*1.3;
           b.x = bump.x + nx*(b.r+bump.r+1);
           b.y = bump.y + ny*(b.r+bump.r+1);
@@ -498,7 +500,7 @@ export default {
           return false; // 게임 오버
         }
         b.x = W/2 + (Math.random()-0.5)*20; b.y = 60;
-        b.vx = (Math.random()-0.5)*3; b.vy = 3;
+        b.vx = (Math.random()-0.5)*1.5; b.vy = 1.5;
       }
       return true;
     };

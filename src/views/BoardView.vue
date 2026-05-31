@@ -133,8 +133,8 @@ export default {
 </script>
 
 <style scoped>
-.apple-page { padding-bottom: 100px; }
-.hero-section { padding: 80px 22px 40px; text-align: center; max-width: 800px; margin: 0 auto; }
+.apple-page { padding-bottom: 60px; }
+.hero-section { padding: 60px 22px 24px; text-align: center; max-width: 800px; margin: 0 auto; }
 .hero-title { font-size: 3.5rem; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 12px; }
 .hero-subtitle { font-size: 1.5rem; color: var(--text-secondary); font-weight: 400; }
 
@@ -190,9 +190,10 @@ export default {
 
 .apple-button:hover { opacity: 0.9; }
 
-.section-header { margin-bottom: 30px; text-align: center; }
-.section-title { font-size: 2rem; font-weight: 600; }
-.mt-80 { margin-top: 80px; }
+.section-header { margin-bottom: 16px; text-align: center; }
+.section-title { font-size: 1.8rem; font-weight: 600; }
+.mt-80 { margin-top: 28px; }
+.contact-container { margin-top: 20px; }
 
 .comment-container { min-height: 400px; }
 
