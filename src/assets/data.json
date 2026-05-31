@@ -134,7 +134,7 @@
         "lng": 127.0685,
         "address": "경기도 화성시 반송동 104-1",
         "menu": "김밥, 라면, 떡볶이",
-        "menu_en": "Kimbap, Ramyeon, Tteokbokki",
+        "menu_en": "Korean Rice Rolls, Instant Noodles, Spicy Rice Cake",
         "parking": "인근 공영주차장 이용"
       },
       {
@@ -144,7 +144,7 @@
         "lng": 127.0685,
         "address": "경기도 화성시 반송동 104-1",
         "menu": "짜장면, 짬뽕, 탕수육",
-        "menu_en": "Jjajangmyeon, Jjamppong, Tangsuyuk",
+        "menu_en": "Black Bean Noodles, Spicy Seafood Soup, Sweet & Sour Pork",
         "parking": "건물 주차장 이용 가능"
       },
       {
@@ -154,7 +154,7 @@
         "lng": 127.0685,
         "address": "경기도 화성시 반송동 104-1",
         "menu": "7분 돼지김치, 열탄불고기",
-        "menu_en": "7-Minute Pork Kimchi Stew, Yeoltang Bulgogi",
+        "menu_en": "Pork Kimchi Stew, Spicy Beef Bulgogi",
         "parking": "건물 내 주차장 이용 가능"
       },
       {
@@ -164,7 +164,7 @@
         "lng": 127.1285,
         "address": "경기도 화성시 목동 463-1",
         "menu": "죽 (다양한 종류)",
-        "menu_en": "Juk (Porridge) (Various types)",
+        "menu_en": "Korean Porridge (Various Flavors)",
         "parking": "건물 내 주차장 이용 가능"
       }
     ],
@@ -176,7 +176,7 @@
         "lng": 127.0685,
         "address": "경기도 화성시 반송동 104-1",
         "menu": "갈매기살, 삼겹살",
-        "menu_en": "Galmaegisal, Samgyeopsal",
+        "menu_en": "Pork Skirt Meat & Pork Belly BBQ",
         "parking": "건물 내 주차장 이용 가능"
       },
       {
@@ -206,7 +206,7 @@
         "lng": 127.0690,
         "address": "경기도 화성시 반송동 91-5",
         "menu": "돼지갈비 무한리필",
-        "menu_en": "Pork Ribs Unlimited Refill",
+        "menu_en": "All-you-can-eat Pork Ribs",
         "parking": "건물 내 주차장 이용 가능"
       }
     ],
@@ -218,7 +218,7 @@
         "lng": 127.0712,
         "address": "경기도 화성시 동탄반송3길 36-10",
         "menu": "함흥냉면, 만두",
-        "menu_en": "Hamheung Naengmyeon, Mandu",
+        "menu_en": "Cold Buckwheat Noodles, Dumplings",
         "parking": "건물 내 주차장 이용 가능"
       },
       {
@@ -233,12 +233,12 @@
       },
       {
         "name": "동탄조개구이무한리필",
-        "name_en": "Dongtan Shellfish Refill",
+        "name_en": "Dongtan All-you-can-eat Shellfish Grill",
         "lat": 37.2064,
         "lng": 127.0715,
         "address": "경기도 화성시 동탄중심상가1길 8",
         "menu": "조개구이, 고기 무한리필",
-        "menu_en": "Grilled Shellfish, Meat Unlimited Refill",
+        "menu_en": "Grilled Shellfish & All-you-can-eat BBQ",
         "parking": "건물 내 주차장 이용 가능"
       },
       {
@@ -248,7 +248,7 @@
         "lng": 127.0712,
         "address": "경기도 화성시 동탄반송3길 36-10",
         "menu": "족발, 보쌈",
-        "menu_en": "Pig's Trotters, Bossam",
+        "menu_en": "Braised Pork Trotters & Steamed Pork Wraps",
         "parking": "건물 내 주차장 이용 가능"
       }
     ]

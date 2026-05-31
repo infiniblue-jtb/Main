@@ -29,20 +29,36 @@
               <div v-if="isDropdownOpen" class="dropdown-panel">
                 <div class="dropdown-inner">
                   <router-link to="/kids" class="dropdown-item" @click="isMenuOpen = false; isDropdownOpen = false">
-                    <span class="dropdown-icon">🏘️</span>
-                    <span>{{ currentLang === 'ko' ? '생활정보' : 'Life' }}</span>
+                    <div class="di-icon di-life">🏘️</div>
+                    <div class="di-body">
+                      <span class="di-name">{{ currentLang === 'ko' ? '생활정보' : 'Life Info' }}</span>
+                      <span class="di-desc">{{ currentLang === 'ko' ? '동탄 생활 꿀팁' : 'Local living tips' }}</span>
+                    </div>
+                    <span class="di-arrow">›</span>
                   </router-link>
                   <router-link to="/food" class="dropdown-item" @click="isMenuOpen = false; isDropdownOpen = false">
-                    <span class="dropdown-icon">🍽️</span>
-                    <span>{{ currentLang === 'ko' ? '맛집' : 'Food' }}</span>
+                    <div class="di-icon di-food">🍽️</div>
+                    <div class="di-body">
+                      <span class="di-name">{{ currentLang === 'ko' ? '맛집' : 'Restaurants' }}</span>
+                      <span class="di-desc">{{ currentLang === 'ko' ? '인기 맛집 추천' : 'Top food picks' }}</span>
+                    </div>
+                    <span class="di-arrow">›</span>
                   </router-link>
                   <router-link to="/cafe" class="dropdown-item" @click="isMenuOpen = false; isDropdownOpen = false">
-                    <span class="dropdown-icon">☕</span>
-                    <span>{{ currentLang === 'ko' ? '카페' : 'Cafe' }}</span>
+                    <div class="di-icon di-cafe">☕</div>
+                    <div class="di-body">
+                      <span class="di-name">{{ currentLang === 'ko' ? '카페' : 'Cafes' }}</span>
+                      <span class="di-desc">{{ currentLang === 'ko' ? '분위기 좋은 카페' : 'Cozy coffee spots' }}</span>
+                    </div>
+                    <span class="di-arrow">›</span>
                   </router-link>
                   <router-link to="/health" class="dropdown-item" @click="isMenuOpen = false; isDropdownOpen = false">
-                    <span class="dropdown-icon">🏥</span>
-                    <span>{{ currentLang === 'ko' ? '병원' : 'Health' }}</span>
+                    <div class="di-icon di-health">🏥</div>
+                    <div class="di-body">
+                      <span class="di-name">{{ currentLang === 'ko' ? '병원' : 'Healthcare' }}</span>
+                      <span class="di-desc">{{ currentLang === 'ko' ? '가까운 병원 찾기' : 'Find nearby clinics' }}</span>
+                    </div>
+                    <span class="di-arrow">›</span>
                   </router-link>
                 </div>
               </div>
@@ -418,38 +434,74 @@ body {
   backdrop-filter: var(--blur);
   -webkit-backdrop-filter: var(--blur);
   border: 1px solid var(--nav-border);
-  border-radius: var(--radius-md);
-  padding: 8px;
-  min-width: 160px;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06);
+  border-radius: 20px;
+  padding: 10px;
+  min-width: 240px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.14), 0 8px 24px rgba(0,0,0,0.08);
 }
 
 [data-theme="dark"] .dropdown-inner {
-  box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.55), 0 8px 24px rgba(0,0,0,0.35);
 }
 
 .dropdown-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
-  border-radius: var(--radius-sm);
+  gap: 12px;
+  padding: 10px 10px;
+  border-radius: 14px;
   text-decoration: none;
   color: var(--text-primary);
   font-size: 0.875rem;
-  font-weight: 500;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.2s, transform 0.2s;
+  margin-bottom: 2px;
 }
+
+.dropdown-item:last-child { margin-bottom: 0; }
 
 .dropdown-item:hover {
   background: var(--accent-soft);
-  color: var(--accent);
+  transform: translateX(4px);
 }
 
-.dropdown-icon {
-  font-size: 1rem;
-  width: 24px;
-  text-align: center;
+.dropdown-item:hover .di-arrow {
+  opacity: 1;
+  transform: translateX(3px);
+}
+
+.dropdown-item:hover .di-icon {
+  transform: scale(1.12) rotate(-5deg);
+}
+
+.di-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.2,0.8,0.2,1);
+}
+
+.di-life   { background: linear-gradient(135deg, rgba(99,179,237,0.2), rgba(66,153,225,0.1)); border: 1px solid rgba(99,179,237,0.25); }
+.di-food   { background: linear-gradient(135deg, rgba(252,129,74,0.22), rgba(237,100,44,0.1)); border: 1px solid rgba(252,129,74,0.28); }
+.di-cafe   { background: linear-gradient(135deg, rgba(205,155,110,0.25), rgba(183,121,70,0.12)); border: 1px solid rgba(205,155,110,0.3); }
+.di-health { background: linear-gradient(135deg, rgba(104,211,145,0.2), rgba(56,178,94,0.1)); border: 1px solid rgba(104,211,145,0.25); }
+
+.di-body {
+  display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0;
+}
+
+.di-name {
+  font-size: 0.875rem; font-weight: 600; color: var(--text-primary); line-height: 1.2;
+}
+
+.di-desc {
+  font-size: 0.72rem; color: var(--text-secondary); opacity: 0.75;
+}
+
+.di-arrow {
+  font-size: 1.3rem; color: var(--text-secondary);
+  opacity: 0; transition: opacity 0.2s, transform 0.2s; font-weight: 300;
 }
 
 /* Dropdown transition */
@@ -725,11 +777,27 @@ body {
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 834px) {
-  .nav-container { padding: 0 16px; }
+  .nav-container { padding: 0 12px; gap: 6px; }
   .nav-center { display: none; }
   .hamburger { display: flex; }
-  .status-chip { display: none; }
-  .logo-text { font-size: 0.95rem; }
+  .logo-text { font-size: 0.9rem; }
+
+  .status-chip {
+    padding: 3px 8px;
+    gap: 4px;
+    border-radius: 14px;
+  }
+  .weather-badge, .time-badge {
+    font-size: 0.64rem;
+    letter-spacing: 0;
+  }
+  .weather-badge { padding-right: 5px; }
+
+  .ctrl-btn {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+  .theme-toggle { padding: 4px 7px; }
 }
 
 .drawer-status {
@@ -753,7 +821,9 @@ body {
   padding-right: 10px;
 }
 
-@media (max-width: 480px) {
-  .ctrl-btn:not(.theme-toggle) { display: none; }
+@media (max-width: 390px) {
+  .time-badge { display: none; }
+  .weather-badge { border-right: none; padding-right: 0; }
+  .logo-mark { display: none; }
 }
 </style>

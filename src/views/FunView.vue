@@ -144,11 +144,11 @@
             </div>
           </div>
 
-          <!-- ===== 경마 / 차량 레이스 ===== -->
-          <div v-if="activeGame === 'horse' || activeGame === 'car'" class="game-wrap">
+          <!-- ===== 경마 ===== -->
+          <div v-if="activeGame === 'horse'" class="game-wrap">
             <div class="game-title-row">
-              <span class="g-icon">{{ activeGame === 'horse' ? '🐎' : '🏎️' }}</span>
-              <h2>{{ activeGame === 'horse' ? '경마 복불복' : '차량 복불복' }}</h2>
+              <span class="g-icon">🐎</span>
+              <h2>경마 복불복</h2>
             </div>
             <div v-if="!raceActive && !raceWinner" class="setup-panel">
               <div class="count-ctrl">
@@ -156,23 +156,6 @@
                 <span class="count-val">{{ pCount }}명</span>
                 <button class="count-btn" @click="pCount = Math.min(6, pCount + 1)">＋</button>
               </div>
-
-              <!-- 트랙 선택 (차량 레이스만) -->
-              <div v-if="activeGame === 'car'" class="track-select-group">
-                <span class="group-label">트랙 선택:</span>
-                <div class="track-options">
-                  <button 
-                    v-for="t in ['circle', 'oval', 'square']" 
-                    :key="t"
-                    class="track-opt-btn"
-                    :class="{ active: raceTrackType === t }"
-                    @click="raceTrackType = t"
-                  >
-                    {{ t === 'circle' ? '원형' : t === 'oval' ? '타원형' : '사각형' }}
-                  </button>
-                </div>
-              </div>
-
               <div class="name-grid" :style="{ gridTemplateColumns: `repeat(${Math.min(pCount, 3)}, 1fr)` }">
                 <input
                   v-for="i in pCount" :key="i"
@@ -181,9 +164,7 @@
                   :placeholder="`참가자 ${i}`"
                 />
               </div>
-              <button class="action-btn" @click="startRace">
-                {{ activeGame === 'horse' ? '🏁 경기 시작!' : '🚦 레이스 시작!' }}
-              </button>
+              <button class="action-btn" @click="startRace">🏁 경기 시작!</button>
             </div>
             <div v-else class="race-area">
               <Transition name="fade-fast">
@@ -191,9 +172,7 @@
                   <div class="countdown-num" :key="countdown">{{ countdown }}</div>
                 </div>
               </Transition>
-
-              <!-- 🐎 경마: 기존 선형 트랙 -->
-              <div v-if="activeGame === 'horse'" class="race-track">
+              <div class="race-track">
                 <div
                   v-for="(racer, idx) in racers"
                   :key="idx"
@@ -210,12 +189,6 @@
                   <div class="place-badge" v-if="racer.place">{{ racer.place }}위</div>
                 </div>
               </div>
-
-              <!-- 🏎️ 차량: 향상된 트랙 -->
-              <div v-else class="circuit-container">
-                <canvas ref="circuitCanvas" class="circuit-canvas"></canvas>
-              </div>
-
               <Transition name="winner-pop">
                 <div v-if="raceWinner" class="winner-banner">
                   <div class="winner-confetti">🎊</div>
@@ -291,16 +264,22 @@
               <button class="action-btn" @click="rouletteStarted = true">🎡 룰렛 준비!</button>
             </div>
             <div v-else class="roulette-wrap">
-              <div class="wheel-pointer">▼</div>
-              <div class="wheel-container">
-                <canvas
-                  ref="wheelCanvas"
-                  class="wheel-canvas"
-                  :style="{ transform: `rotate(${wheelAngle}deg)`, transition: wheelTransition }"
-                ></canvas>
+              <div class="wheel-pointer-wrap">
+                <div class="roulette-pointer"></div>
+              </div>
+              <div class="wheel-stage">
+                <div class="wheel-outer-ring">
+                  <div class="wheel-container">
+                    <canvas
+                      ref="wheelCanvas"
+                      class="wheel-canvas"
+                      :style="{ transform: `rotate(${wheelAngle}deg)`, transition: wheelTransition }"
+                    ></canvas>
+                  </div>
+                </div>
               </div>
               <Transition name="winner-pop">
-                <div v-if="wheelWinner" class="winner-banner">
+                <div v-if="wheelWinner" class="winner-banner roulette-winner">
                   <div class="winner-confetti">🎊</div>
                   <div class="winner-text">🎯 {{ wheelWinner }}!</div>
                   <button class="action-btn sm" @click="resetRoulette">다시 돌리기</button>
@@ -331,7 +310,6 @@ const GAME_CARDS = [
   { id: 'lotto',    icon: '🎰', name: '로또 번호 생성기', desc: '행운의 번호를 자동으로 뽑아보세요!' },
   { id: 'ladder',   icon: '🪜', name: '사다리 타기',       desc: '긴장감 넘치는 사다리 타기 애니메이션!' },
   { id: 'horse',    icon: '🐎', name: '경마 복불복',       desc: '내 이름을 걸고 달리는 짜릿한 레이스!' },
-  { id: 'car',      icon: '🏎️', name: '차량 복불복',       desc: '3가지 트랙에서 펼쳐지는 분노의 질주!' },
   { id: 'roulette', icon: '🎡', name: '룰렛 복불복',       desc: '운명의 룰렛을 돌려보세요!' },
   { id: 'pinball',  icon: '🔮', name: '핀볼 게임',         desc: '짜릿한 손맛! 고득점에 도전하세요!' },
 ];
@@ -1085,127 +1063,8 @@ export default {
     const countdown     = ref(0);
     const raceLeader    = ref(-1);
     const laneCanvases  = ref([]);
-    const circuitCanvas = ref(null);
-    const raceTrackType = ref('oval');
     let   raceInterval  = null;
     let   placeCounter  = 1;
-
-    // 트랙 타입별 차량 위치 계산 (progress 0~100)
-    const getCarPos = (progress, W, H, laneIdx, totalLanes, trackType) => {
-      const t = (progress / 100) * Math.PI * 2;
-      const cx = W / 2, cy = H / 2;
-      const offset = (laneIdx - (totalLanes - 1) / 2) * 11;
-
-      if (trackType === 'circle') {
-        const r = Math.min(W, H) * 0.33 + offset;
-        return { x: cx + r * Math.cos(t), y: cy + r * Math.sin(t), angle: t + Math.PI / 2 };
-      }
-      if (trackType === 'oval') {
-        const rx = W * 0.38 + offset, ry = H * 0.32 + offset * 0.6;
-        // 정확한 접선 각도
-        const dx = -rx * Math.sin(t), dy = ry * Math.cos(t);
-        return { x: cx + rx * Math.cos(t), y: cy + ry * Math.sin(t), angle: Math.atan2(dy, dx) };
-      }
-      // square: 사각형 트랙 (둥근 사각형)
-      const pw = W * 0.70 + offset * 1.2;
-      const ph = H * 0.62 + offset * 1.0;
-      const half = (pw * 2 + ph * 2);
-      const d = (progress / 100) * half;
-      let x, y, angle;
-      if (d < pw) { x = cx - pw/2 + d; y = cy - ph/2; angle = 0; }
-      else if (d < pw + ph) { x = cx + pw/2; y = cy - ph/2 + (d - pw); angle = Math.PI/2; }
-      else if (d < pw * 2 + ph) { x = cx + pw/2 - (d - pw - ph); y = cy + ph/2; angle = Math.PI; }
-      else { x = cx - pw/2; y = cy + ph/2 - (d - pw*2 - ph); angle = -Math.PI/2; }
-      return { x, y, angle };
-    };
-
-    const drawCircuit = () => {
-      const canvas = circuitCanvas.value;
-      if (!canvas) return;
-      const W = canvas.clientWidth || 460;
-      const H = canvas.clientHeight || 320;
-      if (W <= 0 || H <= 0) return;
-      const dpr = window.devicePixelRatio || 1;
-      if (canvas.width !== W * dpr || canvas.height !== H * dpr) {
-        canvas.width = W * dpr; canvas.height = H * dpr;
-      }
-      const ctx = canvas.getContext('2d');
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, W, H);
-      const cx = W / 2, cy = H / 2;
-      const tt = raceTrackType.value;
-
-      // ── 트랙 배경 ──
-      ctx.fillStyle = '#0d0d1a';
-      ctx.fillRect(0, 0, W, H);
-
-      if (tt === 'circle') {
-        const r = Math.min(W, H) * 0.33;
-        const drawEllipse = (rx, ry, fill, stroke) => {
-          ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2);
-          if (fill) { ctx.fillStyle = fill; ctx.fill(); }
-          if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke(); }
-        };
-        drawEllipse(r+28, r+28, '#1a1a2e', 'rgba(255,255,255,0.08)');
-        drawEllipse(r-28, r-28, '#0d0d1a', 'rgba(255,255,255,0.05)');
-        // 결승선
-        ctx.save(); ctx.setLineDash([5,4]); ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=2;
-        ctx.beginPath(); ctx.moveTo(cx+r-22,cy); ctx.lineTo(cx+r+24,cy); ctx.stroke(); ctx.restore();
-        // 트랙 레인 점선
-        ctx.save(); ctx.setLineDash([8,8]); ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1;
-        ctx.beginPath(); ctx.ellipse(cx,cy,r,r,0,0,Math.PI*2); ctx.stroke(); ctx.restore();
-
-      } else if (tt === 'oval') {
-        const rx = W*0.38, ry = H*0.32;
-        const drawEll = (drx, dry, fill, stroke) => {
-          ctx.beginPath(); ctx.ellipse(cx,cy,drx,dry,0,0,Math.PI*2);
-          if(fill){ctx.fillStyle=fill;ctx.fill();}
-          if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();}
-        };
-        drawEll(rx+28,ry+28,'#1a1a2e','rgba(255,255,255,0.08)');
-        drawEll(rx-28,ry-28,'#0d0d1a','rgba(255,255,255,0.05)');
-        ctx.save(); ctx.setLineDash([5,4]); ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=2;
-        ctx.beginPath(); ctx.moveTo(cx+rx-22,cy); ctx.lineTo(cx+rx+24,cy); ctx.stroke(); ctx.restore();
-
-      } else {
-        // square
-        const pw = W*0.70, ph = H*0.62;
-        const drawRRect = (w, h, r2, fill, stroke) => {
-          const x0=cx-w/2, y0=cy-h/2;
-          ctx.beginPath();
-          ctx.moveTo(x0+r2,y0); ctx.lineTo(x0+w-r2,y0);
-          ctx.arcTo(x0+w,y0,x0+w,y0+r2,r2);
-          ctx.lineTo(x0+w,y0+h-r2); ctx.arcTo(x0+w,y0+h,x0+w-r2,y0+h,r2);
-          ctx.lineTo(x0+r2,y0+h); ctx.arcTo(x0,y0+h,x0,y0+h-r2,r2);
-          ctx.lineTo(x0,y0+r2); ctx.arcTo(x0,y0,x0+r2,y0,r2);
-          ctx.closePath();
-          if(fill){ctx.fillStyle=fill;ctx.fill();}
-          if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();}
-        };
-        drawRRect(pw+50,ph+50,24,'#1a1a2e','rgba(255,255,255,0.08)');
-        drawRRect(pw-50,ph-50,12,'#0d0d1a','rgba(255,255,255,0.05)');
-        // 결승선
-        ctx.save(); ctx.setLineDash([5,4]); ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=2;
-        ctx.beginPath(); ctx.moveTo(cx+pw/2-2,cy-12); ctx.lineTo(cx+pw/2+22,cy-12); ctx.stroke(); ctx.restore();
-      }
-
-      // ── 차량 그리기 ──
-      racers.value.forEach((r, idx) => {
-        const { x, y, angle } = getCarPos(r.progress, W, H, idx, pCount.value, tt);
-        const eSize = 26;
-        if (raceActive.value && !r.finished) {
-          ctx.save();
-          ctx.translate(x - Math.cos(angle)*14, y - Math.sin(angle)*14);
-          ctx.rotate(angle); ctx.scale(-1,1);
-          ctx.font=`${Math.floor(eSize*0.55)}px serif`; ctx.textBaseline='middle'; ctx.textAlign='center';
-          ctx.fillText('💨',0,0); ctx.restore();
-        }
-        ctx.save();
-        ctx.translate(x,y); ctx.rotate(angle); ctx.scale(-1,1);
-        ctx.font=`${eSize}px serif`; ctx.textBaseline='middle'; ctx.textAlign='center';
-        ctx.fillText('🏎️',0,0); ctx.restore();
-      });
-    };
 
         const drawLane = (canvas, racer, isActive) => {
         if (!canvas || !racer) return;
@@ -1236,7 +1095,7 @@ export default {
         ctx.textAlign = 'center';
         ctx.fillText('🏁', W - H * 0.8, H / 2);
 
-        const emoji = activeGame.value === 'horse' ? '🐎' : '🏎️';
+        const emoji = '🐎';
         const dust  = '💨';
         const eSize = Math.floor(H * 0.85);
         const x     = W * (racer.progress / 100);
@@ -1278,15 +1137,11 @@ export default {
       raceActive.value = true;
       await nextTick();
       
-      if (activeGame.value === 'horse') {
-        laneCanvases.value = [];
-        await nextTick();
-        racers.value.forEach((r, idx) => {
-          drawLane(laneCanvases.value[idx], r, false);
-        });
-      } else {
-        drawCircuit();
-      }
+      laneCanvases.value = [];
+      await nextTick();
+      racers.value.forEach((r, idx) => {
+        drawLane(laneCanvases.value[idx], r, false);
+      });
 
       countdown.value = 3;
       const t = setInterval(() => {
@@ -1311,21 +1166,13 @@ export default {
           return { ...r, progress: np };
         });
 
-        if (activeGame.value === 'horse') {
-          racers.value.forEach((r, idx) => {
-            drawLane(laneCanvases.value[idx], r, raceActive.value);
-          });
-        } else {
-          drawCircuit();
-        }
+        racers.value.forEach((r, idx) => {
+          drawLane(laneCanvases.value[idx], r, raceActive.value);
+        });
 
         if (placeCounter > pCount.value) {
           clearInterval(raceInterval); raceInterval = null; raceActive.value = false;
-          if (activeGame.value === 'horse') {
-            racers.value.forEach((r, idx) => drawLane(laneCanvases.value[idx], r, false));
-          } else {
-            drawCircuit();
-          }
+          racers.value.forEach((r, idx) => drawLane(laneCanvases.value[idx], r, false));
           const winner = racers.value.find(r => r.place === 1);
           if (winner) raceWinner.value = winner.name;
         }
@@ -1403,7 +1250,7 @@ export default {
       gameCards, activeGame, openGame, closeGame, pCount, pNames, ballColor,
       lottoRows, isGenerating, generateLotto,
       ladderCanvas, ladderStarted, ladderDone, ladderWinnerName, ladderResultCol, ladderActiveCol, startLadder,
-      racers, raceActive, raceWinner, countdown, raceLeader, laneCanvases, circuitCanvas, raceTrackType, startRace, resetRace,
+      racers, raceActive, raceWinner, countdown, raceLeader, laneCanvases, startRace, resetRace,
       wheelCanvas, rouletteStarted, wheelAngle, wheelTransition, isSpinning, wheelWinner, spinWheel, resetRoulette,
       pinballCanvas, pinballActive, pinballScore, startPinball,
       pbPlayerName, pbGameOver, pbLeaderboard, pbMyRank, pbRestart,
@@ -1473,7 +1320,6 @@ export default {
 .card-lotto    .card-glow { box-shadow: inset 0 0 40px rgba(255,107,107,0.25); }
 .card-ladder   .card-glow { box-shadow: inset 0 0 40px rgba(77,150,255,0.25); }
 .card-horse    .card-glow { box-shadow: inset 0 0 40px rgba(255,215,61,0.25); }
-.card-car      .card-glow { box-shadow: inset 0 0 40px rgba(107,203,119,0.25); }
 .card-roulette .card-glow { box-shadow: inset 0 0 40px rgba(162,155,254,0.25); }
 
 .card-scan {
@@ -1590,22 +1436,57 @@ export default {
 .empty-icon { font-size: 3rem; }
 
 /* 사다리 */
-.ladder-viz   { display: flex; flex-direction: column; gap: 8px; }
-.top-names, .bottom-slots { display: flex; width: 100%; }
+.ladder-viz { display: flex; flex-direction: column; gap: 10px; }
+.top-names  { display: flex; width: 100%; gap: 4px; }
+.bottom-slots { display: flex; width: 100%; gap: 4px; }
+
 .top-name {
-  flex: 1; text-align: center; font-size: 0.78rem; font-weight: 600;
-  color: rgba(255,255,255,0.4); padding: 4px 2px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  transition: color 0.3s, text-shadow 0.3s;
-}
-.top-name.active { color: #00f5ff; text-shadow: 0 0 8px #00f5ff; }
-.ladder-canvas   { width: 100%; height: 300px; display: block; }
-.bottom-slot {
   flex: 1; text-align: center; font-size: 0.72rem; font-weight: 700;
-  padding: 6px 2px; border-radius: 8px; transition: all 0.4s; color: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.35); padding: 7px 3px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.03);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: all 0.35s cubic-bezier(0.2,0.8,0.2,1);
 }
-.bottom-slot.win  { background: rgba(0,245,255,0.15); color: #00f5ff; text-shadow: 0 0 8px #00f5ff; }
-.bottom-slot.lose { color: rgba(255,255,255,0.12); }
+.top-name.active {
+  color: #00f5ff;
+  text-shadow: 0 0 10px #00f5ff, 0 0 20px rgba(0,245,255,0.5);
+  background: rgba(0,245,255,0.12);
+  border-color: rgba(0,245,255,0.4);
+  box-shadow: 0 0 16px rgba(0,245,255,0.3), inset 0 0 8px rgba(0,245,255,0.08);
+  transform: scaleY(1.06);
+}
+
+.ladder-canvas {
+  width: 100%; height: 300px; display: block;
+  border-radius: 14px;
+  background: rgba(0,0,20,0.55);
+  border: 1px solid rgba(0,245,255,0.1);
+  box-shadow: inset 0 0 30px rgba(0,0,30,0.5), 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.bottom-slot {
+  flex: 1; text-align: center; font-size: 0.68rem; font-weight: 700;
+  padding: 10px 2px; border-radius: 10px;
+  transition: all 0.5s cubic-bezier(0.2,0.8,0.2,1);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.02);
+}
+.bottom-slot.win {
+  background: linear-gradient(135deg, rgba(0,245,255,0.22), rgba(0,100,255,0.15));
+  border-color: rgba(0,245,255,0.45);
+  color: #00f5ff;
+  text-shadow: 0 0 10px #00f5ff, 0 0 20px rgba(0,245,255,0.5);
+  box-shadow: 0 0 24px rgba(0,245,255,0.3), inset 0 0 10px rgba(0,245,255,0.1);
+  transform: scaleY(1.08);
+}
+.bottom-slot.lose {
+  color: rgba(255,60,60,0.2);
+  background: rgba(255,0,0,0.02);
+  border-color: rgba(255,0,0,0.05);
+}
 
 /* 레이스 */
 .race-area { position: relative; }
@@ -1707,35 +1588,67 @@ export default {
 .pb-go-score { font-size: 2rem; font-weight: 900; color: #00f5ff; font-variant-numeric: tabular-nums; text-shadow: 0 0 16px #00aaff; }
 .pb-go-rank { font-size: 1rem; font-weight: 800; color: #fbbf24; text-shadow: 0 0 10px #ff9900; }
 
-/* 새로운 회로 스타일 */
-.circuit-container {
-  width: 100%;
-  height: 320px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0,0,0,0.2);
-  border-radius: 20px;
-  overflow: hidden;
-  position: relative;
-  margin-bottom: 20px;
-}
-.circuit-canvas {
-  width: 100%;
-  max-width: 500px;
-  height: 320px;
-  display: block;
-}
-
 /* 룰렛 */
 .roulette-setup { display: flex; flex-direction: column; gap: 18px; align-items: center; }
-.roulette-wrap  { display: flex; flex-direction: column; align-items: center; gap: 20px; }
-.wheel-pointer  { font-size: 2rem; color: #ff6b6b; text-shadow: 0 0 12px rgba(255,107,107,0.8); margin-bottom: -12px; z-index: 2; }
-.wheel-container { width: 240px; height: 240px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.12); box-shadow: 0 0 40px rgba(0,0,0,0.5); overflow: hidden; }
+.roulette-wrap  { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+.wheel-pointer-wrap {
+  display: flex; justify-content: center;
+  z-index: 10; margin-bottom: -6px;
+}
+.roulette-pointer {
+  width: 0; height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 32px solid #ff4757;
+  filter: drop-shadow(0 0 8px rgba(255,71,87,0.9)) drop-shadow(0 0 18px rgba(255,71,87,0.5));
+  animation: pointer-pulse 2s ease-in-out infinite;
+}
+@keyframes pointer-pulse {
+  0%,100% { filter: drop-shadow(0 0 8px rgba(255,71,87,0.9)) drop-shadow(0 0 18px rgba(255,71,87,0.5)); }
+  50% { filter: drop-shadow(0 0 16px rgba(255,71,87,1)) drop-shadow(0 0 32px rgba(255,71,87,0.7)); }
+}
+
+.wheel-stage {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.wheel-stage::before {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  background: conic-gradient(
+    rgba(255,107,107,0.18) 0deg,
+    rgba(255,217,61,0.18) 60deg,
+    rgba(107,203,119,0.18) 120deg,
+    rgba(77,150,255,0.18) 180deg,
+    rgba(162,155,254,0.18) 240deg,
+    rgba(253,121,168,0.18) 300deg,
+    rgba(255,107,107,0.18) 360deg
+  );
+  animation: wheel-glow-spin 10s linear infinite;
+  z-index: -1;
+  filter: blur(8px);
+}
+@keyframes wheel-glow-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.wheel-outer-ring {
+  width: 280px; height: 280px; border-radius: 50%;
+  background: linear-gradient(135deg, #1e1e40, #0d0d26);
+  border: 2px solid rgba(255,255,255,0.08);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 0 60px rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center;
+  padding: 10px;
+}
+.wheel-container { width: 260px; height: 260px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 3px rgba(255,255,255,0.12); }
 .wheel-canvas    { width: 100%; height: 100%; display: block; }
-.spin-btn { min-width: 180px; }
+.spin-btn { min-width: 200px; }
 .spin-btn.spinning { background: linear-gradient(135deg,#a29bfe,#6c5ce7); color: #fff; animation: spin-pulse 0.8s infinite; }
-@keyframes spin-pulse { 0%,100%{ box-shadow:0 0 20px rgba(162,155,254,0.3); } 50%{ box-shadow:0 0 40px rgba(162,155,254,0.7); } }
+@keyframes spin-pulse { 0%,100%{ box-shadow:0 0 20px rgba(162,155,254,0.3); } 50%{ box-shadow:0 0 50px rgba(162,155,254,0.8); } }
+
+.roulette-winner { margin-top: 0; }
+
 
 /* 위너 배너 */
 .winner-banner {

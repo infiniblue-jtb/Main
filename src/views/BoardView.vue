@@ -65,7 +65,7 @@ const TRANSLATIONS = {
     submitBtn: "보내기"
   },
   en: {
-    title: "Open Board", desc: "",
+    title: "Open Board", desc: "A space for Dongtan residents to freely share info and connect. Ask anything!",
     contactTitle: "🤝 Partnership & Report",
     commentTitle: "💬 Open Board",
     labelCompany: "Name or Company",
