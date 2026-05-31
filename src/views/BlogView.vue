@@ -322,82 +322,69 @@ export default {
       newPost.value.content = editorEl.value ? editorEl.value.innerHTML : '';
     };
 
-    const uploadToR2 = async (file) => {
-      const ext = (file.type || 'image/png').split('/')[1] || 'png';
-      const filename = (file.name && file.name.length > 4) ? file.name : `paste-${Date.now()}.${ext}`;
-      const formData = new FormData();
-      formData.append('file', file, filename);
-      const res = await fetch('https://dongtan-api.infiniblue.workers.dev/api/upload', {
-        method: 'POST',
-        body: formData
+    // canvas로 이미지 압축 → JPEG base64 반환 (R2 불필요, 항상 표시됨)
+    const compressImageToBase64 = (file) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = (ev) => {
+          const img = new window.Image();
+          img.onerror = reject;
+          img.onload = () => {
+            const MAX_W = 1000;
+            let w = img.naturalWidth;
+            let h = img.naturalHeight;
+            if (w > MAX_W) { h = Math.round(h * MAX_W / w); w = MAX_W; }
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', 0.72));
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
       });
-      const data = await res.json();
-      if (!data.url) throw new Error(data.error || '업로드 실패');
-      return data.url;
     };
 
-    // 에디터에 포커스+커서를 복원한 뒤 execCommand로 img 삽입
-    const insertImgHtml = (src, savedRange) => {
-      if (!editorEl.value) return null;
+    // Range API로 img DOM 노드 직접 삽입 (async 후에도 위치 정확)
+    const insertImgNode = (src, savedRange) => {
+      const img = document.createElement('img');
+      img.src = src;
+      img.style.cssText = 'max-width:100%;border-radius:8px;margin:8px 0;display:block;cursor:default;';
 
-      // 포커스 명시적 복원
-      editorEl.value.focus();
-
-      // 커서 복원 (없으면 끝으로)
-      const sel = window.getSelection();
-      if (savedRange) {
+      if (savedRange && editorEl.value && editorEl.value.contains(savedRange.commonAncestorContainer)) {
+        savedRange.deleteContents();
+        savedRange.insertNode(img);
+        const br = document.createElement('br');
+        img.after(br);
+        savedRange.setStartAfter(br);
+        savedRange.collapse(true);
+        const sel = window.getSelection();
         sel.removeAllRanges();
         sel.addRange(savedRange);
-      } else {
-        const r = document.createRange();
-        r.selectNodeContents(editorEl.value);
-        r.collapse(false);
-        sel.removeAllRanges();
-        sel.addRange(r);
+      } else if (editorEl.value) {
+        editorEl.value.appendChild(img);
       }
-
-      const marker = `img-${Date.now()}`;
-      const html = `<img data-marker="${marker}" src="${src}" style="max-width:100%;display:block;border-radius:8px;margin:8px 0;">`;
-      document.execCommand('insertHTML', false, html);
-      newPost.value.content = editorEl.value.innerHTML;
-
-      return editorEl.value.querySelector(`[data-marker="${marker}"]`);
+      newPost.value.content = editorEl.value ? editorEl.value.innerHTML : '';
+      return img;
     };
 
-    // 1) base64로 즉시 표시 → 2) R2 업로드 후 src 교체
-    const handleImageInsert = (file, savedRange) => {
-      const reader = new FileReader();
-      reader.onload = async (ev) => {
-        // base64로 즉시 삽입 — src는 절대 교체하지 않음 (항상 보임)
-        const imgEl = insertImgHtml(ev.target.result, savedRange);
-        imageUploading.value = true;
-        try {
-          const r2Url = await uploadToR2(file);
-          if (imgEl && imgEl.parentNode) {
-            // src는 그대로 두고, R2 URL은 data 속성에만 저장
-            imgEl.dataset.r2 = r2Url;
-            imgEl.removeAttribute('data-marker');
-          }
-        } catch {
-          if (imgEl) imgEl.removeAttribute('data-marker');
-        } finally {
-          imageUploading.value = false;
-          if (editorEl.value) newPost.value.content = editorEl.value.innerHTML;
-        }
-      };
-      reader.readAsDataURL(file);
+    // 압축 후 에디터 삽입 (R2 없이 base64 직접 저장)
+    const handleImageInsert = async (file, savedRange) => {
+      imageUploading.value = true;
+      try {
+        const base64 = await compressImageToBase64(file);
+        insertImgNode(base64, savedRange);
+      } catch (err) {
+        alert('이미지 처리 오류: ' + err.message);
+      } finally {
+        imageUploading.value = false;
+      }
     };
 
-    // 저장 직전에 base64 src → R2 URL로 교체한 content 반환
     const getContentForSave = () => {
-      if (!editorEl.value) return newPost.value.content;
-      const clone = editorEl.value.cloneNode(true);
-      clone.querySelectorAll('img[data-r2]').forEach(img => {
-        img.src = img.dataset.r2;
-        img.removeAttribute('data-r2');
-        img.removeAttribute('data-marker');
-      });
-      return clone.innerHTML;
+      return editorEl.value ? editorEl.value.innerHTML : newPost.value.content;
     };
 
     const onPaste = (e) => {
@@ -444,8 +431,11 @@ export default {
       updateHandlePos(e.target);
     };
 
-    const onEditorMouseleave = () => {
+    const onEditorMouseleave = (e) => {
       if (resizeHandle.value._resizing) return;
+      // 리사이즈 핸들로 이동하는 경우 핸들 유지
+      const rt = e.relatedTarget;
+      if (rt && rt.classList && rt.classList.contains('img-resize-handle')) return;
       resizeHandle.value.visible = false;
     };
 
@@ -497,7 +487,7 @@ export default {
       const match = post.content.match(/src="([^"]+)"/);
       if (!match) return null;
       const url = match[1];
-      if (url.startsWith('data:')) return null; // base64는 썸네일 제외
+      if (url.startsWith('data:')) return url; // base64도 썸네일로 사용
       return normalizeImgUrl(url);
     };
 
