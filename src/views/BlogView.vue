@@ -52,7 +52,7 @@
           </div>
           <div class="form-group">
             <label>{{ currentLang === 'ko' ? '본문 내용' : 'Content' }}</label>
-            <umo-editor v-model="newPost.content" :options="editorOptions" />
+            <textarea v-model="newPost.content" rows="12" placeholder="본문을 입력하세요..." class="content-textarea"></textarea>
           </div>
           <div class="form-group admin-key">
             <label>{{ currentLang === 'ko' ? '관리자 비밀번호' : 'Admin Key' }}</label>
@@ -189,9 +189,7 @@
 </template>
 
 <script>
-import { ref, computed, inject, onMounted } from 'vue';
-import { UmoEditor } from '@umoteam/editor';
-import '@umoteam/editor/dist/style.css';
+import { ref, computed, inject } from 'vue';
 
 const TRANSLATIONS = {
   ko: {
@@ -206,9 +204,9 @@ const TRANSLATIONS = {
 
 export default {
   name: 'BlogView',
-  components: { UmoEditor },
   setup() {
     const currentLang = inject('currentLang', ref('ko'));
+    const t = computed(() => TRANSLATIONS[currentLang.value]);
     const posts = ref([]);
     const loading = ref(true);
     const showEditor = ref(false);
@@ -219,29 +217,11 @@ export default {
     const adminKey = ref('');
     const selectedIds = ref([]);
     const searchQuery = ref('');
-    
-    const newPost = ref({
-      title: '',
-      content: ''
-    });
+    const newPost = ref({ title: '', content: '' });
 
-    const editorOptions = {
-        onUpload(file) {
-            return new Promise((resolve, reject) => {
-                const formData = new FormData();
-                formData.append('file', file);
-                
-                fetch('https://dongtan-api.infiniblue.workers.dev/api/upload', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => data.url ? resolve(data.url) : reject('Upload failed'))
-                .catch(reject);
-            });
-        }
-    };
-    
+    const pageSize = ref(10);
+    const currentPage = ref(1);
+
     // ... Pagination etc ...
 
     const getThumbnail = (post) => {
@@ -273,11 +253,6 @@ export default {
       }
     };
 
-    // Placeholder as Umo uses editorOptions.onUpload
-    const uploadImage = async (file) => {
-        // Handled by UmoEditor internally
-    };
-
     const filteredPosts = computed(() => {
       if (!searchQuery.value.trim()) return posts.value || [];
       const q = searchQuery.value.toLowerCase();
@@ -292,13 +267,13 @@ export default {
 
     const totalPages = computed(() => {
       const posts = filteredPosts.value || [];
-      return Math.ceil(posts.length / pageSize);
+      return Math.ceil(posts.length / pageSize.value);
     });
     
     const safePaginatedPosts = computed(() => {
       const posts = filteredPosts.value || [];
-      const start = (currentPage.value - 1) * pageSize;
-      const end = start + pageSize;
+      const start = (currentPage.value - 1) * pageSize.value;
+      const end = start + pageSize.value;
       return posts.slice(start, end).map(post => {
         if (!post) return { id: 0, title: '', date: '', excerpt: '', thumbnail: null };
         return {
@@ -337,18 +312,11 @@ export default {
       }
     };
 
-    const openEditor = async () => {
+    const openEditor = () => {
       isEditing.value = false;
       newPost.value = { title: '', content: '' };
-      adminKey.value = ''; 
-      if (editor.value && editor.value.commands) {
-          editor.value.commands.setContent('');
-      }
+      adminKey.value = '';
       showEditor.value = true;
-      await nextTick();
-      if (editor.value && editor.value.commands) {
-        editor.value.commands.focus();
-      }
     };
 
     const closeEditor = () => {
@@ -358,28 +326,18 @@ export default {
       adminKey.value = '';
     };
 
-    const startEdit = async (post) => {
+    const startEdit = (post) => {
       isEditing.value = true;
       editId.value = post.id;
       newPost.value = { title: post.title, content: post.content };
-      adminKey.value = ''; 
-      if (editor.value && editor.value.commands) editor.value.commands.setContent(post.content);
+      adminKey.value = '';
       selectedPost.value = null;
       showEditor.value = true;
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      await nextTick();
-      if (editor.value && editor.value.commands) {
-        editor.value.commands.focus();
-      }
     };
 
     const submitPost = async () => {
       submitting.value = true;
-      // Sync editor content before submit
-      if (editor.value && newPost.value) {
-          newPost.value.content = editor.value.getHTML();
-      }
-      
       const method = isEditing.value ? 'PUT' : 'POST';
       const url = isEditing.value 
         ? `https://dongtan-api.infiniblue.workers.dev/api/posts/${editId.value}`
@@ -398,8 +356,7 @@ export default {
         if (response.ok) {
           alert(isEditing.value ? '수정되었습니다!' : '성공적으로 저장되었습니다!');
           newPost.value = { title: '', content: '' };
-          adminKey.value = ''; // 비밀번호 자동 삭제
-          if (editor.value) editor.value.commands.setContent('');
+          adminKey.value = '';
           showEditor.value = false;
           isEditing.value = false;
           await fetchPosts();
@@ -524,15 +481,14 @@ export default {
 
     
 
-    return { 
+    return {
       currentLang, t, posts, loading, formatDate, viewPostById,
-      showEditor, newPost, submitPost, submitting, adminKey, selectedPost, 
+      showEditor, newPost, submitPost, submitting, adminKey, selectedPost,
       confirmDelete, isEditing, startEdit, openEditor, closeEditor,
       currentPage, totalPages, safePaginatedPosts, setPage, confirmDeleteById,
       selectedIds, confirmBatchDelete, isAllSelected, toggleSelectAll,
       searchQuery, filteredPosts,
-      getThumbnail, parseContent,
-      editor
+      getThumbnail, parseContent
     };
   }
 }
