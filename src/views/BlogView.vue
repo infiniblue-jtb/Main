@@ -368,23 +368,36 @@ export default {
     const handleImageInsert = (file, savedRange) => {
       const reader = new FileReader();
       reader.onload = async (ev) => {
+        // base64로 즉시 삽입 — src는 절대 교체하지 않음 (항상 보임)
         const imgEl = insertImgHtml(ev.target.result, savedRange);
         imageUploading.value = true;
         try {
           const r2Url = await uploadToR2(file);
           if (imgEl && imgEl.parentNode) {
-            imgEl.src = r2Url;
+            // src는 그대로 두고, R2 URL은 data 속성에만 저장
+            imgEl.dataset.r2 = r2Url;
             imgEl.removeAttribute('data-marker');
-            newPost.value.content = editorEl.value ? editorEl.value.innerHTML : '';
           }
         } catch {
-          // 업로드 실패해도 base64로 표시 유지
           if (imgEl) imgEl.removeAttribute('data-marker');
         } finally {
           imageUploading.value = false;
+          if (editorEl.value) newPost.value.content = editorEl.value.innerHTML;
         }
       };
       reader.readAsDataURL(file);
+    };
+
+    // 저장 직전에 base64 src → R2 URL로 교체한 content 반환
+    const getContentForSave = () => {
+      if (!editorEl.value) return newPost.value.content;
+      const clone = editorEl.value.cloneNode(true);
+      clone.querySelectorAll('img[data-r2]').forEach(img => {
+        img.src = img.dataset.r2;
+        img.removeAttribute('data-r2');
+        img.removeAttribute('data-marker');
+      });
+      return clone.innerHTML;
     };
 
     const onPaste = (e) => {
@@ -596,7 +609,7 @@ export default {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${adminKey.value.trim()}`
           },
-          body: JSON.stringify(newPost.value)
+          body: JSON.stringify({ title: newPost.value.title, content: getContentForSave() })
         });
 
         if (response.ok) {
