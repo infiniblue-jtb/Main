@@ -128,17 +128,36 @@ app.post('/api/upload', async (c) => {
   try {
     const formData = await c.req.formData();
     const file = formData.get('file');
-    
-    if (!file) {
-      return c.json({ error: 'No file provided' }, 400);
-    }
+    if (!file) return c.json({ error: 'No file provided' }, 400);
 
     const filename = `${Date.now()}-${file.name}`;
-    await c.env.IMAGES.put(filename, file);
-    
-    const publicUrl = `https://images.dongtan.infiniblue.com/${filename}`;
-    
-    return c.json({ success: true, url: publicUrl });
+    const arrayBuffer = await file.arrayBuffer();
+    await c.env.IMAGES.put(filename, arrayBuffer, {
+      httpMetadata: { contentType: file.type || 'image/png' }
+    });
+
+    // Worker가 직접 서빙 — 커스텀 도메인 공개 설정 불필요
+    const url = `https://dongtan-api.infiniblue.workers.dev/api/images/${filename}`;
+    return c.json({ success: true, url });
+  } catch (e) {
+    return c.json({ error: e.message }, 500);
+  }
+});
+
+// 7. 이미지 서빙 (R2 → Worker → 브라우저)
+app.get('/api/images/:filename', async (c) => {
+  const filename = c.req.param('filename');
+  try {
+    const obj = await c.env.IMAGES.get(filename);
+    if (!obj) return c.json({ error: 'Not Found' }, 404);
+    const contentType = obj.httpMetadata?.contentType || 'image/png';
+    return new Response(obj.body, {
+      headers: {
+        'Content-Type': contentType,
+        'Cache-Control': 'public, max-age=31536000',
+        'Access-Control-Allow-Origin': '*',
+      }
+    });
   } catch (e) {
     return c.json({ error: e.message }, 500);
   }

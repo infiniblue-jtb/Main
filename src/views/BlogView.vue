@@ -424,15 +424,16 @@ export default {
     };
 
     // 이미지 리사이즈 핸들
-    const resizeHandle = ref({ visible: false, style: {}, img: null });
+    const resizeHandle = ref({ visible: false, style: {}, img: null, _resizing: false });
 
     const updateHandlePos = (img) => {
       if (!editorEl.value || !img) return;
-      const edRect = editorEl.value.getBoundingClientRect();
+      // 핸들의 positioned 부모(position:relative div) 기준 left/top 계산
+      const parentRect = editorEl.value.parentElement.getBoundingClientRect();
       const imgRect = img.getBoundingClientRect();
       resizeHandle.value.style = {
-        right: (edRect.right - imgRect.right + 2) + 'px',
-        bottom: (edRect.bottom - imgRect.bottom + 2) + 'px',
+        left: (imgRect.right - parentRect.left - 14) + 'px',
+        top:  (imgRect.bottom - parentRect.top  - 14) + 'px',
       };
     };
 
@@ -450,7 +451,6 @@ export default {
 
     const onHandleMouseleave = (e) => {
       if (resizeHandle.value._resizing) return;
-      // 이미지로 다시 들어갔으면 유지
       if (e.relatedTarget === resizeHandle.value.img) return;
       resizeHandle.value.visible = false;
     };
@@ -465,15 +465,16 @@ export default {
       const onMove = (mv) => {
         const w = Math.max(40, startWidth + mv.clientX - startX);
         img.style.width = w + 'px';
-        img.style.maxWidth = '100%';
+        img.style.maxWidth = 'none';
         updateHandlePos(img);
       };
 
       const onUp = () => {
         resizeHandle.value._resizing = false;
+        resizeHandle.value.visible = false;
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
-        newPost.value.content = editorEl.value ? editorEl.value.innerHTML : '';
+        if (editorEl.value) newPost.value.content = editorEl.value.innerHTML;
       };
 
       document.addEventListener('mousemove', onMove);
