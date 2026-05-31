@@ -229,14 +229,41 @@
           <!-- ===== 핀볼 ===== -->
           <div v-if="activeGame === 'pinball'" class="game-wrap pinball-wrap">
             <div class="game-title-row">
-              <span class="g-icon">🔮</span>
+              <span class="g-icon">🎮</span>
               <h2>핀볼 복불복</h2>
             </div>
             <div class="pinball-container">
               <canvas ref="pinballCanvas" class="pinball-canvas"></canvas>
-              <div v-if="!pinballActive" class="pinball-start-overlay">
-                <button class="action-btn" @click="startPinball">🔮 구슬 발사!</button>
-                <p class="pinball-hint">⌨️ A/D 또는 ←→ 키 &nbsp;|&nbsp; 📱 화면 좌우 터치로 플리퍼 조작</p>
+              <!-- 이름 입력 + 리더보드 -->
+              <div v-if="!pinballActive && !pbGameOver" class="pinball-start-overlay">
+                <div class="pb-logo">⚡ PINBALL ⚡</div>
+                <input v-model="pbPlayerName" class="pb-name-input" placeholder="플레이어 이름 입력" maxlength="10" @keyup.enter="startPinball" />
+                <button class="action-btn" @click="startPinball" :disabled="!pbPlayerName.trim()">🔮 구슬 발사!</button>
+                <p class="pinball-hint">⌨️ A/D 또는 ←→ 키 &nbsp;|&nbsp; 📱 좌우 터치</p>
+                <div class="pb-lb" v-if="pbLeaderboard.length > 0">
+                  <div class="pb-lb-hdr">🏆 TOP 10</div>
+                  <div class="pb-lb-row" v-for="(e,i) in pbLeaderboard" :key="i">
+                    <span class="pb-lb-rank">{{ ['🥇','🥈','🥉'][i] || (i+1)+'위' }}</span>
+                    <span class="pb-lb-name">{{ e.name }}</span>
+                    <span class="pb-lb-score">{{ e.score.toLocaleString() }}</span>
+                  </div>
+                </div>
+              </div>
+              <!-- 게임 오버 -->
+              <div v-if="pbGameOver" class="pb-gameover-overlay">
+                <div class="pb-go-title">GAME OVER</div>
+                <div class="pb-go-player">{{ pbPlayerName }}</div>
+                <div class="pb-go-score">{{ pinballScore.toLocaleString() }}</div>
+                <div class="pb-go-rank" v-if="pbMyRank <= 10">🏆 {{ pbMyRank }}위 등재!</div>
+                <div class="pb-lb">
+                  <div class="pb-lb-hdr">🏆 TOP 10</div>
+                  <div class="pb-lb-row" v-for="(e,i) in pbLeaderboard" :key="i" :class="{highlight: e._isNew}">
+                    <span class="pb-lb-rank">{{ ['🥇','🥈','🥉'][i] || (i+1)+'위' }}</span>
+                    <span class="pb-lb-name">{{ e.name }}</span>
+                    <span class="pb-lb-score">{{ e.score.toLocaleString() }}</span>
+                  </div>
+                </div>
+                <button class="action-btn" @click="pbRestart">🔄 다시 도전!</button>
               </div>
             </div>
           </div>
@@ -380,13 +407,55 @@ export default {
     const ladderActiveCol  = ref(-1);
 
     /* ══════════ 핀볼 (완전 재작성) ══════════ */
-    const pinballCanvas = ref(null);
-    const pinballActive = ref(false);
-    const pinballScore  = ref(0);
-    let   pbAnimId      = null;
-    let   pbLastTime    = null;
-    let   pbKeys        = { left: false, right: false };
-    let   pbCleanup     = null;
+    const pinballCanvas  = ref(null);
+    const pinballActive  = ref(false);
+    const pinballScore   = ref(0);
+    const pbPlayerName   = ref('');
+    const pbGameOver     = ref(false);
+    const pbLeaderboard  = ref([]);
+    const pbMyRank       = ref(99);
+    let   pbAnimId       = null;
+    let   pbLastTime     = null;
+    let   pbKeys         = { left: false, right: false };
+    let   pbCleanup      = null;
+
+    // ── 리더보드 (localStorage) ──
+    const pbGetLB  = () => { try { return JSON.parse(localStorage.getItem('pb_lb') || '[]'); } catch { return []; } };
+    const pbSaveLB = (name, score) => {
+      const lb = pbGetLB();
+      lb.push({ name, score });
+      lb.sort((a, b) => b.score - a.score);
+      lb.splice(10);
+      localStorage.setItem('pb_lb', JSON.stringify(lb));
+      return lb;
+    };
+
+    // ── 사운드 (Web Audio API) ──
+    const pbSounds = (() => {
+      let ac = null;
+      const ctx = () => { if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch(_e) { /* unsupported */ } } return ac; };
+      const tone = (freq, type, dur, vol = 0.3, freqEnd) => {
+        const a = ctx(); if (!a) return;
+        try {
+          const o = a.createOscillator(), g = a.createGain();
+          o.connect(g); g.connect(a.destination);
+          o.type = type; o.frequency.value = freq;
+          if (freqEnd) o.frequency.linearRampToValueAtTime(freqEnd, a.currentTime + dur);
+          g.gain.setValueAtTime(vol, a.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + dur);
+          o.start(a.currentTime); o.stop(a.currentTime + dur);
+        } catch(_e) { /* audio error */ }
+      };
+      return {
+        bumper:   () => { tone(560, 'square', 0.10, 0.35); tone(900, 'sine', 0.06, 0.15); },
+        wall:     () => tone(200, 'triangle', 0.08, 0.18),
+        flipper:  () => tone(130, 'sine', 0.10, 0.22, 75),
+        target:   () => { tone(1000, 'sine', 0.08, 0.30); tone(1300, 'sine', 0.06, 0.18); },
+        drain:    () => { tone(180, 'sawtooth', 0.4, 0.35, 70); setTimeout(() => tone(100, 'sawtooth', 0.5, 0.4, 50), 350); },
+        bonus:    () => [523,659,784,1047].forEach((f,i) => setTimeout(() => tone(f,'sine',0.18,0.28), i*90)),
+        gameover: () => { tone(300,'sawtooth',0.25,0.3,100); setTimeout(()=>tone(80,'sawtooth',0.6,0.4,50),280); },
+      };
+    })();
 
     const BUMPER_DEFS = [
       { ci: ['#fef08a','#ca8a04'], score: 100 },
@@ -488,8 +557,11 @@ export default {
       const b = PB.ball;
       const W = PB.W, H = PB.H;
       PB.tick++;
+      const prevLeft = PB.leftFlipperUp, prevRight = PB.rightFlipperUp;
       PB.leftFlipperUp  = pbKeys.left;
       PB.rightFlipperUp = pbKeys.right;
+      if (PB.leftFlipperUp  && !prevLeft)  pbSounds.flipper();
+      if (PB.rightFlipperUp && !prevRight) pbSounds.flipper();
 
       PB.ballTrail.push({ x: b.x, y: b.y });
       if (PB.ballTrail.length > 10) PB.ballTrail.shift();
@@ -503,9 +575,9 @@ export default {
       if (spd > 14) { b.vx = b.vx/spd*14; b.vy = b.vy/spd*14; }
 
       // 벽 충돌
-      if (b.x - b.r < 14) { b.x = 14+b.r; b.vx = Math.abs(b.vx)*0.75; }
-      if (b.x + b.r > W-14) { b.x = W-14-b.r; b.vx = -Math.abs(b.vx)*0.75; }
-      if (b.y - b.r < 14) { b.y = 14+b.r; b.vy = Math.abs(b.vy)*0.75; }
+      if (b.x - b.r < 14) { b.x = 14+b.r; b.vx = Math.abs(b.vx)*0.75; pbSounds.wall(); }
+      if (b.x + b.r > W-14) { b.x = W-14-b.r; b.vx = -Math.abs(b.vx)*0.75; pbSounds.wall(); }
+      if (b.y - b.r < 14) { b.y = 14+b.r; b.vy = Math.abs(b.vy)*0.75; pbSounds.wall(); }
 
       // 대각선 가이드 벽 충돌 (플리퍼 옆 구멍 막기)
       pbSegCollide(b, 14, H-210, PB.lp.x - 6, PB.lp.y);
@@ -524,6 +596,7 @@ export default {
           pinballScore.value += bump.score;
           bump.flash = 14;
           pbSpawnParticles(bump.x, bump.y, bump.ci[0]);
+          pbSounds.bumper();
         }
         if (bump.flash > 0) bump.flash--;
       });
@@ -539,12 +612,14 @@ export default {
           pinballScore.value += 150;
           tgt.hit = true; tgt.flash = 20;
           pbSpawnParticles(tgt.x, tgt.y, '#fbbf24');
+          pbSounds.target();
         }
       });
       if (PB.targets.every(t => t.hit)) {
         PB.targets.forEach(t => { t.hit = false; t.flash = 0; });
         pinballScore.value += 500;
         pbSpawnParticles(W/2, H/2 - 80, '#ffffff');
+        pbSounds.bonus();
       }
 
       // 플리퍼 충돌
@@ -562,9 +637,21 @@ export default {
       if (b.y - b.r > H) {
         PB.livesLeft--;
         pinballScore.value = Math.max(0, pinballScore.value - 30);
+        pbSounds.drain();
         if (PB.livesLeft <= 0) {
           pinballActive.value = false;
           pbCleanup && pbCleanup();
+          // 게임 오버 처리
+          pbSounds.gameover();
+          setTimeout(() => {
+            const name = pbPlayerName.value.trim() || '익명';
+            const lb = pbSaveLB(name, pinballScore.value);
+            lb.forEach(e => delete e._isNew);
+            const idx = lb.findIndex(e => e.name === name && e.score === pinballScore.value);
+            if (idx >= 0) { lb[idx] = { ...lb[idx], _isNew: true }; pbMyRank.value = idx + 1; }
+            pbLeaderboard.value = lb;
+            pbGameOver.value = true;
+          }, 400);
           return false;
         }
         b.x = W/2 + (Math.random()-0.5)*20; b.y = 80;
@@ -575,73 +662,145 @@ export default {
     };
 
     const pbDraw = (ctx) => {
-      const W = PB.W, H = PB.H;
+      const W = PB.W, H = PB.H, tick = PB.tick;
 
-      // ── 배경 ──
-      const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
-      bgGrad.addColorStop(0, '#0b0b1f');
-      bgGrad.addColorStop(1, '#04040e');
-      ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, W, H);
+      // ── 배경: 다크 그라디언트 ──
+      const bgG = ctx.createLinearGradient(0, 0, W, H);
+      bgG.addColorStop(0, '#06061a'); bgG.addColorStop(0.5, '#0a0820'); bgG.addColorStop(1, '#040410');
+      ctx.fillStyle = bgG; ctx.fillRect(0, 0, W, H);
 
-      // 그리드 패턴
-      ctx.strokeStyle = 'rgba(0,200,255,0.04)'; ctx.lineWidth = 0.5;
-      for (let gx = 0; gx <= W; gx += 22) {
-        ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
+      // 헥사곤 격자 패턴
+      const hs = 20;
+      ctx.strokeStyle = 'rgba(0,120,255,0.05)'; ctx.lineWidth = 0.5;
+      for (let row = -1; row < H/hs/1.5 + 1; row++) {
+        for (let col = -1; col < W/(hs*1.73) + 1; col++) {
+          const hx = col * hs * 1.73 + (row % 2 ? hs * 0.865 : 0);
+          const hy = row * hs * 1.5;
+          ctx.beginPath();
+          for (let k = 0; k < 6; k++) {
+            const a = Math.PI/6 + k * Math.PI/3;
+            const px2 = hx + hs * Math.cos(a), py2 = hy + hs * Math.sin(a);
+            k === 0 ? ctx.moveTo(px2, py2) : ctx.lineTo(px2, py2);
+          }
+          ctx.closePath(); ctx.stroke();
+        }
       }
-      for (let gy = 0; gy <= H; gy += 22) {
-        ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
-      }
 
-      // ── 사이드 벽 ──
-      ctx.save();
-      ctx.shadowColor = '#00d4ff'; ctx.shadowBlur = 14;
-      ctx.strokeStyle = '#00c4ee'; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.moveTo(14, 0); ctx.lineTo(14, H); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(W-14, 0); ctx.lineTo(W-14, H); ctx.stroke();
+      // ── 중앙 원형 장식 (스피너 디스크) ──
+      const cx = W/2, discY = 390, discR = 52;
+      const dPulse = Math.sin(tick * 0.04) * 0.5 + 0.5;
+      const dg = ctx.createRadialGradient(cx, discY, 0, cx, discY, discR);
+      dg.addColorStop(0, `rgba(0,80,200,${0.08 + dPulse*0.05})`);
+      dg.addColorStop(1, 'rgba(0,0,80,0)');
+      ctx.fillStyle = dg; ctx.beginPath(); ctx.arc(cx, discY, discR, 0, Math.PI*2); ctx.fill();
+      [36, 46, 52].forEach((r, i) => {
+        ctx.beginPath(); ctx.arc(cx, discY, r, 0, Math.PI*2);
+        ctx.strokeStyle = `rgba(0,160,255,${0.07 + i*0.02 + dPulse*0.05})`; ctx.lineWidth = 1; ctx.stroke();
+      });
+      // 스피너 라인 회전
+      ctx.save(); ctx.translate(cx, discY); ctx.rotate(tick * 0.025);
+      ctx.strokeStyle = 'rgba(0,160,255,0.12)'; ctx.lineWidth = 1;
+      for (let k = 0; k < 6; k++) {
+        const a = k * Math.PI/3;
+        ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(a)*36, Math.sin(a)*36); ctx.stroke();
+      }
       ctx.restore();
 
-      // ── 대각선 가이드 벽 (핵심: 플리퍼 옆 구멍 차단) ──
+      // ── 상단 아치 (궤도 레인) ──
       ctx.save();
-      ctx.shadowColor = '#00d4ff'; ctx.shadowBlur = 8;
-      ctx.strokeStyle = '#00b8e0'; ctx.lineWidth = 2.5;
-      ctx.beginPath(); ctx.moveTo(14, H-210); ctx.lineTo(PB.lp.x - 6, PB.lp.y); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(W-14, H-210); ctx.lineTo(PB.rp.x + 6, PB.rp.y); ctx.stroke();
+      ctx.shadowColor = '#ff6600'; ctx.shadowBlur = 12;
+      ctx.strokeStyle = '#dd5500'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(W/2, -15, W/2 - 22, 0.08*Math.PI, 0.92*Math.PI); ctx.stroke();
+      ctx.shadowColor = '#ff9900'; ctx.shadowBlur = 6; ctx.strokeStyle = '#ff8800'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(W/2, -15, W/2 - 28, 0.08*Math.PI, 0.92*Math.PI); ctx.stroke();
       ctx.restore();
 
-      // ── 레인 방향 화살표 (상단 장식) ──
-      const pulse = Math.sin(PB.tick * 0.07) * 0.5 + 0.5;
-      const arrowsX = [34, 60, 86, 254, 280, 306];
-      arrowsX.forEach((ax, i) => {
-        const alpha = 0.12 + pulse * 0.25 * (i % 2 === 0 ? 1 : 0.6);
-        ctx.fillStyle = `rgba(0,245,255,${alpha})`;
+      // ── LED 도트 (벽 따라 깜박임) ──
+      ctx.save();
+      for (let i = 0; i < 14; i++) {
+        const ly = 25 + i * (H - 50) / 13;
+        const on = ((tick >> 2) + i * 2) % 14 < 7;
+        ctx.beginPath(); ctx.arc(16, ly, 2.2, 0, Math.PI*2);
+        ctx.shadowColor = '#0088ff'; ctx.shadowBlur = on ? 8 : 0;
+        ctx.fillStyle = on ? '#44aaff' : '#001133'; ctx.fill();
+        ctx.beginPath(); ctx.arc(W-16, ly, 2.2, 0, Math.PI*2);
+        ctx.fillStyle = on ? '#44aaff' : '#001133'; ctx.fill();
+      }
+      ctx.restore();
+
+      // ── 사이드 레일 (이중 레일) ──
+      ctx.save();
+      ctx.shadowColor = '#0033aa'; ctx.shadowBlur = 20;
+      ctx.strokeStyle = '#112288'; ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.moveTo(14,0); ctx.lineTo(14,H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(W-14,0); ctx.lineTo(W-14,H); ctx.stroke();
+      ctx.shadowColor = '#2266ff'; ctx.shadowBlur = 8; ctx.strokeStyle = '#3377ff'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(14,0); ctx.lineTo(14,H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(W-14,0); ctx.lineTo(W-14,H); ctx.stroke();
+      ctx.restore();
+
+      // ── 슬링샷 삼각 킥커 (시각 장식) ──
+      const slY = H * 0.53;
+      const drawSling = (tx, dir) => {
+        const d = dir === 'L' ? 1 : -1;
+        ctx.save();
+        ctx.shadowColor = '#cc3300'; ctx.shadowBlur = 8;
+        ctx.fillStyle = '#8B1A00'; ctx.strokeStyle = '#ff5500'; ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.moveTo(ax, 62); ctx.lineTo(ax + 9, 69); ctx.lineTo(ax, 76);
-        ctx.closePath(); ctx.fill();
+        ctx.moveTo(tx, slY - 28); ctx.lineTo(tx + d*38, slY); ctx.lineTo(tx, slY + 28);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.restore();
+      };
+      drawSling(14, 'L'); drawSling(W-14, 'R');
+
+      // ── 대각선 가이드 벽 ──
+      ctx.save();
+      ctx.shadowColor = '#2244cc'; ctx.shadowBlur = 8;
+      ctx.strokeStyle = '#3366ee'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(14, H-210); ctx.lineTo(PB.lp.x-6, PB.lp.y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(W-14, H-210); ctx.lineTo(PB.rp.x+6, PB.rp.y); ctx.stroke();
+      ctx.restore();
+
+      // ── 롤오버 레인 도트 (상단) ──
+      [52, 76, 100].forEach((ax, i) => {
+        const p2 = Math.sin(tick * 0.07 + i * 1.2) * 0.5 + 0.5;
+        ctx.save(); ctx.shadowColor='#00ccff'; ctx.shadowBlur = 6 + p2*8;
+        ctx.fillStyle = `rgba(0,180,255,${0.3 + p2*0.5})`;
+        ctx.beginPath(); ctx.arc(ax, 68, 4, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(W-ax, 68, 4, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
       });
 
       // ── 범퍼 ──
       PB.bumpers.forEach(b => {
         const flash = b.flash > 0;
         const [c1, c2] = b.ci;
+        // 외부 광륜
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.r+8, 0, Math.PI*2);
+        ctx.strokeStyle = c1 + (flash ? 'cc' : '28'); ctx.lineWidth = 1.5; ctx.stroke();
         if (flash) {
-          ctx.save();
-          ctx.shadowColor = c1; ctx.shadowBlur = 28;
-          ctx.beginPath(); ctx.arc(b.x, b.y, b.r + 10, 0, Math.PI*2);
-          ctx.strokeStyle = c1 + '66'; ctx.lineWidth = 4; ctx.stroke();
+          ctx.save(); ctx.shadowColor = c1; ctx.shadowBlur = 40;
+          ctx.beginPath(); ctx.arc(b.x, b.y, b.r+14, 0, Math.PI*2);
+          ctx.strokeStyle = c1+'99'; ctx.lineWidth = 4; ctx.stroke();
           ctx.restore();
         }
-        const grad = ctx.createRadialGradient(b.x - b.r*0.35, b.y - b.r*0.35, 2, b.x, b.y, b.r);
-        grad.addColorStop(0, flash ? '#ffffff' : c1);
-        grad.addColorStop(0.55, flash ? c1 : c2);
-        grad.addColorStop(1, c2 + 'bb');
+        // 본체 (3D 느낌)
+        const g = ctx.createRadialGradient(b.x-b.r*0.4, b.y-b.r*0.4, 1, b.x, b.y, b.r);
+        g.addColorStop(0, flash ? '#ffffff' : c1+'ee');
+        g.addColorStop(0.45, flash ? c1 : c2);
+        g.addColorStop(0.85, c2+'cc');
+        g.addColorStop(1, '#00001a');
         ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
-        ctx.fillStyle = grad; ctx.fill();
-        ctx.strokeStyle = flash ? '#fff' : c1 + 'cc'; ctx.lineWidth = 2; ctx.stroke();
-        // 점수 라벨
+        ctx.fillStyle = g; ctx.fill();
+        ctx.strokeStyle = flash ? '#fff' : c1+'cc'; ctx.lineWidth = 2; ctx.stroke();
+        // 하이라이트 스펙큘러
+        ctx.beginPath(); ctx.arc(b.x-b.r*0.32, b.y-b.r*0.32, b.r*0.22, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,255,255,0.30)'; ctx.fill();
+        // 점수
         ctx.save();
-        ctx.fillStyle = flash ? '#000' : 'rgba(255,255,255,0.85)';
-        ctx.font = `bold ${Math.floor(b.r * 0.44)}px monospace`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = flash ? '#000' : 'rgba(255,255,255,0.9)';
+        ctx.font = `bold ${Math.floor(b.r*0.42)}px monospace`;
+        ctx.textAlign='center'; ctx.textBaseline='middle';
         ctx.fillText(b.score, b.x, b.y);
         ctx.restore();
       });
@@ -650,89 +809,112 @@ export default {
       PB.targets.forEach(tgt => {
         const flash = tgt.flash > 0;
         ctx.save();
-        ctx.shadowColor = tgt.hit ? 'transparent' : '#fbbf24';
-        ctx.shadowBlur = flash ? 18 : 7;
-        ctx.fillStyle = tgt.hit ? '#1e1e2e' : (flash ? '#ffffff' : '#fbbf24');
-        ctx.strokeStyle = tgt.hit ? '#444' : '#f59e0b';
+        ctx.shadowColor = tgt.hit ? 'transparent' : '#ffaa00';
+        ctx.shadowBlur = flash ? 22 : 8;
+        ctx.fillStyle = tgt.hit ? '#0c0c20' : (flash ? '#ffe000' : '#ff9900');
+        ctx.strokeStyle = tgt.hit ? '#1a1a33' : '#ffcc44';
         ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.rect(tgt.x - 9, tgt.y - 9, 18, 18);
-        ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.rect(tgt.x-9, tgt.y-11, 18, 22); ctx.fill(); ctx.stroke();
         if (!tgt.hit) {
-          ctx.fillStyle = '#000';
-          ctx.font = 'bold 7px monospace';
-          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-          ctx.fillText('150', tgt.x, tgt.y);
+          ctx.fillStyle = flash ? '#000' : '#fff'; ctx.font = 'bold 7px monospace';
+          ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('150', tgt.x, tgt.y);
         }
         ctx.restore();
       });
 
       // ── 볼 트레일 ──
       PB.ballTrail.forEach((pt, i) => {
-        const alpha = (i / PB.ballTrail.length) * 0.35;
-        const size = PB.ball.r * (i / PB.ballTrail.length) * 0.65;
-        ctx.beginPath(); ctx.arc(pt.x, pt.y, Math.max(size, 1), 0, Math.PI*2);
-        ctx.fillStyle = `rgba(0,245,255,${alpha})`; ctx.fill();
+        const r = i / PB.ballTrail.length;
+        const size = Math.max(PB.ball.r * r * 0.7, 0.8);
+        const tg = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, size);
+        tg.addColorStop(0, `rgba(80,200,255,${r*0.45})`);
+        tg.addColorStop(1, 'rgba(0,80,200,0)');
+        ctx.beginPath(); ctx.arc(pt.x, pt.y, size, 0, Math.PI*2);
+        ctx.fillStyle = tg; ctx.fill();
       });
 
       // ── 파티클 ──
       PB.particles.forEach(p => {
-        const alpha = p.life / p.maxLife;
-        ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(p.r * alpha, 0.5), 0, Math.PI*2);
-        ctx.fillStyle = p.color + Math.floor(alpha*255).toString(16).padStart(2,'0');
-        ctx.fill();
+        const ratio = p.life / p.maxLife;
+        ctx.save(); ctx.shadowColor = p.color; ctx.shadowBlur = 5;
+        ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(p.r*ratio, 0.5), 0, Math.PI*2);
+        ctx.fillStyle = p.color + Math.floor(ratio*255).toString(16).padStart(2,'0');
+        ctx.fill(); ctx.restore();
       });
 
       // ── 볼 ──
       ctx.save();
-      ctx.shadowColor = '#00f5ff'; ctx.shadowBlur = 18;
-      const bg = ctx.createRadialGradient(PB.ball.x-3, PB.ball.y-3, 1, PB.ball.x, PB.ball.y, PB.ball.r);
-      bg.addColorStop(0, '#ffffff');
-      bg.addColorStop(0.4, '#7ffdff');
-      bg.addColorStop(1, '#00c0ff');
+      ctx.shadowColor = '#66eeff'; ctx.shadowBlur = 22;
+      const ballG = ctx.createRadialGradient(
+        PB.ball.x-PB.ball.r*0.4, PB.ball.y-PB.ball.r*0.4, 1,
+        PB.ball.x, PB.ball.y, PB.ball.r
+      );
+      ballG.addColorStop(0, '#ffffff');
+      ballG.addColorStop(0.3, '#aaeeff');
+      ballG.addColorStop(0.7, '#2277bb');
+      ballG.addColorStop(1, '#003366');
       ctx.beginPath(); ctx.arc(PB.ball.x, PB.ball.y, PB.ball.r, 0, Math.PI*2);
-      ctx.fillStyle = bg; ctx.fill();
+      ctx.fillStyle = ballG; ctx.fill();
+      ctx.beginPath(); ctx.arc(PB.ball.x-3, PB.ball.y-3, 3, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(255,255,255,0.65)'; ctx.fill();
       ctx.restore();
 
-      // ── 플리퍼 ──
+      // ── 플리퍼 (테이퍼드 형태) ──
       const { lEnd, rEnd } = pbFlipperEndpoints();
       const drawFlipper = (px, py, ex, ey, isUp) => {
-        const col = isUp ? '#fde68a' : '#f472b6';
-        const glow = isUp ? '#fbbf24' : '#ec4899';
+        const col = isUp ? '#ffe044' : '#ee2288';
+        const glow = isUp ? '#ffaa00' : '#cc0066';
+        const angle = Math.atan2(ey-py, ex-px);
+        const pX = Math.cos(angle + Math.PI/2), pY = Math.sin(angle + Math.PI/2);
         ctx.save();
-        ctx.shadowColor = glow; ctx.shadowBlur = isUp ? 22 : 10;
-        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(ex, ey);
-        ctx.strokeStyle = col; ctx.lineWidth = 12; ctx.lineCap = 'round'; ctx.stroke();
-        ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI*2);
-        ctx.fillStyle = col; ctx.fill();
+        ctx.shadowColor = glow; ctx.shadowBlur = isUp ? 28 : 14;
+        const fg = ctx.createLinearGradient(px, py, ex, ey);
+        fg.addColorStop(0, col); fg.addColorStop(1, col+'77');
+        ctx.fillStyle = fg; ctx.strokeStyle = col; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(px+pX*9, py+pY*9); ctx.lineTo(ex+pX*4, ey+pY*4);
+        ctx.lineTo(ex-pX*4, ey-pY*4); ctx.lineTo(px-pX*9, py-pY*9);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        // 피벗
+        const pg = ctx.createRadialGradient(px-2, py-2, 1, px, py, 9);
+        pg.addColorStop(0,'#ffffff'); pg.addColorStop(1, glow);
+        ctx.beginPath(); ctx.arc(px, py, 9, 0, Math.PI*2); ctx.fillStyle=pg; ctx.fill();
         ctx.restore();
       };
       drawFlipper(PB.lp.x, PB.lp.y, lEnd.x, lEnd.y, pbKeys.left);
       drawFlipper(PB.rp.x, PB.rp.y, rEnd.x, rEnd.y, pbKeys.right);
 
-      // ── 하단 드레인 표시 ──
-      ctx.strokeStyle = 'rgba(239,68,68,0.2)'; ctx.lineWidth = 1.5;
-      ctx.setLineDash([6, 4]);
-      ctx.beginPath(); ctx.moveTo(14, H-14); ctx.lineTo(PB.lp.x - 8, H-14); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(PB.rp.x + 8, H-14); ctx.lineTo(W-14, H-14); ctx.stroke();
+      // ── 드레인 표시 ──
+      ctx.strokeStyle='rgba(255,40,40,0.15)'; ctx.lineWidth=1; ctx.setLineDash([5,4]);
+      ctx.beginPath(); ctx.moveTo(14, H-12); ctx.lineTo(PB.lp.x-10, H-12); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(PB.rp.x+10, H-12); ctx.lineTo(W-14, H-12); ctx.stroke();
       ctx.setLineDash([]);
 
-      // ── 스코어 (캔버스 상단) ──
+      // ── 스코어 패널 ──
+      ctx.fillStyle='rgba(0,0,18,0.75)';
+      ctx.beginPath(); ctx.roundRect(W/2-85, 6, 170, 48, 8); ctx.fill();
+      ctx.strokeStyle='rgba(0,140,255,0.3)'; ctx.lineWidth=1; ctx.stroke();
       ctx.save();
-      ctx.shadowColor = '#00f5ff'; ctx.shadowBlur = 12;
-      ctx.fillStyle = 'rgba(0,245,255,0.45)';
-      ctx.font = '10px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('SCORE', W/2, 18);
-      ctx.shadowBlur = 18;
-      ctx.fillStyle = '#00f5ff';
-      ctx.font = 'bold 24px monospace';
-      ctx.fillText(pinballScore.value.toLocaleString(), W/2, 40);
+      ctx.shadowColor='#00ccff'; ctx.shadowBlur=14;
+      ctx.fillStyle='rgba(0,200,255,0.5)'; ctx.font='9px monospace';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('◆  S C O R E  ◆', W/2, 18);
+      ctx.shadowBlur=22; ctx.fillStyle='#00f5ff'; ctx.font='bold 22px monospace';
+      ctx.fillText(pinballScore.value.toLocaleString(), W/2, 38);
       ctx.restore();
 
-      // ── 목숨 표시 ──
-      ctx.font = '15px serif';
+      // ── 목숨 ──
       for (let i = 0; i < PB.livesLeft; i++) {
-        ctx.fillText('⚡', 20 + i * 22, H - 12);
+        ctx.save(); ctx.shadowColor='#ffaa00'; ctx.shadowBlur=10;
+        ctx.font='16px serif'; ctx.fillText('⚡', 18+i*22, H-10);
+        ctx.restore();
       }
+      // ── 플레이어명 ──
+      ctx.save();
+      ctx.fillStyle='rgba(200,200,255,0.45)'; ctx.font='10px monospace';
+      ctx.textAlign='right'; ctx.textBaseline='middle';
+      ctx.fillText(pbPlayerName.value || '', W-18, H-10);
+      ctx.restore();
     };
 
     const pbLoop = (ctx, t) => {
@@ -744,7 +926,14 @@ export default {
       if (alive) pbAnimId = requestAnimationFrame((ts) => pbLoop(ctx, ts));
     };
 
+    const pbRestart = () => {
+      pbGameOver.value = false;
+      pbLeaderboard.value = pbGetLB();
+    };
+
     const startPinball = async () => {
+      if (!pbPlayerName.value.trim()) return;
+      pbGameOver.value = false;
       pinballScore.value = 0;
       pbInit();
       pinballActive.value = true;
@@ -1217,6 +1406,7 @@ export default {
       racers, raceActive, raceWinner, countdown, raceLeader, laneCanvases, circuitCanvas, raceTrackType, startRace, resetRace,
       wheelCanvas, rouletteStarted, wheelAngle, wheelTransition, isSpinning, wheelWinner, spinWheel, resetRoulette,
       pinballCanvas, pinballActive, pinballScore, startPinball,
+      pbPlayerName, pbGameOver, pbLeaderboard, pbMyRank, pbRestart,
     };
   }
 };
@@ -1472,16 +1662,50 @@ export default {
 .pinball-container {
   position: relative; border-radius: 18px; overflow: hidden;
   display: flex; justify-content: center;
-  box-shadow: 0 0 40px rgba(0,200,255,0.15), 0 0 80px rgba(0,100,180,0.1);
-  border: 1px solid rgba(0,200,255,0.15);
+  box-shadow: 0 0 50px rgba(0,100,255,0.2), 0 0 100px rgba(0,50,180,0.12);
+  border: 1px solid rgba(0,160,255,0.2);
 }
 .pinball-canvas { width: 340px; max-width: 100%; height: auto; display: block; touch-action: none; cursor: pointer; }
-.pinball-start-overlay {
-  position: absolute; inset: 0; display: flex; flex-direction: column; gap: 16px;
-  align-items: center; justify-content: center;
-  background: rgba(4,4,14,0.75); backdrop-filter: blur(4px);
+.pinball-start-overlay, .pb-gameover-overlay {
+  position: absolute; inset: 0; display: flex; flex-direction: column; gap: 12px;
+  align-items: center; justify-content: flex-start; padding-top: 24px;
+  background: rgba(3,3,16,0.82); backdrop-filter: blur(6px);
+  overflow-y: auto;
 }
-.pinball-hint { color: rgba(255,255,255,0.55); font-size: 0.8rem; }
+.pb-logo {
+  font-size: 1.3rem; font-weight: 900; letter-spacing: 0.15em;
+  color: #00f5ff; text-shadow: 0 0 20px #00aaff, 0 0 40px #0066cc;
+  margin-bottom: 4px;
+}
+.pb-name-input {
+  background: rgba(0,50,100,0.4); border: 1px solid rgba(0,180,255,0.35);
+  border-radius: 10px; padding: 10px 16px; color: #fff; font-size: 1rem;
+  text-align: center; width: 200px; outline: none; font-family: inherit;
+}
+.pb-name-input::placeholder { color: rgba(255,255,255,0.35); }
+.pb-name-input:focus { border-color: #00f5ff; box-shadow: 0 0 10px rgba(0,200,255,0.3); }
+.pinball-hint { color: rgba(255,255,255,0.45); font-size: 0.75rem; margin-top: -4px; }
+.pb-lb {
+  width: 90%; background: rgba(0,10,30,0.6); border-radius: 12px;
+  border: 1px solid rgba(0,150,255,0.15); padding: 10px 12px;
+  margin-top: 4px;
+}
+.pb-lb-hdr { text-align: center; font-size: 0.75rem; font-weight: 800; color: #fbbf24; letter-spacing: 0.1em; margin-bottom: 8px; }
+.pb-lb-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.8rem;
+}
+.pb-lb-row:last-child { border-bottom: none; }
+.pb-lb-row.highlight { background: rgba(255,200,0,0.08); border-radius: 6px; padding: 4px 6px; }
+.pb-lb-rank { width: 28px; font-size: 0.85rem; flex-shrink: 0; }
+.pb-lb-name { flex: 1; color: rgba(255,255,255,0.8); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pb-lb-score { color: #00f5ff; font-weight: 800; font-variant-numeric: tabular-nums; }
+/* 게임 오버 */
+.pb-go-title { font-size: 1.8rem; font-weight: 900; letter-spacing: 0.1em; color: #ff4455; text-shadow: 0 0 20px #ff0033; }
+.pb-go-player { font-size: 1rem; color: rgba(255,255,255,0.7); margin-top: -4px; }
+.pb-go-score { font-size: 2rem; font-weight: 900; color: #00f5ff; font-variant-numeric: tabular-nums; text-shadow: 0 0 16px #00aaff; }
+.pb-go-rank { font-size: 1rem; font-weight: 800; color: #fbbf24; text-shadow: 0 0 10px #ff9900; }
 
 /* 새로운 회로 스타일 */
 .circuit-container {
