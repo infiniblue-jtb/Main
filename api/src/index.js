@@ -23,7 +23,7 @@ app.use('*', async (c, next) => {
 app.get('/health', (c) => c.json({ 
   status: 'ok', 
   worker: 'dongtan-api', 
-  version: 'v1.1.0',
+  version: 'v1.2.0',
   timestamp: new Date().toISOString() 
 }))
 
@@ -32,6 +32,21 @@ app.get('/', (c) => c.text('Dongtan API is live!'))
 /**
  * 게시글 API
  */
+
+// 공통: content HTML에서 R2 파일명 추출
+const extractR2Keys = (content) => {
+  if (!content) return [];
+  const keys = new Set();
+  const patterns = [
+    /https?:\/\/dongtan-api\.infiniblue\.workers\.dev\/api\/images\/([^"'\s<>]+)/g,
+    /https?:\/\/images\.dongtan\.infiniblue\.com\/([^"'\s<>]+)/g,
+  ];
+  for (const re of patterns) {
+    let m;
+    while ((m = re.exec(content)) !== null) keys.add(m[1]);
+  }
+  return [...keys];
+};
 
 // 1. 일괄 삭제 (ID 매칭보다 우선순위 높임)
 app.post('/api/posts/batch-delete', async (c) => {
@@ -44,11 +59,23 @@ app.post('/api/posts/batch-delete', async (c) => {
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
       return c.json({ error: 'No IDs provided' }, 400);
     }
-    const statements = ids.map(id => 
+
+    // 삭제 전 각 게시글 content 조회 → R2 키 수집
+    const rows = await Promise.all(
+      ids.map(id => c.env.DB.prepare("SELECT content FROM posts WHERE id = ?").bind(id).first())
+    );
+    const r2Keys = rows.flatMap(row => extractR2Keys(row?.content));
+
+    // D1 일괄 삭제
+    const statements = ids.map(id =>
       c.env.DB.prepare("DELETE FROM posts WHERE id = ?").bind(id)
     );
     await c.env.DB.batch(statements);
-    return c.json({ success: true, count: ids.length });
+
+    // R2 이미지 삭제 (실패해도 무시)
+    await Promise.allSettled(r2Keys.map(key => c.env.IMAGES.delete(key)));
+
+    return c.json({ success: true, count: ids.length, r2Deleted: r2Keys.length });
   } catch (e) {
     return c.json({ error: e.message }, 500);
   }
@@ -113,11 +140,19 @@ app.delete('/api/posts/:id', async (c) => {
   }
   const id = c.req.param('id');
   try {
+    // 삭제 전 content 조회 → R2 키 추출
+    const post = await c.env.DB.prepare("SELECT content FROM posts WHERE id = ?").bind(id).first();
+
     const result = await c.env.DB.prepare("DELETE FROM posts WHERE id = ?").bind(id).run();
     if (result.meta && result.meta.changes === 0) {
       return c.json({ error: 'Not Found' }, 404);
     }
-    return c.json({ success: true });
+
+    // R2 이미지 삭제 (실패해도 무시)
+    const r2Keys = extractR2Keys(post?.content);
+    await Promise.allSettled(r2Keys.map(key => c.env.IMAGES.delete(key)));
+
+    return c.json({ success: true, r2Deleted: r2Keys.length });
   } catch (e) {
     return c.json({ error: e.message }, 500);
   }
