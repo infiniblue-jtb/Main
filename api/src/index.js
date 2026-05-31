@@ -84,7 +84,28 @@ app.post('/api/posts', async (c) => {
   }
 });
 
-// 4. 단일 항목 삭제
+// 4. 게시글 수정
+app.put('/api/posts/:id', async (c) => {
+  const authHeader = c.req.header('Authorization');
+  if (authHeader !== `Bearer ${c.env.API_SECRET}`) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  const id = c.req.param('id');
+  try {
+    const { title, content } = await c.req.json();
+    const result = await c.env.DB.prepare(
+      "UPDATE posts SET title = ?, content = ? WHERE id = ?"
+    ).bind(title, content, id).run();
+    if (result.meta && result.meta.changes === 0) {
+      return c.json({ error: 'Not Found' }, 404);
+    }
+    return c.json({ success: true });
+  } catch (e) {
+    return c.json({ error: e.message }, 500);
+  }
+});
+
+// 5. 단일 항목 삭제
 app.delete('/api/posts/:id', async (c) => {
   const authHeader = c.req.header('Authorization');
   if (authHeader !== `Bearer ${c.env.API_SECRET}`) {

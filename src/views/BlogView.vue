@@ -52,7 +52,49 @@
           </div>
           <div class="form-group">
             <label>{{ currentLang === 'ko' ? '본문 내용' : 'Content' }}</label>
-            <textarea v-model="newPost.content" rows="12" placeholder="본문을 입력하세요..." class="content-textarea"></textarea>
+            <div class="rich-editor-wrap">
+              <!-- 서식 툴바 -->
+              <div class="editor-toolbar">
+                <button type="button" @mousedown.prevent="exec('bold')" title="굵게"><b>B</b></button>
+                <button type="button" @mousedown.prevent="exec('italic')" title="기울임"><i>I</i></button>
+                <button type="button" @mousedown.prevent="exec('underline')" title="밑줄"><u>U</u></button>
+                <div class="toolbar-sep"></div>
+                <select @mousedown.stop @change="execFontSize($event)" title="글자 크기">
+                  <option value="">크기</option>
+                  <option value="1">매우 작게</option>
+                  <option value="2">작게</option>
+                  <option value="3">보통</option>
+                  <option value="4">크게</option>
+                  <option value="5">매우 크게</option>
+                  <option value="6">특대</option>
+                </select>
+                <select @mousedown.stop @change="execFormatBlock($event)" title="단락 형식">
+                  <option value="">형식</option>
+                  <option value="p">본문</option>
+                  <option value="h1">제목 1</option>
+                  <option value="h2">제목 2</option>
+                  <option value="h3">제목 3</option>
+                </select>
+                <div class="toolbar-sep"></div>
+                <button type="button" @mousedown.prevent="exec('justifyLeft')" title="왼쪽 정렬">≡</button>
+                <button type="button" @mousedown.prevent="exec('justifyCenter')" title="가운데 정렬">☰</button>
+                <button type="button" @mousedown.prevent="exec('justifyRight')" title="오른쪽 정렬">≡</button>
+                <div class="toolbar-sep"></div>
+                <label class="img-upload-btn" title="이미지 첨부">
+                  🖼
+                  <input type="file" accept="image/*" style="display:none" @change="insertImageFile($event)">
+                </label>
+              </div>
+              <!-- 본문 입력 영역 -->
+              <div
+                ref="editorEl"
+                contenteditable="true"
+                class="rich-editor"
+                @input="onEditorInput"
+                @paste="onPaste"
+              ></div>
+              <p v-if="imageUploading" class="upload-notice">📤 이미지 업로드 중...</p>
+            </div>
           </div>
           <div class="form-group admin-key">
             <label>{{ currentLang === 'ko' ? '관리자 비밀번호' : 'Admin Key' }}</label>
@@ -189,7 +231,7 @@
 </template>
 
 <script>
-import { ref, computed, inject, onMounted } from 'vue';
+import { ref, computed, inject, onMounted, nextTick } from 'vue';
 
 const TRANSLATIONS = {
   ko: {
@@ -222,12 +264,89 @@ export default {
     const pageSize = ref(10);
     const currentPage = ref(1);
 
+    // 리치 에디터
+    const editorEl = ref(null);
+    const imageUploading = ref(false);
+
+    const exec = (cmd, val = null) => {
+      document.execCommand(cmd, false, val);
+      editorEl.value && (newPost.value.content = editorEl.value.innerHTML);
+    };
+
+    const execFontSize = (e) => {
+      if (e.target.value) exec('fontSize', e.target.value);
+      e.target.value = '';
+    };
+
+    const execFormatBlock = (e) => {
+      if (e.target.value) exec('formatBlock', e.target.value);
+      e.target.value = '';
+    };
+
+    const onEditorInput = () => {
+      newPost.value.content = editorEl.value ? editorEl.value.innerHTML : '';
+    };
+
+    const uploadImageFile = async (file) => {
+      const formData = new FormData();
+      formData.append('file', file, file.name || `paste-${Date.now()}.png`);
+      const res = await fetch('https://dongtan-api.infiniblue.workers.dev/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (!data.url) throw new Error('업로드 실패');
+      return data.url;
+    };
+
+    const insertImageAtCursor = (url) => {
+      editorEl.value && editorEl.value.focus();
+      document.execCommand('insertHTML', false,
+        `<img src="${url}" style="max-width:100%;border-radius:8px;margin:8px 0;">`);
+      newPost.value.content = editorEl.value ? editorEl.value.innerHTML : '';
+    };
+
+    const onPaste = async (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault();
+          imageUploading.value = true;
+          try {
+            const file = item.getAsFile();
+            const url = await uploadImageFile(file);
+            insertImageAtCursor(url);
+          } catch (err) {
+            alert('이미지 업로드 오류: ' + err.message);
+          } finally {
+            imageUploading.value = false;
+          }
+          return;
+        }
+      }
+    };
+
+    const insertImageFile = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      imageUploading.value = true;
+      try {
+        const url = await uploadImageFile(file);
+        insertImageAtCursor(url);
+      } catch (err) {
+        alert('이미지 업로드 오류: ' + err.message);
+      } finally {
+        imageUploading.value = false;
+        e.target.value = '';
+      }
+    };
+
     // ... Pagination etc ...
 
     const getThumbnail = (post) => {
       if (!post.content) return null;
-      // Tiptap saves HTML, so we might need a better way to extract image, but this keeps the old logic for now.
-      const match = post.content.match(/src="(.*?)"/);
+      const match = post.content.match(/src="([^"]+)"/);
       return match ? match[1] : null;
     };
 
@@ -317,6 +436,7 @@ export default {
       newPost.value = { title: '', content: '' };
       adminKey.value = '';
       showEditor.value = true;
+      nextTick(() => { if (editorEl.value) editorEl.value.innerHTML = ''; });
     };
 
     const closeEditor = () => {
@@ -334,6 +454,7 @@ export default {
       selectedPost.value = null;
       showEditor.value = true;
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      nextTick(() => { if (editorEl.value) editorEl.value.innerHTML = post.content || ''; });
     };
 
     const submitPost = async () => {
@@ -356,6 +477,7 @@ export default {
         if (response.ok) {
           alert(isEditing.value ? '수정되었습니다!' : '성공적으로 저장되었습니다!');
           newPost.value = { title: '', content: '' };
+          if (editorEl.value) editorEl.value.innerHTML = '';
           adminKey.value = '';
           showEditor.value = false;
           isEditing.value = false;
@@ -488,7 +610,9 @@ export default {
       currentPage, totalPages, safePaginatedPosts, setPage, confirmDeleteById,
       selectedIds, confirmBatchDelete, isAllSelected, toggleSelectAll,
       searchQuery, filteredPosts,
-      getThumbnail, parseContent
+      getThumbnail, parseContent,
+      editorEl, imageUploading, exec, execFontSize, execFormatBlock,
+      onEditorInput, onPaste, insertImageFile
     };
   }
 }
@@ -1001,40 +1125,107 @@ export default {
   to { transform: rotate(360deg); }
 }
 
-.tiptap-editor {
-    min-height: 200px;
-    border: 1px solid rgba(0,0,0,0.1);
-    border-radius: 12px;
-    padding: 14px;
-    background: var(--page-bg);
-    position: relative;
-    z-index: 9999;
-    pointer-events: auto !important;
+.rich-editor-wrap {
+  border: 1.5px solid rgba(0,0,0,0.12);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
 }
 
-.tiptap-editor .ProseMirror {
-    outline: none;
-    min-height: 200px;
-    pointer-events: auto !important;
+.rich-editor-wrap:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
 }
 
 .editor-toolbar {
-    margin-bottom: 8px;
-    display: flex;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  background: #f5f5f7;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  flex-wrap: wrap;
 }
 
 .editor-toolbar button {
-    padding: 4px 8px;
-    border-radius: 4px;
-    border: 1px solid rgba(0,0,0,0.1);
-    background: white;
-    cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.15s;
+  line-height: 1;
 }
 
-.editor-toolbar button.is-active {
-    background: var(--accent);
-    color: white;
+.editor-toolbar button:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.editor-toolbar select {
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #fff;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.toolbar-sep {
+  width: 1px;
+  height: 20px;
+  background: rgba(0,0,0,0.12);
+  margin: 0 2px;
+}
+
+.img-upload-btn {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+}
+
+.img-upload-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.rich-editor {
+  min-height: 260px;
+  padding: 16px;
+  outline: none;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+  overflow-y: auto;
+}
+
+.rich-editor:empty::before {
+  content: '본문을 입력하세요. 이미지는 복사 후 Ctrl+V로 붙여넣기 할 수 있습니다.';
+  color: #aaa;
+  pointer-events: none;
+}
+
+.rich-editor img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 8px 0;
+  display: block;
+}
+
+.upload-notice {
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  color: var(--accent);
+  background: rgba(0,122,255,0.06);
+  margin: 0;
 }
 
 .section-header {
