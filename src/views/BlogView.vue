@@ -81,18 +81,30 @@
                 <button type="button" @mousedown.prevent="exec('justifyRight')" title="오른쪽 정렬">≡</button>
                 <div class="toolbar-sep"></div>
                 <label class="img-upload-btn" title="이미지 첨부">
-                  🖼
+                  그림 첨부
                   <input type="file" accept="image/*" style="display:none" @change="insertImageFile($event)">
                 </label>
               </div>
               <!-- 본문 입력 영역 -->
-              <div
-                ref="editorEl"
-                contenteditable="true"
-                class="rich-editor"
-                @input="onEditorInput"
-                @paste="onPaste"
-              ></div>
+              <div style="position:relative">
+                <div
+                  ref="editorEl"
+                  contenteditable="true"
+                  class="rich-editor"
+                  @input="onEditorInput"
+                  @paste="onPaste"
+                  @mouseover="onEditorMouseover"
+                  @mouseleave="onEditorMouseleave"
+                ></div>
+                <!-- 이미지 리사이즈 핸들 -->
+                <div
+                  v-if="resizeHandle.visible"
+                  class="img-resize-handle"
+                  :style="resizeHandle.style"
+                  @mousedown.prevent="startResize"
+                  @mouseleave="onHandleMouseleave"
+                ></div>
+              </div>
               <p v-if="imageUploading" class="upload-notice">📤 이미지 업로드 중...</p>
             </div>
           </div>
@@ -299,10 +311,26 @@ export default {
       return data.url;
     };
 
-    const insertImageAtCursor = (url) => {
-      editorEl.value && editorEl.value.focus();
-      document.execCommand('insertHTML', false,
-        `<img src="${url}" style="max-width:100%;border-radius:8px;margin:8px 0;">`);
+    // Range API로 직접 삽입 (async 후에도 커서 위치 유지)
+    const insertImageWithRange = (url, savedRange) => {
+      const img = document.createElement('img');
+      img.src = url;
+      img.style.cssText = 'max-width:100%;border-radius:8px;margin:8px 0;display:block;';
+
+      if (savedRange && editorEl.value && editorEl.value.contains(savedRange.commonAncestorContainer)) {
+        savedRange.deleteContents();
+        savedRange.insertNode(img);
+        // 이미지 다음으로 커서 이동
+        const br = document.createElement('br');
+        img.after(br);
+        savedRange.setStartAfter(br);
+        savedRange.collapse(true);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(savedRange);
+      } else if (editorEl.value) {
+        editorEl.value.appendChild(img);
+      }
       newPost.value.content = editorEl.value ? editorEl.value.innerHTML : '';
     };
 
@@ -312,11 +340,14 @@ export default {
       for (const item of items) {
         if (item.type.startsWith('image/')) {
           e.preventDefault();
+          // async 전에 커서 위치 저장
+          const sel = window.getSelection();
+          const savedRange = (sel && sel.rangeCount > 0) ? sel.getRangeAt(0).cloneRange() : null;
           imageUploading.value = true;
           try {
             const file = item.getAsFile();
             const url = await uploadImageFile(file);
-            insertImageAtCursor(url);
+            insertImageWithRange(url, savedRange);
           } catch (err) {
             alert('이미지 업로드 오류: ' + err.message);
           } finally {
@@ -330,16 +361,74 @@ export default {
     const insertImageFile = async (e) => {
       const file = e.target.files[0];
       if (!file) return;
+      // 파일 버튼은 에디터 포커스를 잃으므로 끝에 추가
       imageUploading.value = true;
       try {
         const url = await uploadImageFile(file);
-        insertImageAtCursor(url);
+        insertImageWithRange(url, null);
       } catch (err) {
         alert('이미지 업로드 오류: ' + err.message);
       } finally {
         imageUploading.value = false;
         e.target.value = '';
       }
+    };
+
+    // 이미지 리사이즈 핸들
+    const resizeHandle = ref({ visible: false, style: {}, img: null });
+
+    const updateHandlePos = (img) => {
+      if (!editorEl.value || !img) return;
+      const edRect = editorEl.value.getBoundingClientRect();
+      const imgRect = img.getBoundingClientRect();
+      resizeHandle.value.style = {
+        right: (edRect.right - imgRect.right + 2) + 'px',
+        bottom: (edRect.bottom - imgRect.bottom + 2) + 'px',
+      };
+    };
+
+    const onEditorMouseover = (e) => {
+      if (e.target.tagName !== 'IMG') return;
+      resizeHandle.value.img = e.target;
+      resizeHandle.value.visible = true;
+      updateHandlePos(e.target);
+    };
+
+    const onEditorMouseleave = () => {
+      if (resizeHandle.value._resizing) return;
+      resizeHandle.value.visible = false;
+    };
+
+    const onHandleMouseleave = (e) => {
+      if (resizeHandle.value._resizing) return;
+      // 이미지로 다시 들어갔으면 유지
+      if (e.relatedTarget === resizeHandle.value.img) return;
+      resizeHandle.value.visible = false;
+    };
+
+    const startResize = (e) => {
+      const img = resizeHandle.value.img;
+      if (!img) return;
+      resizeHandle.value._resizing = true;
+      const startX = e.clientX;
+      const startWidth = img.getBoundingClientRect().width;
+
+      const onMove = (mv) => {
+        const w = Math.max(40, startWidth + mv.clientX - startX);
+        img.style.width = w + 'px';
+        img.style.maxWidth = '100%';
+        updateHandlePos(img);
+      };
+
+      const onUp = () => {
+        resizeHandle.value._resizing = false;
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        newPost.value.content = editorEl.value ? editorEl.value.innerHTML : '';
+      };
+
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
     };
 
     // ... Pagination etc ...
@@ -612,7 +701,8 @@ export default {
       searchQuery, filteredPosts,
       getThumbnail, parseContent,
       editorEl, imageUploading, exec, execFontSize, execFormatBlock,
-      onEditorInput, onPaste, insertImageFile
+      onEditorInput, onPaste, insertImageFile,
+      resizeHandle, onEditorMouseover, onEditorMouseleave, onHandleMouseleave, startResize
     };
   }
 }
@@ -1226,6 +1316,18 @@ export default {
   color: var(--accent);
   background: rgba(0,122,255,0.06);
   margin: 0;
+}
+
+.img-resize-handle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--accent);
+  border: 2px solid #fff;
+  border-radius: 3px;
+  cursor: se-resize;
+  z-index: 10;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
 }
 
 .section-header {
