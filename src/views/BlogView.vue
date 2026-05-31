@@ -189,7 +189,7 @@
 </template>
 
 <script>
-import { ref, computed, inject } from 'vue';
+import { ref, computed, inject, onMounted } from 'vue';
 
 const TRANSLATIONS = {
   ko: {
@@ -479,7 +479,7 @@ export default {
       confirmDelete(id, title);
     };
 
-    
+    onMounted(fetchPosts);
 
     return {
       currentLang, t, posts, loading, formatDate, viewPostById,
