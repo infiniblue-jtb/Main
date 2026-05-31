@@ -80,6 +80,11 @@
                 <button type="button" @mousedown.prevent="exec('justifyCenter')" title="가운데 정렬">☰</button>
                 <button type="button" @mousedown.prevent="exec('justifyRight')" title="오른쪽 정렬">≡</button>
                 <div class="toolbar-sep"></div>
+                <label class="color-picker-wrap" title="글자 색">
+                  <span>색상</span>
+                  <input type="color" value="#000000" @mousedown="saveColorRange" @input="execColor($event)" class="color-input">
+                </label>
+                <div class="toolbar-sep"></div>
                 <label class="img-upload-btn" title="이미지 첨부">
                   그림 첨부
                   <input type="file" accept="image/*" style="display:none" @change="insertImageFile($event)">
@@ -295,13 +300,31 @@ export default {
       e.target.value = '';
     };
 
+    // 글자색: color picker 열기 전 selection 저장
+    let _savedColorRange = null;
+    const saveColorRange = () => {
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) _savedColorRange = sel.getRangeAt(0).cloneRange();
+    };
+    const execColor = (e) => {
+      if (!editorEl.value) return;
+      editorEl.value.focus();
+      if (_savedColorRange) {
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(_savedColorRange);
+      }
+      document.execCommand('foreColor', false, e.target.value);
+      newPost.value.content = editorEl.value.innerHTML;
+    };
+
     const onEditorInput = () => {
       newPost.value.content = editorEl.value ? editorEl.value.innerHTML : '';
     };
 
     const uploadToR2 = async (file) => {
       const ext = (file.type || 'image/png').split('/')[1] || 'png';
-      const filename = file.name && file.name !== 'image.png' ? file.name : `paste-${Date.now()}.${ext}`;
+      const filename = (file.name && file.name.length > 4) ? file.name : `paste-${Date.now()}.${ext}`;
       const formData = new FormData();
       formData.append('file', file, filename);
       const res = await fetch('https://dongtan-api.infiniblue.workers.dev/api/upload', {
@@ -313,44 +336,50 @@ export default {
       return data.url;
     };
 
-    // img DOM 요소를 반환 (나중에 src 교체용)
-    const insertImgNode = (src, savedRange) => {
-      const img = document.createElement('img');
-      img.src = src;
-      img.style.cssText = 'max-width:100%;border-radius:8px;margin:8px 0;display:block;';
+    // 에디터에 포커스+커서를 복원한 뒤 execCommand로 img 삽입
+    const insertImgHtml = (src, savedRange) => {
+      if (!editorEl.value) return null;
 
-      if (savedRange && editorEl.value && editorEl.value.contains(savedRange.commonAncestorContainer)) {
-        savedRange.deleteContents();
-        savedRange.insertNode(img);
-        const br = document.createElement('br');
-        img.after(br);
-        savedRange.setStartAfter(br);
-        savedRange.collapse(true);
-        const sel = window.getSelection();
+      // 포커스 명시적 복원
+      editorEl.value.focus();
+
+      // 커서 복원 (없으면 끝으로)
+      const sel = window.getSelection();
+      if (savedRange) {
         sel.removeAllRanges();
         sel.addRange(savedRange);
-      } else if (editorEl.value) {
-        editorEl.value.appendChild(img);
+      } else {
+        const r = document.createRange();
+        r.selectNodeContents(editorEl.value);
+        r.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(r);
       }
-      newPost.value.content = editorEl.value ? editorEl.value.innerHTML : '';
-      return img;
+
+      const marker = `img-${Date.now()}`;
+      const html = `<img data-marker="${marker}" src="${src}" style="max-width:100%;display:block;border-radius:8px;margin:8px 0;">`;
+      document.execCommand('insertHTML', false, html);
+      newPost.value.content = editorEl.value.innerHTML;
+
+      return editorEl.value.querySelector(`[data-marker="${marker}"]`);
     };
 
     // 1) base64로 즉시 표시 → 2) R2 업로드 후 src 교체
     const handleImageInsert = (file, savedRange) => {
       const reader = new FileReader();
       reader.onload = async (ev) => {
-        // base64 즉시 삽입 (이미지 바로 보임)
-        const imgEl = insertImgNode(ev.target.result, savedRange);
+        const imgEl = insertImgHtml(ev.target.result, savedRange);
         imageUploading.value = true;
         try {
           const r2Url = await uploadToR2(file);
           if (imgEl && imgEl.parentNode) {
             imgEl.src = r2Url;
+            imgEl.removeAttribute('data-marker');
             newPost.value.content = editorEl.value ? editorEl.value.innerHTML : '';
           }
-        } catch (err) {
-          alert('이미지 업로드 오류: ' + err.message);
+        } catch {
+          // 업로드 실패해도 base64로 표시 유지
+          if (imgEl) imgEl.removeAttribute('data-marker');
         } finally {
           imageUploading.value = false;
         }
@@ -366,7 +395,6 @@ export default {
           e.preventDefault();
           const file = item.getAsFile();
           if (!file) return;
-          // 커서 위치 저장 (FileReader는 동기이므로 여기서 저장 가능)
           const sel = window.getSelection();
           const savedRange = (sel && sel.rangeCount > 0) ? sel.getRangeAt(0).cloneRange() : null;
           handleImageInsert(file, savedRange);
@@ -709,6 +737,7 @@ export default {
       searchQuery, filteredPosts,
       getThumbnail, parseContent,
       editorEl, imageUploading, exec, execFontSize, execFormatBlock,
+      saveColorRange, execColor,
       onEditorInput, onPaste, insertImageFile,
       resizeHandle, onEditorMouseover, onEditorMouseleave, onHandleMouseleave, startResize
     };
@@ -1292,7 +1321,35 @@ export default {
 
 .img-upload-btn:hover {
   background: var(--accent);
+  color: #fff;
   border-color: var(--accent);
+}
+
+.color-picker-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: all 0.15s;
+}
+
+.color-picker-wrap:hover {
+  background: #f0f0f0;
+}
+
+.color-input {
+  width: 22px;
+  height: 22px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+  border-radius: 3px;
 }
 
 .rich-editor {
