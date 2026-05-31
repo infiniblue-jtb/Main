@@ -138,7 +138,7 @@ export default {
 .hero-title { font-size: 3.5rem; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 12px; }
 .hero-subtitle { font-size: 1.5rem; color: var(--text-secondary); font-weight: 400; }
 
-.content-section { max-width: 800px; margin: 0 auto; padding: 0 22px; }
+.content-section { max-width: 660px; margin: 0 auto; padding: 0 22px; }
 
 .glass-card { 
   background: var(--card-bg); 
@@ -193,7 +193,7 @@ export default {
 .section-header { margin-bottom: 16px; text-align: center; }
 .section-title { font-size: 1.8rem; font-weight: 600; }
 .mt-80 { margin-top: 28px; }
-.contact-container { margin-top: 20px; }
+.contact-container { margin-top: 10px; }
 
 .comment-container { min-height: 400px; }
 

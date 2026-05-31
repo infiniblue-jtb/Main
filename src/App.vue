@@ -84,6 +84,11 @@
       <!-- 모바일 드로어 -->
       <transition name="drawer">
         <div v-if="isMenuOpen" class="mobile-drawer">
+          <!-- 날씨/시간 칩 -->
+          <div class="drawer-status" v-if="weather || currentTime">
+            <span v-if="weather" class="drawer-weather">{{ weather.icon }} {{ weather.temp }}°</span>
+            <span class="drawer-time">{{ currentTime }}</span>
+          </div>
           <div class="drawer-links">
             <router-link to="/" class="drawer-link" @click="isMenuOpen = false">
               <span>{{ currentLang === 'ko' ? '홈' : 'Home' }}</span>
@@ -725,6 +730,27 @@ body {
   .hamburger { display: flex; }
   .status-chip { display: none; }
   .logo-text { font-size: 0.95rem; }
+}
+
+.drawer-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  margin: 4px 0 8px;
+  background: var(--accent-soft);
+  border-radius: 14px;
+  border: 1px solid rgba(0,85,212,0.12);
+}
+.drawer-weather, .drawer-time {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.drawer-weather {
+  border-right: 1px solid rgba(0,85,212,0.2);
+  padding-right: 10px;
 }
 
 @media (max-width: 480px) {

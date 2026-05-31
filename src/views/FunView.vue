@@ -424,8 +424,8 @@ export default {
         { x: PB.W-38, y: 130, hit: false, flash: 0 },
         { x: PB.W-38, y: 178, hit: false, flash: 0 },
       ];
-      PB.lp = { x: 92,          y: PB.H - 78 };
-      PB.rp = { x: PB.W - 92,   y: PB.H - 78 };
+      PB.lp = { x: 78,          y: PB.H - 78 };
+      PB.rp = { x: PB.W - 78,   y: PB.H - 78 };
       PB.leftFlipperUp  = false;
       PB.rightFlipperUp = false;
       pbKeys = { left: false, right: false };
@@ -483,7 +483,7 @@ export default {
       }
     };
 
-    const pbUpdate = () => {
+    const pbUpdate = (dt = 1) => {
       const b = PB.ball;
       const W = PB.W, H = PB.H;
       PB.tick++;
@@ -493,9 +493,13 @@ export default {
       PB.ballTrail.push({ x: b.x, y: b.y });
       if (PB.ballTrail.length > 10) PB.ballTrail.shift();
 
-      b.vy += 0.13;
-      b.vx *= 0.999;
-      b.x += b.vx; b.y += b.vy;
+      b.vy += 0.13 * dt;
+      b.vx *= Math.pow(0.999, dt);
+      b.x += b.vx * dt; b.y += b.vy * dt;
+
+      // 최대 속도 제한 (벽 터널링 방지)
+      const spd = Math.sqrt(b.vx*b.vx + b.vy*b.vy);
+      if (spd > 14) { b.vx = b.vx/spd*14; b.vy = b.vy/spd*14; }
 
       // 벽 충돌
       if (b.x - b.r < 14) { b.x = 14+b.r; b.vx = Math.abs(b.vx)*0.75; }
@@ -730,11 +734,13 @@ export default {
       }
     };
 
-    const pbLoop = (ctx) => {
+    const pbLoop = (ctx, lastTime) => {
       if (!pinballActive.value) return;
-      const alive = pbUpdate();
+      const now = performance.now();
+      const dt = lastTime ? Math.min((now - lastTime) / 16.67, 3) : 1;
+      const alive = pbUpdate(dt);
       pbDraw(ctx);
-      if (alive) pbAnimId = requestAnimationFrame(() => pbLoop(ctx));
+      if (alive) pbAnimId = requestAnimationFrame((t) => pbLoop(ctx, t));
     };
 
     const startPinball = async () => {
@@ -788,7 +794,7 @@ export default {
         canvas.removeEventListener('touchend',   onTouchEnd);
       };
 
-      pbLoop(ctx);
+      pbAnimId = requestAnimationFrame((t) => pbLoop(ctx, t));
     };
 
     const stopPinball = () => {
