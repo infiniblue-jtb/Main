@@ -5,7 +5,10 @@
       "Bash(npm run *)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(npx wrangler *)",
+      "Bash(dir \"C:\\\\Users\\\\infin\\\\Desktop\\\\GIT_main_SW\\\\public\" /B)",
+      "Bash(dir \"C:\\\\Users\\\\infin\\\\Desktop\\\\GIT_main_SW\\\\src\\\\views\" /B)"
     ]
   }
 }

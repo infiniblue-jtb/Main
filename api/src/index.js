@@ -101,10 +101,10 @@ app.post('/api/posts', async (c) => {
   }
   try {
     const body = await c.req.json();
-    const { title, content } = body;
+    const { title, content, category = '' } = body;
     await c.env.DB.prepare(
-      "INSERT INTO posts (title, content) VALUES (?, ?)"
-    ).bind(title, content).run();
+      "INSERT INTO posts (title, content, category) VALUES (?, ?, ?)"
+    ).bind(title, content, category).run();
     return c.json({ success: true }, 201);
   } catch (e) {
     return c.json({ error: e.message }, 500);
@@ -119,10 +119,10 @@ app.put('/api/posts/:id', async (c) => {
   }
   const id = c.req.param('id');
   try {
-    const { title, content } = await c.req.json();
+    const { title, content, category = '' } = await c.req.json();
     const result = await c.env.DB.prepare(
-      "UPDATE posts SET title = ?, content = ? WHERE id = ?"
-    ).bind(title, content, id).run();
+      "UPDATE posts SET title = ?, content = ?, category = ? WHERE id = ?"
+    ).bind(title, content, category, id).run();
     if (result.meta && result.meta.changes === 0) {
       return c.json({ error: 'Not Found' }, 404);
     }
