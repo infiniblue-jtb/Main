@@ -299,28 +299,29 @@ export default {
       newPost.value.content = editorEl.value ? editorEl.value.innerHTML : '';
     };
 
-    const uploadImageFile = async (file) => {
+    const uploadToR2 = async (file) => {
+      const ext = (file.type || 'image/png').split('/')[1] || 'png';
+      const filename = file.name && file.name !== 'image.png' ? file.name : `paste-${Date.now()}.${ext}`;
       const formData = new FormData();
-      formData.append('file', file, file.name || `paste-${Date.now()}.png`);
+      formData.append('file', file, filename);
       const res = await fetch('https://dongtan-api.infiniblue.workers.dev/api/upload', {
         method: 'POST',
         body: formData
       });
       const data = await res.json();
-      if (!data.url) throw new Error('업로드 실패');
+      if (!data.url) throw new Error(data.error || '업로드 실패');
       return data.url;
     };
 
-    // Range API로 직접 삽입 (async 후에도 커서 위치 유지)
-    const insertImageWithRange = (url, savedRange) => {
+    // img DOM 요소를 반환 (나중에 src 교체용)
+    const insertImgNode = (src, savedRange) => {
       const img = document.createElement('img');
-      img.src = url;
+      img.src = src;
       img.style.cssText = 'max-width:100%;border-radius:8px;margin:8px 0;display:block;';
 
       if (savedRange && editorEl.value && editorEl.value.contains(savedRange.commonAncestorContainer)) {
         savedRange.deleteContents();
         savedRange.insertNode(img);
-        // 이미지 다음으로 커서 이동
         const br = document.createElement('br');
         img.after(br);
         savedRange.setStartAfter(br);
@@ -332,46 +333,53 @@ export default {
         editorEl.value.appendChild(img);
       }
       newPost.value.content = editorEl.value ? editorEl.value.innerHTML : '';
+      return img;
     };
 
-    const onPaste = async (e) => {
+    // 1) base64로 즉시 표시 → 2) R2 업로드 후 src 교체
+    const handleImageInsert = (file, savedRange) => {
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        // base64 즉시 삽입 (이미지 바로 보임)
+        const imgEl = insertImgNode(ev.target.result, savedRange);
+        imageUploading.value = true;
+        try {
+          const r2Url = await uploadToR2(file);
+          if (imgEl && imgEl.parentNode) {
+            imgEl.src = r2Url;
+            newPost.value.content = editorEl.value ? editorEl.value.innerHTML : '';
+          }
+        } catch (err) {
+          alert('이미지 업로드 오류: ' + err.message);
+        } finally {
+          imageUploading.value = false;
+        }
+      };
+      reader.readAsDataURL(file);
+    };
+
+    const onPaste = (e) => {
       const items = e.clipboardData?.items;
       if (!items) return;
       for (const item of items) {
         if (item.type.startsWith('image/')) {
           e.preventDefault();
-          // async 전에 커서 위치 저장
+          const file = item.getAsFile();
+          if (!file) return;
+          // 커서 위치 저장 (FileReader는 동기이므로 여기서 저장 가능)
           const sel = window.getSelection();
           const savedRange = (sel && sel.rangeCount > 0) ? sel.getRangeAt(0).cloneRange() : null;
-          imageUploading.value = true;
-          try {
-            const file = item.getAsFile();
-            const url = await uploadImageFile(file);
-            insertImageWithRange(url, savedRange);
-          } catch (err) {
-            alert('이미지 업로드 오류: ' + err.message);
-          } finally {
-            imageUploading.value = false;
-          }
+          handleImageInsert(file, savedRange);
           return;
         }
       }
     };
 
-    const insertImageFile = async (e) => {
+    const insertImageFile = (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      // 파일 버튼은 에디터 포커스를 잃으므로 끝에 추가
-      imageUploading.value = true;
-      try {
-        const url = await uploadImageFile(file);
-        insertImageWithRange(url, null);
-      } catch (err) {
-        alert('이미지 업로드 오류: ' + err.message);
-      } finally {
-        imageUploading.value = false;
-        e.target.value = '';
-      }
+      handleImageInsert(file, null);
+      e.target.value = '';
     };
 
     // 이미지 리사이즈 핸들
