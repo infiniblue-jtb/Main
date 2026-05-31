@@ -158,7 +158,29 @@ app.delete('/api/posts/:id', async (c) => {
   }
 });
 
-// 6. 이미지 업로드 (R2)
+// 6. 방문자 카운터
+app.get('/api/stats/visitors', async (c) => {
+  try {
+    const row = await c.env.DB.prepare("SELECT value FROM stats WHERE key = 'visitors'").first();
+    return c.json({ count: row ? row.value : 0 });
+  } catch (e) {
+    return c.json({ count: 0 });
+  }
+});
+
+app.post('/api/stats/visit', async (c) => {
+  try {
+    await c.env.DB.prepare(
+      "INSERT INTO stats (key, value) VALUES ('visitors', 1) ON CONFLICT(key) DO UPDATE SET value = value + 1"
+    ).run();
+    const row = await c.env.DB.prepare("SELECT value FROM stats WHERE key = 'visitors'").first();
+    return c.json({ count: row ? row.value : 1 });
+  } catch (e) {
+    return c.json({ count: 0 });
+  }
+});
+
+// 7. 이미지 업로드 (R2)
 app.post('/api/upload', async (c) => {
   try {
     const formData = await c.req.formData();
