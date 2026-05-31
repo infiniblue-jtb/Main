@@ -18,17 +18,6 @@
 
       <AdComponent slotId="9173007135" />
 
-      <!-- 접속자 카운터 -->
-      <div class="visitor-counter glass-card">
-        <div class="vc-icon">👥</div>
-        <div class="vc-body">
-          <div class="vc-label">지금까지 방문한 이웃</div>
-          <div class="vc-count">{{ visitorCount.toLocaleString() }}</div>
-          <div class="vc-unit">명</div>
-        </div>
-        <div class="vc-desc">해피동탄을 찾아주신 모든 분께 감사드립니다 🙏</div>
-      </div>
-
       <!-- Contact Form -->
       <div id="contact-section" class="glass-card contact-container mt-20">
         <h2 class="card-title">{{ t.contactTitle }}</h2>
@@ -48,6 +37,14 @@
           <input type="text" name="_gotcha" style="display:none">
           <button type="submit" class="apple-button">{{ t.submitBtn }}</button>
         </form>
+      </div>
+
+      <!-- 접속자 카운터 (맨 하단) -->
+      <div class="visitor-counter">
+        <span class="vc-icon">👥</span>
+        <span class="vc-text">지금까지 방문한 이웃</span>
+        <span class="vc-count">{{ visitorCount.toLocaleString() }}</span>
+        <span class="vc-unit">명</span>
       </div>
     </section>
   </div>
@@ -201,28 +198,31 @@ export default {
 
 .visitor-counter {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
-  padding: 48px 40px !important;
-  margin-top: 40px;
-  background: linear-gradient(135deg, #0f172a, #1e3a5f) !important;
-  color: #fff;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 48px;
+  padding: 18px 28px;
+  border-radius: 100px;
+  background: linear-gradient(135deg, #1e3a5f, #0f172a);
+  color: rgba(255,255,255,0.7);
+  font-size: 0.9rem;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
 }
-.vc-icon { font-size: 2.5rem; margin-bottom: 16px; }
-.vc-body { display: flex; align-items: baseline; gap: 6px; margin-bottom: 12px; }
-.vc-label { font-size: 0.85rem; color: rgba(255,255,255,0.5); margin-bottom: 4px; width: 100%; text-align: center; }
+.vc-icon { font-size: 1.1rem; }
+.vc-text { color: rgba(255,255,255,0.55); }
 .vc-count {
-  font-size: 3.5rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   background: linear-gradient(135deg, #60a5fa, #818cf8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-.vc-unit { font-size: 1.2rem; color: rgba(255,255,255,0.6); font-weight: 600; }
-.vc-desc { font-size: 0.85rem; color: rgba(255,255,255,0.4); }
+.vc-unit { font-size: 0.9rem; color: rgba(255,255,255,0.5); }
 
 @media (max-width: 734px) {
   .hero-title { font-size: 2.5rem; }

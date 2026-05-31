@@ -384,14 +384,45 @@ export default {
       return img;
     };
 
+    // R2 업로드 (백그라운드)
+    const uploadToR2 = async (file) => {
+      const ext = (file.type || 'image/png').split('/')[1] || 'png';
+      const filename = (file.name && file.name.length > 6) ? file.name : `img-${Date.now()}.${ext}`;
+      const fd = new FormData();
+      fd.append('file', file, filename);
+      const res = await fetch('https://dongtan-api.infiniblue.workers.dev/api/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!data.url) throw new Error(data.error || 'Upload failed');
+      return data.url;
+    };
+
     const handleImageInsert = async (file, savedRange) => {
       imageUploading.value = true;
-      try { const b64 = await compressImageToBase64(file); insertImgNode(b64, savedRange); }
-      catch (err) { alert('이미지 처리 오류: ' + err.message); }
+      try {
+        // 1) base64로 즉시 삽입 (바로 보임)
+        const b64 = await compressImageToBase64(file);
+        const imgEl = insertImgNode(b64, savedRange);
+        // 2) R2 업로드 후 src 교체 + data-r2 속성 저장
+        try {
+          const r2Url = await uploadToR2(file);
+          if (imgEl && imgEl.parentNode) {
+            imgEl.dataset.r2 = r2Url;
+          }
+        } catch { /* R2 실패 시 base64 유지 */ }
+      } catch (err) { alert('이미지 처리 오류: ' + err.message); }
       finally { imageUploading.value = false; }
     };
 
-    const getContentForSave = () => editorEl.value ? editorEl.value.innerHTML : newPost.value.content;
+    // 저장 시 data-r2 → src로 교체 (DB에는 R2 URL 저장)
+    const getContentForSave = () => {
+      if (!editorEl.value) return newPost.value.content;
+      const clone = editorEl.value.cloneNode(true);
+      clone.querySelectorAll('img[data-r2]').forEach(img => {
+        img.src = img.dataset.r2;
+        img.removeAttribute('data-r2');
+      });
+      return clone.innerHTML;
+    };
 
     const onPaste = (e) => {
       const items = e.clipboardData?.items;
@@ -753,7 +784,7 @@ export default {
 
 /* ─── BODY ─── */
 .blog-body {
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 32px 20px 100px;
 }
@@ -762,10 +793,13 @@ export default {
 .editor-card {
   background: var(--card-bg);
   border-radius: 20px;
-  padding: 32px;
+  padding: 36px 40px;
   margin-bottom: 28px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
   border: 1px solid rgba(0,0,0,0.06);
+  /* 에디터는 body보다 넓게 */
+  margin-left: -60px;
+  margin-right: -60px;
 }
 .editor-title { font-size: 1.4rem; font-weight: 700; margin: 0 0 24px; }
 

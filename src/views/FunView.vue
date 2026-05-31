@@ -236,7 +236,7 @@
               <canvas ref="pinballCanvas" class="pinball-canvas"></canvas>
               <div v-if="!pinballActive" class="pinball-start-overlay">
                 <button class="action-btn" @click="startPinball">🔮 구슬 발사!</button>
-                <p class="pinball-hint">A/D 키 또는 좌우 화살표로 플리퍼 조작</p>
+                <p class="pinball-hint">⌨️ A/D 또는 ←→ 키 &nbsp;|&nbsp; 📱 화면 좌우 터치로 플리퍼 조작</p>
               </div>
               <div class="pinball-score">Score: {{ pinballScore }}</div>
             </div>
@@ -380,100 +380,247 @@ export default {
     const ladderResultCol  = ref(-1);
     const ladderActiveCol  = ref(-1);
 
-    /* ══════════ 핀볼 ══════════ */
-    const pinballCanvas  = ref(null);
-    const pinballActive  = ref(false);
-    const pinballScore   = ref(0);
-    let pinballAnimId    = null;
-    let pinballState     = {
-      ball: { x: 230, y: 50, vx: (Math.random() - 0.5) * 4, vy: 2, r: 8 },
-      flippers: { left: 0, right: 0 },
-      bumpers: [{ x: 150, y: 150, r: 20 }, { x: 310, y: 150, r: 20 }, { x: 230, y: 250, r: 25 }]
+    /* ══════════ 핀볼 (완전 재작성) ══════════ */
+    const pinballCanvas = ref(null);
+    const pinballActive = ref(false);
+    const pinballScore  = ref(0);
+    let   pbAnimId      = null;
+    let   pbKeys        = { left: false, right: false };
+    let   pbCleanup     = null;
+
+    const PB = {
+      W: 340, H: 520,
+      ball: null, lives: 3, livesLeft: 3,
+      bumpers: [],
+      leftFlipperUp: false, rightFlipperUp: false,
+      // flipper pivot positions
+      lp: null, rp: null,
+    };
+
+    const pbInit = () => {
+      PB.W = 340; PB.H = 520;
+      PB.ball = { x: PB.W/2 + (Math.random()-0.5)*30, y: 60, vx: (Math.random()-0.5)*3, vy: 3, r: 9 };
+      PB.livesLeft = 3;
+      PB.bumpers = [
+        { x: PB.W/2,      y: 160, r: 24, flash: 0 },
+        { x: PB.W/2-75,   y: 230, r: 18, flash: 0 },
+        { x: PB.W/2+75,   y: 230, r: 18, flash: 0 },
+        { x: PB.W/2-45,   y: 310, r: 16, flash: 0 },
+        { x: PB.W/2+45,   y: 310, r: 16, flash: 0 },
+      ];
+      PB.lp = { x: 60,        y: PB.H - 70 };
+      PB.rp = { x: PB.W - 60, y: PB.H - 70 };
+      PB.leftFlipperUp  = false;
+      PB.rightFlipperUp = false;
+      pbKeys = { left: false, right: false };
+    };
+
+    const pbFlipperEndpoints = () => {
+      const len = 70, upAngle = -0.45, downAngle = 0.45;
+      const la = PB.leftFlipperUp  ? -upAngle   : downAngle;
+      const ra = PB.rightFlipperUp ? upAngle     : -downAngle;
+      return {
+        lEnd: { x: PB.lp.x + Math.cos(la)*len, y: PB.lp.y + Math.sin(la)*len },
+        rEnd: { x: PB.rp.x - Math.cos(ra)*len, y: PB.rp.y + Math.sin(ra)*len },
+        la, ra,
+      };
+    };
+
+    const pbSegCollide = (ball, ax, ay, bx, by) => {
+      // 선분 ax,ay-bx,by 와 공 충돌 처리
+      const dx = bx-ax, dy = by-ay;
+      const len2 = dx*dx+dy*dy;
+      if (len2 === 0) return;
+      let t = ((ball.x-ax)*dx+(ball.y-ay)*dy)/len2;
+      t = Math.max(0,Math.min(1,t));
+      const cx = ax+t*dx, cy = ay+t*dy;
+      const distX = ball.x-cx, distY = ball.y-cy;
+      const dist = Math.sqrt(distX*distX+distY*distY);
+      if (dist < ball.r + 5) {
+        const nx = distX/Math.max(dist,0.01), ny = distY/Math.max(dist,0.01);
+        // 밀어내기
+        const overlap = ball.r + 5 - dist;
+        ball.x += nx*overlap; ball.y += ny*overlap;
+        // 반사
+        const dot = ball.vx*nx + ball.vy*ny;
+        ball.vx = (ball.vx - 2*dot*nx) * 0.75;
+        ball.vy = (ball.vy - 2*dot*ny) * 0.75;
+        // 플리퍼 힘 추가
+        if (PB.leftFlipperUp  && t < 0.6) ball.vy -= 4;
+        if (PB.rightFlipperUp && t < 0.6) ball.vy -= 4;
+        if (Math.abs(ball.vy) < 2) ball.vy = -5;
+      }
+    };
+
+    const pbUpdate = () => {
+      const b = PB.ball;
+      const W = PB.W, H = PB.H;
+      PB.leftFlipperUp  = pbKeys.left;
+      PB.rightFlipperUp = pbKeys.right;
+
+      b.vy += 0.22; // 중력
+      b.vx *= 0.995;
+      b.x += b.vx; b.y += b.vy;
+
+      // 벽
+      if (b.x - b.r < 12) { b.x = 12+b.r; b.vx = Math.abs(b.vx)*0.8; }
+      if (b.x + b.r > W-12) { b.x = W-12-b.r; b.vx = -Math.abs(b.vx)*0.8; }
+      if (b.y - b.r < 12) { b.y = 12+b.r; b.vy = Math.abs(b.vy)*0.8; }
+
+      // 범퍼 충돌
+      PB.bumpers.forEach(bump => {
+        const dx = b.x-bump.x, dy = b.y-bump.y;
+        const dist = Math.sqrt(dx*dx+dy*dy);
+        if (dist < b.r+bump.r) {
+          const nx=dx/dist, ny=dy/dist;
+          const speed = Math.max(Math.sqrt(b.vx*b.vx+b.vy*b.vy), 5);
+          b.vx = nx*speed*1.3; b.vy = ny*speed*1.3;
+          b.x = bump.x + nx*(b.r+bump.r+1);
+          b.y = bump.y + ny*(b.r+bump.r+1);
+          pinballScore.value += 50;
+          bump.flash = 8;
+        }
+        if (bump.flash > 0) bump.flash--;
+      });
+
+      // 플리퍼 충돌
+      const { lEnd, rEnd } = pbFlipperEndpoints();
+      pbSegCollide(b, PB.lp.x, PB.lp.y, lEnd.x, lEnd.y);
+      pbSegCollide(b, PB.rp.x, PB.rp.y, rEnd.x, rEnd.y);
+
+      // 공 낙사
+      if (b.y - b.r > H) {
+        PB.livesLeft--;
+        pinballScore.value = Math.max(0, pinballScore.value - 50);
+        if (PB.livesLeft <= 0) {
+          pinballActive.value = false;
+          pbCleanup && pbCleanup();
+          return false; // 게임 오버
+        }
+        b.x = W/2 + (Math.random()-0.5)*20; b.y = 60;
+        b.vx = (Math.random()-0.5)*3; b.vy = 3;
+      }
+      return true;
+    };
+
+    const pbDraw = (ctx) => {
+      const W = PB.W, H = PB.H;
+      // 배경
+      ctx.fillStyle = '#050510'; ctx.fillRect(0,0,W,H);
+      // 벽
+      ctx.strokeStyle = 'rgba(0,245,255,0.3)'; ctx.lineWidth = 12;
+      ctx.beginPath(); ctx.moveTo(12,0); ctx.lineTo(12,H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(W-12,0); ctx.lineTo(W-12,H); ctx.stroke();
+      // 범퍼
+      PB.bumpers.forEach(b => {
+        const flash = b.flash > 0;
+        const grad = ctx.createRadialGradient(b.x,b.y,2,b.x,b.y,b.r);
+        grad.addColorStop(0, flash ? '#fff' : '#c084fc');
+        grad.addColorStop(1, flash ? '#a855f7' : '#7c3aed');
+        ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+        ctx.fillStyle = grad; ctx.fill();
+        ctx.strokeStyle = flash ? '#fff' : 'rgba(192,132,252,0.5)';
+        ctx.lineWidth = 2; ctx.stroke();
+        if (flash) {
+          ctx.beginPath(); ctx.arc(b.x,b.y,b.r+6,0,Math.PI*2);
+          ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=3; ctx.stroke();
+        }
+      });
+      // 플리퍼
+      const { lEnd, rEnd } = pbFlipperEndpoints();
+      const drawFlipper = (px,py,ex,ey,color) => {
+        ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(ex,ey);
+        ctx.strokeStyle=color; ctx.lineWidth=10; ctx.lineCap='round'; ctx.stroke();
+        ctx.beginPath(); ctx.arc(px,py,6,0,Math.PI*2); ctx.fillStyle=color; ctx.fill();
+      };
+      const lColor = pbKeys.left  ? '#f9a8d4' : '#ec4899';
+      const rColor = pbKeys.right ? '#f9a8d4' : '#ec4899';
+      drawFlipper(PB.lp.x,PB.lp.y,lEnd.x,lEnd.y,lColor);
+      drawFlipper(PB.rp.x,PB.rp.y,rEnd.x,rEnd.y,rColor);
+      // 공
+      const bg = ctx.createRadialGradient(PB.ball.x-3,PB.ball.y-3,1,PB.ball.x,PB.ball.y,PB.ball.r);
+      bg.addColorStop(0,'#7ff'); bg.addColorStop(1,'#0e9');
+      ctx.beginPath(); ctx.arc(PB.ball.x,PB.ball.y,PB.ball.r,0,Math.PI*2);
+      ctx.fillStyle=bg; ctx.fill();
+      // 하단 배수구 표시
+      ctx.strokeStyle='rgba(239,68,68,0.3)'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(12,H-10); ctx.lineTo(PB.lp.x-5,H-10); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(PB.rp.x+5,H-10); ctx.lineTo(W-12,H-10); ctx.stroke();
+      // 목숨 표시
+      for(let i=0;i<PB.livesLeft;i++){
+        ctx.font='14px serif'; ctx.fillText('🔮',8+i*20,H-8);
+      }
+    };
+
+    const pbLoop = (ctx) => {
+      if (!pinballActive.value) return;
+      const alive = pbUpdate();
+      pbDraw(ctx);
+      if (alive) pbAnimId = requestAnimationFrame(() => pbLoop(ctx));
     };
 
     const startPinball = async () => {
+      pinballScore.value = 0;
+      pbInit();
       pinballActive.value = true;
-      pinballScore.value  = 0;
-      pinballState = {
-        ball: { x: 230, y: 50, vx: (Math.random() - 0.5) * 4, vy: 2, r: 8 },
-        flippers: { left: 0, right: 0 },
-        bumpers: [{ x: 150, y: 150, r: 20 }, { x: 310, y: 150, r: 20 }, { x: 230, y: 250, r: 25 }]
-      };
       await nextTick();
-      runPinball();
+      const canvas = pinballCanvas.value;
+      if (!canvas) return;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width  = PB.W * dpr;
+      canvas.height = PB.H * dpr;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      // 키보드
+      const onKey = (e) => {
+        const down = e.type === 'keydown';
+        if (e.key==='a'||e.key==='ArrowLeft')  { pbKeys.left  = down; e.preventDefault(); }
+        if (e.key==='d'||e.key==='ArrowRight') { pbKeys.right = down; e.preventDefault(); }
+      };
+      // 터치 (모바일: 화면 좌반=왼쪽 플리퍼, 우반=오른쪽)
+      const onTouch = (e) => {
+        e.preventDefault();
+        pbKeys.left = false; pbKeys.right = false;
+        const rect = canvas.getBoundingClientRect();
+        Array.from(e.touches).forEach(t => {
+          const tx = t.clientX - rect.left;
+          if (tx < rect.width / 2) pbKeys.left  = true;
+          else                      pbKeys.right = true;
+        });
+      };
+      const onTouchEnd = (e) => {
+        e.preventDefault();
+        pbKeys.left = false; pbKeys.right = false;
+        const rect = canvas.getBoundingClientRect();
+        Array.from(e.touches).forEach(t => {
+          const tx = t.clientX - rect.left;
+          if (tx < rect.width / 2) pbKeys.left  = true;
+          else                      pbKeys.right = true;
+        });
+      };
+
+      window.addEventListener('keydown', onKey);
+      window.addEventListener('keyup',   onKey);
+      canvas.addEventListener('touchstart', onTouch,    { passive: false });
+      canvas.addEventListener('touchmove',  onTouch,    { passive: false });
+      canvas.addEventListener('touchend',   onTouchEnd, { passive: false });
+
+      pbCleanup = () => {
+        window.removeEventListener('keydown', onKey);
+        window.removeEventListener('keyup',   onKey);
+        canvas.removeEventListener('touchstart', onTouch);
+        canvas.removeEventListener('touchmove',  onTouch);
+        canvas.removeEventListener('touchend',   onTouchEnd);
+      };
+
+      pbLoop(ctx);
     };
 
     const stopPinball = () => {
       pinballActive.value = false;
-      if (pinballAnimId) { cancelAnimationFrame(pinballAnimId); pinballAnimId = null; }
-    };
-
-    const runPinball = () => {
-      if (!pinballActive.value) return;
-      const canvas = pinballCanvas.value;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const W = 460, H = 500;
-      canvas.width = W; canvas.height = H;
-
-      const update = () => {
-        if (!pinballActive.value) return;
-        let b = pinballState.ball;
-        b.x += b.vx; b.y += b.vy;
-        b.vy += 0.05;
-
-        if (b.x - b.r < 0 || b.x + b.r > W) b.vx *= -1;
-        if (b.y - b.r < 0) b.vy *= -1;
-        if (b.y + b.r > H) {
-          b.x = 230; b.y = 50; b.vx = (Math.random() - 0.5) * 4; b.vy = 2;
-        }
-
-        pinballState.bumpers.forEach(bump => {
-          let dx = b.x - bump.x, dy = b.y - bump.y;
-          let dist = Math.sqrt(dx*dx + dy*dy);
-          if (dist < b.r + bump.r) {
-            let angle = Math.atan2(dy, dx);
-            b.vx = Math.cos(angle) * 5; b.vy = Math.sin(angle) * 5;
-            pinballScore.value += 10;
-          }
-        });
-
-        const fL = { x: 100, y: 450, w: 100, h: 10, angle: pinballState.flippers.left ? -0.3 : 0.3 };
-        const fR = { x: 260, y: 450, w: 100, h: 10, angle: pinballState.flippers.right ? 0.3 : -0.3 };
-        
-        [fL, fR].forEach(f => {
-          if (b.y + b.r > f.y && b.y - b.r < f.y + f.h && b.x > f.x && b.x < f.x + f.w) {
-            b.vy = -Math.abs(b.vy) - 2;
-            b.vx += f.angle * 10;
-          }
-        });
-
-        draw();
-        pinballAnimId = requestAnimationFrame(update);
-      };
-
-      const draw = () => {
-        ctx.fillStyle = '#0d0d1a'; ctx.fillRect(0, 0, W, H);
-        ctx.beginPath(); ctx.arc(pinballState.ball.x, pinballState.ball.y, pinballState.ball.r, 0, Math.PI*2);
-        ctx.fillStyle = '#00f5ff'; ctx.fill();
-        ctx.fillStyle = '#a29bfe';
-        pinballState.bumpers.forEach(bump => {
-          ctx.beginPath(); ctx.arc(bump.x, bump.y, bump.r, 0, Math.PI*2); ctx.fill();
-        });
-        ctx.fillStyle = '#fd79a8';
-        ctx.fillRect(100, 450 + (pinballState.flippers.left ? -20 : 0), 100, 10);
-        ctx.fillRect(260, 450 + (pinballState.flippers.right ? -20 : 0), 100, 10);
-      };
-
-      const handleKey = (e) => {
-        const active = e.type === 'keydown';
-        if (e.key === 'a' || e.key === 'ArrowLeft') pinballState.flippers.left = active ? 1 : 0;
-        if (e.key === 'd' || e.key === 'ArrowRight') pinballState.flippers.right = active ? 1 : 0;
-      };
-      window.addEventListener('keydown', handleKey);
-      window.addEventListener('keyup', handleKey);
-
-      update();
+      if (pbAnimId) { cancelAnimationFrame(pbAnimId); pbAnimId = null; }
+      pbCleanup && pbCleanup();
     };
 
     const startLadder = async () => {
@@ -561,17 +708,46 @@ export default {
     };
 
     /* ══════════ 레이스 ══════════ */
-    const racers       = ref([]);
-    const raceActive   = ref(false);
-    const raceWinner   = ref(null);
-    const countdown    = ref(0);
-    const raceLeader   = ref(-1);
-    const laneCanvases = ref([]);
+    const racers        = ref([]);
+    const raceActive    = ref(false);
+    const raceWinner    = ref(null);
+    const countdown     = ref(0);
+    const raceLeader    = ref(-1);
+    const laneCanvases  = ref([]);
     const circuitCanvas = ref(null);
-    let   raceInterval = null;
-    let   placeCounter = 1;
+    const raceTrackType = ref('oval');
+    let   raceInterval  = null;
+    let   placeCounter  = 1;
 
-    // 원형 트랙 그리기 (차량용)
+    // 트랙 타입별 차량 위치 계산 (progress 0~100)
+    const getCarPos = (progress, W, H, laneIdx, totalLanes, trackType) => {
+      const t = (progress / 100) * Math.PI * 2;
+      const cx = W / 2, cy = H / 2;
+      const offset = (laneIdx - (totalLanes - 1) / 2) * 11;
+
+      if (trackType === 'circle') {
+        const r = Math.min(W, H) * 0.33 + offset;
+        return { x: cx + r * Math.cos(t), y: cy + r * Math.sin(t), angle: t + Math.PI / 2 };
+      }
+      if (trackType === 'oval') {
+        const rx = W * 0.38 + offset, ry = H * 0.32 + offset * 0.6;
+        // 정확한 접선 각도
+        const dx = -rx * Math.sin(t), dy = ry * Math.cos(t);
+        return { x: cx + rx * Math.cos(t), y: cy + ry * Math.sin(t), angle: Math.atan2(dy, dx) };
+      }
+      // square: 사각형 트랙 (둥근 사각형)
+      const pw = W * 0.70 + offset * 1.2;
+      const ph = H * 0.62 + offset * 1.0;
+      const half = (pw * 2 + ph * 2);
+      const d = (progress / 100) * half;
+      let x, y, angle;
+      if (d < pw) { x = cx - pw/2 + d; y = cy - ph/2; angle = 0; }
+      else if (d < pw + ph) { x = cx + pw/2; y = cy - ph/2 + (d - pw); angle = Math.PI/2; }
+      else if (d < pw * 2 + ph) { x = cx + pw/2 - (d - pw - ph); y = cy + ph/2; angle = Math.PI; }
+      else { x = cx - pw/2; y = cy + ph/2 - (d - pw*2 - ph); angle = -Math.PI/2; }
+      return { x, y, angle };
+    };
+
     const drawCircuit = () => {
       const canvas = circuitCanvas.value;
       if (!canvas) return;
@@ -580,88 +756,85 @@ export default {
       if (W <= 0 || H <= 0) return;
       const dpr = window.devicePixelRatio || 1;
       if (canvas.width !== W * dpr || canvas.height !== H * dpr) {
-        canvas.width = W * dpr;
-        canvas.height = H * dpr;
+        canvas.width = W * dpr; canvas.height = H * dpr;
       }
       const ctx = canvas.getContext('2d');
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, W, H);
-
       const cx = W / 2, cy = H / 2;
-      const rx = W * 0.38, ry = H * 0.35;
+      const tt = raceTrackType.value;
 
-      // 트랙 배경 (아스팔트 느낌)
-      ctx.beginPath();
-      ctx.ellipse(cx, cy, rx + 30, ry + 30, 0, 0, Math.PI * 2);
-      ctx.fillStyle = '#1a1a2e';
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // 중앙 잔디
-      ctx.beginPath();
-      ctx.ellipse(cx, cy, rx - 30, ry - 30, 0, 0, Math.PI * 2);
+      // ── 트랙 배경 ──
       ctx.fillStyle = '#0d0d1a';
-      ctx.fill();
-      ctx.stroke();
+      ctx.fillRect(0, 0, W, H);
 
-      // 결승선
-      ctx.beginPath();
-      ctx.setLineDash([5, 5]);
-      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-      ctx.moveTo(cx + rx - 30, cy);
-      ctx.lineTo(cx + rx + 30, cy);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      // 차량들 그리기
-      racers.value.forEach((r, idx) => {
-        const laneOffset = (idx - (pCount.value - 1) / 2) * 12;
-        const curRx = rx + laneOffset;
-        const curRy = ry + laneOffset;
-        
-        // progress 0-100 -> angle (3시 방향이 0도, 시계방향)
-        const angle = (r.progress / 100) * Math.PI * 2;
-        const x = cx + curRx * Math.cos(angle);
-        const y = cy + curRy * Math.sin(angle);
-        
-        // 진행 방향 (접선 각도)
-        const tangent = angle + Math.PI / 2;
-
-        const eSize = 28;
-        const emoji = '🏎️';
-        const dust  = '💨';
-
-        // 연기 (뒤쪽에 그림)
-        if (raceActive.value && !r.finished) {
-        ctx.save();
-        // 차량 뒤쪽 위치 계산
-        const dustX = x - Math.cos(tangent) * 15;
-        const dustY = y - Math.sin(tangent) * 15;
-        ctx.translate(dustX, dustY);
-        ctx.rotate(tangent);
-        ctx.scale(-1, 1); // 연기 좌우 대칭
-        ctx.font = `${eSize * 0.6}px serif`;
-        ctx.textBaseline = 'middle';
-        ctx.textAlign = 'center';
-        // 수평 맞춤을 위해 y좌표 미세 조정
-        ctx.fillText(dust, 0, 2); 
-        ctx.restore();
-        }
-
-        // 자동차
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(tangent);
-        ctx.scale(-1, 1); // 자동차 좌우 대칭
-        ctx.font = `${eSize}px serif`;
-        ctx.textBaseline = 'middle';
-        ctx.textAlign = 'center';
-        ctx.fillText(emoji, 0, 0);
-        ctx.restore();
-        });
+      if (tt === 'circle') {
+        const r = Math.min(W, H) * 0.33;
+        const drawEllipse = (rx, ry, fill, stroke) => {
+          ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2);
+          if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+          if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke(); }
         };
+        drawEllipse(r+28, r+28, '#1a1a2e', 'rgba(255,255,255,0.08)');
+        drawEllipse(r-28, r-28, '#0d0d1a', 'rgba(255,255,255,0.05)');
+        // 결승선
+        ctx.save(); ctx.setLineDash([5,4]); ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(cx+r-22,cy); ctx.lineTo(cx+r+24,cy); ctx.stroke(); ctx.restore();
+        // 트랙 레인 점선
+        ctx.save(); ctx.setLineDash([8,8]); ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.ellipse(cx,cy,r,r,0,0,Math.PI*2); ctx.stroke(); ctx.restore();
+
+      } else if (tt === 'oval') {
+        const rx = W*0.38, ry = H*0.32;
+        const drawEll = (drx, dry, fill, stroke) => {
+          ctx.beginPath(); ctx.ellipse(cx,cy,drx,dry,0,0,Math.PI*2);
+          if(fill){ctx.fillStyle=fill;ctx.fill();}
+          if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();}
+        };
+        drawEll(rx+28,ry+28,'#1a1a2e','rgba(255,255,255,0.08)');
+        drawEll(rx-28,ry-28,'#0d0d1a','rgba(255,255,255,0.05)');
+        ctx.save(); ctx.setLineDash([5,4]); ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(cx+rx-22,cy); ctx.lineTo(cx+rx+24,cy); ctx.stroke(); ctx.restore();
+
+      } else {
+        // square
+        const pw = W*0.70, ph = H*0.62;
+        const drawRRect = (w, h, r2, fill, stroke) => {
+          const x0=cx-w/2, y0=cy-h/2;
+          ctx.beginPath();
+          ctx.moveTo(x0+r2,y0); ctx.lineTo(x0+w-r2,y0);
+          ctx.arcTo(x0+w,y0,x0+w,y0+r2,r2);
+          ctx.lineTo(x0+w,y0+h-r2); ctx.arcTo(x0+w,y0+h,x0+w-r2,y0+h,r2);
+          ctx.lineTo(x0+r2,y0+h); ctx.arcTo(x0,y0+h,x0,y0+h-r2,r2);
+          ctx.lineTo(x0,y0+r2); ctx.arcTo(x0,y0,x0+r2,y0,r2);
+          ctx.closePath();
+          if(fill){ctx.fillStyle=fill;ctx.fill();}
+          if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();}
+        };
+        drawRRect(pw+50,ph+50,24,'#1a1a2e','rgba(255,255,255,0.08)');
+        drawRRect(pw-50,ph-50,12,'#0d0d1a','rgba(255,255,255,0.05)');
+        // 결승선
+        ctx.save(); ctx.setLineDash([5,4]); ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(cx+pw/2-2,cy-12); ctx.lineTo(cx+pw/2+22,cy-12); ctx.stroke(); ctx.restore();
+      }
+
+      // ── 차량 그리기 ──
+      racers.value.forEach((r, idx) => {
+        const { x, y, angle } = getCarPos(r.progress, W, H, idx, pCount.value, tt);
+        const eSize = 26;
+        if (raceActive.value && !r.finished) {
+          ctx.save();
+          ctx.translate(x - Math.cos(angle)*14, y - Math.sin(angle)*14);
+          ctx.rotate(angle); ctx.scale(-1,1);
+          ctx.font=`${Math.floor(eSize*0.55)}px serif`; ctx.textBaseline='middle'; ctx.textAlign='center';
+          ctx.fillText('💨',0,0); ctx.restore();
+        }
+        ctx.save();
+        ctx.translate(x,y); ctx.rotate(angle); ctx.scale(-1,1);
+        ctx.font=`${eSize}px serif`; ctx.textBaseline='middle'; ctx.textAlign='center';
+        ctx.fillText('🏎️',0,0); ctx.restore();
+      });
+    };
 
         const drawLane = (canvas, racer, isActive) => {
         if (!canvas || !racer) return;
@@ -859,7 +1032,7 @@ export default {
       gameCards, activeGame, openGame, closeGame, pCount, pNames, ballColor,
       lottoRows, isGenerating, generateLotto,
       ladderCanvas, ladderStarted, ladderDone, ladderWinnerName, ladderResultCol, ladderActiveCol, startLadder,
-      racers, raceActive, raceWinner, countdown, raceLeader, laneCanvases, circuitCanvas, startRace, resetRace,
+      racers, raceActive, raceWinner, countdown, raceLeader, laneCanvases, circuitCanvas, raceTrackType, startRace, resetRace,
       wheelCanvas, rouletteStarted, wheelAngle, wheelTransition, isSpinning, wheelWinner, spinWheel, resetRoulette, startPinball,
     };
   }
@@ -1113,8 +1286,8 @@ export default {
 .place-badge { font-size: 0.7rem; font-weight: 700; color: #ffd93d; width: 28px; text-align: right; flex-shrink: 0; }
 
 /* 핀볼 */
-.pinball-container { position: relative; background: #000; border-radius: 12px; overflow: hidden; }
-.pinball-canvas { width: 100%; height: 500px; display: block; }
+.pinball-container { position: relative; background: #050510; border-radius: 16px; overflow: hidden; display: flex; justify-content: center; }
+.pinball-canvas { width: 340px; max-width: 100%; height: auto; display: block; touch-action: none; cursor: pointer; }
 .pinball-start-overlay {
   position: absolute; inset: 0; display: flex; flex-direction: column; gap: 16px;
   align-items: center; justify-content: center; background: rgba(0,0,0,0.6);
