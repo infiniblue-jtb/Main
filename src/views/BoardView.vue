@@ -16,10 +16,8 @@
         </div>
       </div>
 
-      <AdComponent slotId="9173007135" />
-
       <!-- Contact Form -->
-      <div id="contact-section" class="glass-card contact-container mt-20">
+      <div id="contact-section" class="glass-card contact-container">
         <h2 class="card-title">{{ t.contactTitle }}</h2>
         <form action="https://formspree.io/f/mrerkyqp" method="POST" class="apple-form">
           <div class="form-group">
@@ -193,7 +191,7 @@ export default {
 .section-header { margin-bottom: 16px; text-align: center; }
 .section-title { font-size: 1.8rem; font-weight: 600; }
 .mt-80 { margin-top: 28px; }
-.contact-container { margin-top: 10px; }
+.contact-container { margin-top: 10px; padding-top: 0; }
 
 .comment-container { min-height: 400px; }
 

@@ -384,6 +384,7 @@ export default {
     const pinballActive = ref(false);
     const pinballScore  = ref(0);
     let   pbAnimId      = null;
+    let   pbLastTime    = null;
     let   pbKeys        = { left: false, right: false };
     let   pbCleanup     = null;
 
@@ -734,13 +735,13 @@ export default {
       }
     };
 
-    const pbLoop = (ctx, lastTime) => {
+    const pbLoop = (ctx, t) => {
       if (!pinballActive.value) return;
-      const now = performance.now();
-      const dt = lastTime ? Math.min((now - lastTime) / 16.67, 3) : 1;
+      const dt = pbLastTime != null ? Math.min((t - pbLastTime) / 16.67, 3) : 1;
+      pbLastTime = t;
       const alive = pbUpdate(dt);
       pbDraw(ctx);
-      if (alive) pbAnimId = requestAnimationFrame((t) => pbLoop(ctx, t));
+      if (alive) pbAnimId = requestAnimationFrame((ts) => pbLoop(ctx, ts));
     };
 
     const startPinball = async () => {
@@ -794,7 +795,8 @@ export default {
         canvas.removeEventListener('touchend',   onTouchEnd);
       };
 
-      pbAnimId = requestAnimationFrame((t) => pbLoop(ctx, t));
+      pbLastTime = null;
+      pbAnimId = requestAnimationFrame((ts) => pbLoop(ctx, ts));
     };
 
     const stopPinball = () => {
