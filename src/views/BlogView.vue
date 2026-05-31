@@ -483,14 +483,31 @@ export default {
 
     // ... Pagination etc ...
 
+    // 구버전 커스텀도메인 URL → 워커 서빙 URL 변환
+    const normalizeImgUrl = (url) => {
+      if (!url) return url;
+      return url.replace(
+        /https?:\/\/images\.dongtan\.infiniblue\.com\//,
+        'https://dongtan-api.infiniblue.workers.dev/api/images/'
+      );
+    };
+
     const getThumbnail = (post) => {
       if (!post.content) return null;
       const match = post.content.match(/src="([^"]+)"/);
-      return match ? match[1] : null;
+      if (!match) return null;
+      const url = match[1];
+      if (url.startsWith('data:')) return null; // base64는 썸네일 제외
+      return normalizeImgUrl(url);
     };
 
     const parseContent = (content) => {
-        return content; // Tiptap content is already HTML
+      if (!content) return '';
+      // 구버전 URL 정상화
+      return content.replace(
+        /src="(https?:\/\/images\.dongtan\.infiniblue\.com\/[^"]+)"/g,
+        (_, url) => `src="${normalizeImgUrl(url)}"`
+      );
     };
 
     const fetchPosts = async () => {
@@ -538,7 +555,7 @@ export default {
           id: post.id || 0,
           title: post.title || '제목 없음',
           date: post.created_at ? formatDate(post.created_at) : '',
-          excerpt: post.content ? post.content.substring(0, 50) + '...' : '',
+          excerpt: post.content ? post.content.replace(/<[^>]+>/g, '').trim().substring(0, 60) : '',
           thumbnail: getThumbnail(post)
         };
       });
@@ -1244,7 +1261,15 @@ export default {
 .modal-text {
   font-size: 1.1rem;
   line-height: 1.8;
-  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.modal-text img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 8px 0;
+  display: block;
 }
 
 .loading-state {
