@@ -201,7 +201,26 @@ app.post('/api/upload', async (c) => {
   }
 });
 
-// 7. 이미지 서빙 (R2 → Worker → 브라우저)
+// 7-1. R2 저장 목록 확인 (관리용)
+app.get('/api/images', async (c) => {
+  try {
+    const list = await c.env.IMAGES.list({ limit: 100 });
+    return c.json({
+      count: list.objects.length,
+      objects: list.objects.map(o => ({
+        key: o.key,
+        size: o.size,
+        uploaded: o.uploaded,
+        url: `https://dongtan-api.infiniblue.workers.dev/api/images/${o.key}`
+      })),
+      truncated: list.truncated
+    });
+  } catch (e) {
+    return c.json({ error: e.message }, 500);
+  }
+});
+
+// 7-3. 이미지 서빙 (R2 → Worker → 브라우저)
 app.get('/api/images/:filename', async (c) => {
   const filename = c.req.param('filename');
   try {

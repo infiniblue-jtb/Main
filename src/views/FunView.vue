@@ -1033,7 +1033,8 @@ export default {
       lottoRows, isGenerating, generateLotto,
       ladderCanvas, ladderStarted, ladderDone, ladderWinnerName, ladderResultCol, ladderActiveCol, startLadder,
       racers, raceActive, raceWinner, countdown, raceLeader, laneCanvases, circuitCanvas, raceTrackType, startRace, resetRace,
-      wheelCanvas, rouletteStarted, wheelAngle, wheelTransition, isSpinning, wheelWinner, spinWheel, resetRoulette, startPinball,
+      wheelCanvas, rouletteStarted, wheelAngle, wheelTransition, isSpinning, wheelWinner, spinWheel, resetRoulette,
+      pinballCanvas, pinballActive, pinballScore, startPinball,
     };
   }
 };
