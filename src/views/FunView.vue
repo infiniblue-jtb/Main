@@ -514,12 +514,10 @@ export default {
 
     const BUMPER_DEFS = [
       { ci: ['#fef08a','#ca8a04'], score: 100 },
-      { ci: ['#6ee7b7','#059669'], score: 80  },
-      { ci: ['#93c5fd','#2563eb'], score: 80  },
-      { ci: ['#fca5a5','#dc2626'], score: 60  },
-      { ci: ['#d8b4fe','#7c3aed'], score: 60  },
-      { ci: ['#fb923c','#c2410c'], score: 70  },
-      { ci: ['#34d399','#065f46'], score: 70  },
+      { ci: ['#6ee7b7','#059669'], score: 75  },
+      { ci: ['#93c5fd','#2563eb'], score: 75  },
+      { ci: ['#fca5a5','#dc2626'], score: 50  },
+      { ci: ['#d8b4fe','#7c3aed'], score: 50  },
     ];
 
     const PB = {
@@ -528,45 +526,38 @@ export default {
       bumpers: [], targets: [], slings: [], particles: [], ballTrail: [],
       leftFlipperUp: false, rightFlipperUp: false,
       lp: null, rp: null,
-      tick: 0, multiplier: 1, comboTimer: 0,
+      tick: 0,
     };
 
     const pbInit = () => {
       PB.W = 340; PB.H = 580;
-      const cx = PB.W / 2;
-      PB.ball = { x: cx + (Math.random()-0.5)*10, y: 70, vx: (Math.random()-0.5)*1.5, vy: 3, r: 9 };
+      PB.ball = { x: PB.W/2 + (Math.random()-0.5)*20, y: 80, vx: (Math.random()-0.5)*2, vy: 2.5, r: 9 };
       PB.livesLeft = 3;
       PB.tick = 0;
-      PB.multiplier = 1;
-      PB.comboTimer = 0;
       PB.ballTrail = [];
       PB.particles = [];
-      // 7개 범퍼: 중앙 + 양측 + 하단 클러스터
+      // 범퍼 5개 — 충분한 간격으로 공이 빠져나올 수 있게
       PB.bumpers = [
-        { x: cx,       y: 152, r: 30, flash: 0, ...BUMPER_DEFS[0] }, // 중앙 대형
-        { x: cx-92,   y: 215, r: 22, flash: 0, ...BUMPER_DEFS[1] }, // 좌 중간
-        { x: cx+92,   y: 215, r: 22, flash: 0, ...BUMPER_DEFS[2] }, // 우 중간
-        { x: cx-50,   y: 305, r: 20, flash: 0, ...BUMPER_DEFS[3] }, // 좌하
-        { x: cx+50,   y: 305, r: 20, flash: 0, ...BUMPER_DEFS[4] }, // 우하
-        { x: cx-118,  y: 172, r: 17, flash: 0, ...BUMPER_DEFS[5] }, // 극좌
-        { x: cx+118,  y: 172, r: 17, flash: 0, ...BUMPER_DEFS[6] }, // 극우
+        { x: PB.W/2,     y: 160, r: 28, flash: 0, ...BUMPER_DEFS[0] },
+        { x: PB.W/2-82,  y: 248, r: 21, flash: 0, ...BUMPER_DEFS[1] },
+        { x: PB.W/2+82,  y: 248, r: 21, flash: 0, ...BUMPER_DEFS[2] },
+        { x: PB.W/2-46,  y: 328, r: 18, flash: 0, ...BUMPER_DEFS[3] },
+        { x: PB.W/2+46,  y: 328, r: 18, flash: 0, ...BUMPER_DEFS[4] },
       ];
-      // 드롭 타겟 6개
+      // 드롭 타겟 4개
       PB.targets = [
-        { x: 40, y: 118, hit: false, flash: 0 },
-        { x: 40, y: 162, hit: false, flash: 0 },
-        { x: 40, y: 206, hit: false, flash: 0 },
-        { x: PB.W-40, y: 118, hit: false, flash: 0 },
-        { x: PB.W-40, y: 162, hit: false, flash: 0 },
-        { x: PB.W-40, y: 206, hit: false, flash: 0 },
+        { x: 38, y: 130, hit: false, flash: 0 },
+        { x: 38, y: 178, hit: false, flash: 0 },
+        { x: PB.W-38, y: 130, hit: false, flash: 0 },
+        { x: PB.W-38, y: 178, hit: false, flash: 0 },
       ];
-      // 슬링샷 (좌우 대각 벽 킥백 구간)
+      // 슬링샷 (장식용 — 충돌은 대각선 가이드 벽이 처리)
       PB.slings = [
-        { side: 'left',  y1: 370, y2: 440, flash: 0 },
-        { side: 'right', y1: 370, y2: 440, flash: 0 },
+        { side: 'left',  y1: 380, y2: 440, flash: 0 },
+        { side: 'right', y1: 380, y2: 440, flash: 0 },
       ];
-      PB.lp = { x: 82,          y: PB.H - 80 };
-      PB.rp = { x: PB.W - 82,   y: PB.H - 80 };
+      PB.lp = { x: 78,          y: PB.H - 78 };
+      PB.rp = { x: PB.W - 78,   y: PB.H - 78 };
       PB.leftFlipperUp  = false;
       PB.rightFlipperUp = false;
       pbKeys = { left: false, right: false };
@@ -597,41 +588,18 @@ export default {
         ball.x += nx*(ball.r + 5 - dist);
         ball.y += ny*(ball.r + 5 - dist);
         const dot = ball.vx*nx + ball.vy*ny;
-
-        if (!flipSide) {
-          // 일반 벽면: 표준 반사
-          ball.vx = (ball.vx - 2*dot*nx) * 0.75;
-          ball.vy = (ball.vy - 2*dot*ny) * 0.75;
-          return;
-        }
-
-        const isActive = (flipSide === 'left' && PB.leftFlipperUp) ||
-                         (flipSide === 'right' && PB.rightFlipperUp);
-
-        if (isActive) {
-          // ── 능동 플리퍼: 위치 기반 충격 ──
-          // t=0(피벗 부근) → 약한 킥, t=1(끝단) → 강한 킥
-          const tipFactor = t;                          // 0~1
-          const baseKick  = 7 + tipFactor * 10;        // 7 ~ 17
-          const sideKick  = 1.5 + tipFactor * 3.5;     // 1.5 ~ 5
-
-          // 반사 + 킥 합산 (에너지 보존 느낌)
-          ball.vx = (ball.vx - 2*dot*nx) * 0.8;
-          ball.vy = (ball.vy - 2*dot*ny) * 0.8;
-
-          if (flipSide === 'left') {
-            ball.vy -= baseKick;
-            ball.vx += sideKick;
-          } else {
-            ball.vy -= baseKick;
-            ball.vx -= sideKick;
-          }
-          // 최소 상승 속도 보장
-          if (ball.vy > -5) ball.vy = -5 - tipFactor * 3;
-        } else {
-          // 수동 플리퍼: 약하게 튕기되 에너지 많이 흡수
-          ball.vx = (ball.vx - 2*dot*nx) * 0.55;
-          ball.vy = (ball.vy - 2*dot*ny) * 0.55;
+        // 기본 반사 (에너지 약간 감쇠)
+        ball.vx = (ball.vx - 2*dot*nx) * 0.72;
+        ball.vy = (ball.vy - 2*dot*ny) * 0.72;
+        // 플리퍼 활성 시: 위치 기반 킥 (끝단에 맞을수록 강하게)
+        if (flipSide === 'left' && PB.leftFlipperUp) {
+          ball.vy -= 6 + t * 5;  // 6~11 (t=0 피벗, t=1 끝단)
+          ball.vx += 1 + t * 2;
+          if (ball.vy > -4) ball.vy = -6;
+        } else if (flipSide === 'right' && PB.rightFlipperUp) {
+          ball.vy -= 6 + t * 5;
+          ball.vx -= 1 + t * 2;
+          if (ball.vy > -4) ball.vy = -6;
         }
       }
     };
@@ -677,59 +645,37 @@ export default {
       if (b.x + b.r > W-14) { b.x = W-14-b.r; b.vx = -Math.abs(b.vx)*0.75; pbSounds.wall(); }
       if (b.y - b.r < 14) { b.y = 14+b.r; b.vy = Math.abs(b.vy)*0.75; pbSounds.wall(); }
 
-      // 콤보 타이머 감소
-      if (PB.comboTimer > 0) { PB.comboTimer -= dt; if (PB.comboTimer <= 0) { PB.comboTimer = 0; PB.multiplier = 1; } }
-
       // 대각선 가이드 벽 충돌 (플리퍼 옆 구멍 막기)
-      pbSegCollide(b, 14, H-210, PB.lp.x - 6, PB.lp.y, null);
-      pbSegCollide(b, W-14, H-210, PB.rp.x + 6, PB.rp.y, null);
+      pbSegCollide(b, 14, H-210, PB.lp.x - 6, PB.lp.y);
+      pbSegCollide(b, W-14, H-210, PB.rp.x + 6, PB.rp.y);
 
-      // 슬링샷 충돌 (킥백)
-      PB.slings.forEach(sling => {
-        if (sling.flash > 0) sling.flash -= dt;
-        const sx = sling.side === 'left' ? 14 + b.r + 6 : W - 14 - b.r - 6;
-        const inZone = b.y > sling.y1 && b.y < sling.y2;
-        if (inZone && ((sling.side === 'left' && b.x <= sx) || (sling.side === 'right' && b.x >= sx))) {
-          b.vx = sling.side === 'left' ? Math.abs(b.vx) * 1.4 + 2 : -(Math.abs(b.vx) * 1.4 + 2);
-          b.vy -= 1.5;
-          pinballScore.value += 30 * PB.multiplier;
-          sling.flash = 12;
-          pbSounds.wall();
-        }
-      });
-
-      // 범퍼 충돌
+      // 범퍼 충돌 — 1.5x 에너지 증폭, 최솟값 3.5
       PB.bumpers.forEach(bump => {
         const dx = b.x-bump.x, dy = b.y-bump.y;
         const dist = Math.sqrt(dx*dx+dy*dy);
         if (dist < b.r+bump.r && dist > 0) {
           const nx=dx/dist, ny=dy/dist;
-          const speed = Math.max(Math.sqrt(b.vx*b.vx+b.vy*b.vy), 4);
-          b.vx = nx*speed*1.6; b.vy = ny*speed*1.6;
+          const speed = Math.max(Math.sqrt(b.vx*b.vx+b.vy*b.vy), 3.5);
+          b.vx = nx*speed*1.5; b.vy = ny*speed*1.5;
           b.x = bump.x + nx*(b.r+bump.r+1);
           b.y = bump.y + ny*(b.r+bump.r+1);
-          // 콤보 멀티플라이어
-          PB.comboTimer = 120;
-          PB.multiplier = Math.min(PB.multiplier + 0.5, 5);
-          const scored = Math.round(bump.score * PB.multiplier);
-          pinballScore.value += scored;
+          pinballScore.value += bump.score;
           bump.flash = 14;
           pbSpawnParticles(bump.x, bump.y, bump.ci[0]);
           pbSounds.bumper();
         }
-        if (bump.flash > 0) bump.flash -= dt;
+        if (bump.flash > 0) bump.flash--;
       });
 
-      // 드롭 타겟 충돌 (6개)
+      // 드롭 타겟 충돌
       PB.targets.forEach(tgt => {
-        if (tgt.flash > 0) tgt.flash -= dt;
+        if (tgt.flash > 0) tgt.flash--;
         if (tgt.hit) return;
         const dx = b.x - tgt.x, dy = b.y - tgt.y;
-        if (Math.abs(dx) < 14 && Math.abs(dy) < 14) {
+        if (Math.abs(dx) < 13 && Math.abs(dy) < 13) {
           b.vx = Math.sign(dx || 1) * Math.max(Math.abs(b.vx), 2) * 0.9;
           b.vy *= -0.8;
-          const scored = Math.round(200 * PB.multiplier);
-          pinballScore.value += scored;
+          pinballScore.value += 150;
           tgt.hit = true; tgt.flash = 20;
           pbSpawnParticles(tgt.x, tgt.y, '#fbbf24');
           pbSounds.target();
@@ -737,13 +683,8 @@ export default {
       });
       if (PB.targets.every(t => t.hit)) {
         PB.targets.forEach(t => { t.hit = false; t.flash = 0; });
-        const bonusScore = Math.round(1000 * PB.multiplier);
-        pinballScore.value += bonusScore;
-        PB.multiplier = Math.min(PB.multiplier + 1, 5);
-        PB.comboTimer = 180;
+        pinballScore.value += 500;
         pbSpawnParticles(W/2, H/2 - 80, '#ffffff');
-        pbSpawnParticles(W/2 - 40, H/2, '#fbbf24');
-        pbSpawnParticles(W/2 + 40, H/2, '#fbbf24');
         pbSounds.bonus();
       }
 
@@ -1022,22 +963,16 @@ export default {
       ctx.setLineDash([]);
 
       // ── 스코어 패널 ──
-      ctx.fillStyle='rgba(0,0,18,0.80)';
-      ctx.beginPath(); ctx.roundRect(W/2-95, 6, 190, 52, 8); ctx.fill();
+      ctx.fillStyle='rgba(0,0,18,0.75)';
+      ctx.beginPath(); ctx.roundRect(W/2-85, 6, 170, 48, 8); ctx.fill();
       ctx.strokeStyle='rgba(0,140,255,0.3)'; ctx.lineWidth=1; ctx.stroke();
       ctx.save();
       ctx.shadowColor='#00ccff'; ctx.shadowBlur=14;
       ctx.fillStyle='rgba(0,200,255,0.5)'; ctx.font='9px monospace';
       ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText('◆  S C O R E  ◆', W/2, 16);
-      ctx.shadowBlur=22; ctx.fillStyle='#00f5ff'; ctx.font='bold 20px monospace';
-      ctx.fillText(pinballScore.value.toLocaleString(), W/2, 36);
-      // 멀티플라이어 표시
-      if (PB.multiplier > 1) {
-        ctx.fillStyle = PB.multiplier >= 4 ? '#ff4444' : PB.multiplier >= 3 ? '#ff9900' : '#ffd700';
-        ctx.font = 'bold 11px monospace';
-        ctx.fillText(`×${PB.multiplier.toFixed(1)}`, W/2, 52);
-      }
+      ctx.fillText('◆  S C O R E  ◆', W/2, 18);
+      ctx.shadowBlur=22; ctx.fillStyle='#00f5ff'; ctx.font='bold 22px monospace';
+      ctx.fillText(pinballScore.value.toLocaleString(), W/2, 38);
       ctx.restore();
 
       // ── 목숨 ──
