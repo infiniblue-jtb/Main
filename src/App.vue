@@ -100,11 +100,6 @@
       <!-- 모바일 드로어 -->
       <transition name="drawer">
         <div v-if="isMenuOpen" class="mobile-drawer">
-          <!-- 날씨/시간 칩 -->
-          <div class="drawer-status" v-if="weather || currentTime">
-            <span v-if="weather" class="drawer-weather">{{ weather.icon }} {{ weather.temp }}°</span>
-            <span class="drawer-time">{{ currentTime }}</span>
-          </div>
           <div class="drawer-links">
             <router-link to="/" class="drawer-link" @click="isMenuOpen = false">
               <span>{{ currentLang === 'ko' ? '홈' : 'Home' }}</span>

@@ -214,8 +214,8 @@
                 <button class="action-btn" @click="startPinball" :disabled="!pbPlayerName.trim()">🔮 구슬 발사!</button>
                 <p class="pinball-hint">⌨️ A/D 또는 ←→ 키 &nbsp;|&nbsp; 📱 좌우 터치</p>
                 <div class="pb-lb" v-if="pbLeaderboard.length > 0">
-                  <div class="pb-lb-hdr">🏆 TOP 10</div>
-                  <div class="pb-lb-row" v-for="(e,i) in pbLeaderboard" :key="i">
+                  <div class="pb-lb-hdr">🏆 TOP 5</div>
+                  <div class="pb-lb-row" v-for="(e,i) in pbLeaderboard.slice(0,5)" :key="i">
                     <span class="pb-lb-rank">{{ ['🥇','🥈','🥉'][i] || (i+1)+'위' }}</span>
                     <span class="pb-lb-name">{{ e.name }}</span>
                     <span class="pb-lb-score">{{ e.score.toLocaleString() }}</span>
@@ -295,6 +295,62 @@
             </div>
           </div>
 
+          <!-- ===== 지뢰 찾기 ===== -->
+          <div v-if="activeGame === 'minesweeper'" class="game-wrap ms-wrap">
+            <div class="game-title-row">
+              <span class="g-icon">💣</span>
+              <h2>지뢰 찾기</h2>
+            </div>
+            <!-- 설정 / 상태 바 -->
+            <div class="ms-toolbar">
+              <div class="ms-info">
+                <span class="ms-mines-left">💣 {{ msRemainingMines }}</span>
+                <button class="ms-face-btn" @click="msNewGame">{{ msFaceEmoji }}</button>
+                <span class="ms-timer">⏱ {{ msTime }}</span>
+              </div>
+              <div class="ms-difficulty">
+                <button v-for="d in msDifficulties" :key="d.label"
+                  class="ms-diff-btn" :class="{ active: msDiff === d.label }"
+                  @click="msSetDiff(d)">{{ d.label }}</button>
+              </div>
+            </div>
+            <!-- 게임 보드 -->
+            <div class="ms-board-wrap">
+              <div class="ms-board" :style="{ gridTemplateColumns: `repeat(${msCols}, 1fr)`, maxWidth: `${msCols * 34}px` }">
+                <div
+                  v-for="(cell, idx) in msBoard"
+                  :key="idx"
+                  class="ms-cell"
+                  :class="{
+                    'revealed': cell.revealed,
+                    'flagged':  cell.flagged && !cell.revealed,
+                    'mine':     cell.revealed && cell.mine,
+                    'boom':     cell.boom,
+                    [`n${cell.count}`]: cell.revealed && !cell.mine && cell.count > 0
+                  }"
+                  @click="msReveal(idx)"
+                  @contextmenu.prevent="msFlag(idx)"
+                >
+                  <template v-if="cell.revealed">
+                    <span v-if="cell.mine">💣</span>
+                    <span v-else-if="cell.count > 0">{{ cell.count }}</span>
+                  </template>
+                  <template v-else-if="cell.flagged">🚩</template>
+                </div>
+              </div>
+            </div>
+            <!-- 결과 -->
+            <Transition name="winner-pop">
+              <div v-if="msStatus !== 'playing'" class="winner-banner" :class="msStatus === 'win' ? '' : 'ms-lose-banner'">
+                <div class="winner-confetti">{{ msStatus === 'win' ? '🎉' : '💥' }}</div>
+                <div class="winner-text" :style="{ fontSize: '1.4rem' }">
+                  {{ msStatus === 'win' ? `클리어! ${msTime}초` : '폭발... 다시 도전!' }}
+                </div>
+                <button class="action-btn sm" @click="msNewGame">🔄 다시 하기</button>
+              </div>
+            </Transition>
+          </div>
+
         </div><!-- /.modal-box -->
       </div><!-- /.modal-overlay -->
     </Transition>
@@ -303,15 +359,16 @@
 </template>
 
 <script>
-import { ref, nextTick, watch } from 'vue';
+import { ref, computed, nextTick, watch } from 'vue';
 import AdComponent from '@/components/AdComponent.vue';
 
 const GAME_CARDS = [
-  { id: 'lotto',    icon: '🎰', name: '로또 번호 생성기', desc: '행운의 번호를 자동으로 뽑아보세요!' },
-  { id: 'ladder',   icon: '🪜', name: '사다리 타기',       desc: '긴장감 넘치는 사다리 타기 애니메이션!' },
-  { id: 'horse',    icon: '🐎', name: '경마 복불복',       desc: '내 이름을 걸고 달리는 짜릿한 레이스!' },
-  { id: 'roulette', icon: '🎡', name: '룰렛 복불복',       desc: '운명의 룰렛을 돌려보세요!' },
-  { id: 'pinball',  icon: '🔮', name: '핀볼 게임',         desc: '짜릿한 손맛! 고득점에 도전하세요!' },
+  { id: 'lotto',     icon: '🎰', name: '로또 번호 생성기', desc: '행운의 번호를 자동으로 뽑아보세요!' },
+  { id: 'ladder',    icon: '🪜', name: '사다리 타기',       desc: '긴장감 넘치는 사다리 타기 애니메이션!' },
+  { id: 'horse',     icon: '🐎', name: '경마 복불복',       desc: '내 이름을 걸고 달리는 짜릿한 레이스!' },
+  { id: 'roulette',  icon: '🎡', name: '룰렛 복불복',       desc: '운명의 룰렛을 돌려보세요!' },
+  { id: 'pinball',   icon: '🔮', name: '핀볼 게임',         desc: '짜릿한 손맛! 고득점에 도전하세요!' },
+  { id: 'minesweeper', icon: '💣', name: '지뢰 찾기',       desc: '윈도우 고전 지뢰 찾기! 안전하게 탐색하세요!' },
 ];
 
 const WHEEL_COLORS = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff9f43','#a29bfe','#fd79a8','#00b894'];
@@ -397,14 +454,34 @@ export default {
     let   pbKeys         = { left: false, right: false };
     let   pbCleanup      = null;
 
-    // ── 리더보드 (localStorage) ──
+    // ── 리더보드 (localStorage + 원격 DB) ──
     const pbGetLB  = () => { try { return JSON.parse(localStorage.getItem('pb_lb') || '[]'); } catch { return []; } };
+    const pbSaveLBRemote = async (name, score) => {
+      try {
+        await fetch('https://dongtan-api.infiniblue.workers.dev/api/pinball/scores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, score })
+        });
+      } catch (_e) { /* localStorage 폴백 */ }
+    };
+    const pbGetLBRemote = async () => {
+      try {
+        const res = await fetch('https://dongtan-api.infiniblue.workers.dev/api/pinball/scores');
+        if (res.ok) {
+          const data = await res.json();
+          return Array.isArray(data) ? data : [];
+        }
+      } catch (_e) { /* ignore */ }
+      return [];
+    };
     const pbSaveLB = (name, score) => {
       const lb = pbGetLB();
       lb.push({ name, score });
       lb.sort((a, b) => b.score - a.score);
       lb.splice(10);
       localStorage.setItem('pb_lb', JSON.stringify(lb));
+      pbSaveLBRemote(name, score);
       return lb;
     };
 
@@ -437,43 +514,59 @@ export default {
 
     const BUMPER_DEFS = [
       { ci: ['#fef08a','#ca8a04'], score: 100 },
-      { ci: ['#6ee7b7','#059669'], score: 75  },
-      { ci: ['#93c5fd','#2563eb'], score: 75  },
-      { ci: ['#fca5a5','#dc2626'], score: 50  },
-      { ci: ['#d8b4fe','#7c3aed'], score: 50  },
+      { ci: ['#6ee7b7','#059669'], score: 80  },
+      { ci: ['#93c5fd','#2563eb'], score: 80  },
+      { ci: ['#fca5a5','#dc2626'], score: 60  },
+      { ci: ['#d8b4fe','#7c3aed'], score: 60  },
+      { ci: ['#fb923c','#c2410c'], score: 70  },
+      { ci: ['#34d399','#065f46'], score: 70  },
     ];
 
     const PB = {
       W: 340, H: 580,
       ball: null, livesLeft: 3,
-      bumpers: [], targets: [], particles: [], ballTrail: [],
+      bumpers: [], targets: [], slings: [], particles: [], ballTrail: [],
       leftFlipperUp: false, rightFlipperUp: false,
       lp: null, rp: null,
-      tick: 0,
+      tick: 0, multiplier: 1, comboTimer: 0,
     };
 
     const pbInit = () => {
       PB.W = 340; PB.H = 580;
-      PB.ball = { x: PB.W/2 + (Math.random()-0.5)*20, y: 80, vx: (Math.random()-0.5)*2, vy: 2.5, r: 9 };
+      const cx = PB.W / 2;
+      PB.ball = { x: cx + (Math.random()-0.5)*10, y: 70, vx: (Math.random()-0.5)*1.5, vy: 3, r: 9 };
       PB.livesLeft = 3;
       PB.tick = 0;
+      PB.multiplier = 1;
+      PB.comboTimer = 0;
       PB.ballTrail = [];
       PB.particles = [];
+      // 7개 범퍼: 중앙 + 양측 + 하단 클러스터
       PB.bumpers = [
-        { x: PB.W/2,     y: 160, r: 28, flash: 0, ...BUMPER_DEFS[0] },
-        { x: PB.W/2-82,  y: 248, r: 21, flash: 0, ...BUMPER_DEFS[1] },
-        { x: PB.W/2+82,  y: 248, r: 21, flash: 0, ...BUMPER_DEFS[2] },
-        { x: PB.W/2-46,  y: 328, r: 18, flash: 0, ...BUMPER_DEFS[3] },
-        { x: PB.W/2+46,  y: 328, r: 18, flash: 0, ...BUMPER_DEFS[4] },
+        { x: cx,       y: 152, r: 30, flash: 0, ...BUMPER_DEFS[0] }, // 중앙 대형
+        { x: cx-92,   y: 215, r: 22, flash: 0, ...BUMPER_DEFS[1] }, // 좌 중간
+        { x: cx+92,   y: 215, r: 22, flash: 0, ...BUMPER_DEFS[2] }, // 우 중간
+        { x: cx-50,   y: 305, r: 20, flash: 0, ...BUMPER_DEFS[3] }, // 좌하
+        { x: cx+50,   y: 305, r: 20, flash: 0, ...BUMPER_DEFS[4] }, // 우하
+        { x: cx-118,  y: 172, r: 17, flash: 0, ...BUMPER_DEFS[5] }, // 극좌
+        { x: cx+118,  y: 172, r: 17, flash: 0, ...BUMPER_DEFS[6] }, // 극우
       ];
+      // 드롭 타겟 6개
       PB.targets = [
-        { x: 38, y: 130, hit: false, flash: 0 },
-        { x: 38, y: 178, hit: false, flash: 0 },
-        { x: PB.W-38, y: 130, hit: false, flash: 0 },
-        { x: PB.W-38, y: 178, hit: false, flash: 0 },
+        { x: 40, y: 118, hit: false, flash: 0 },
+        { x: 40, y: 162, hit: false, flash: 0 },
+        { x: 40, y: 206, hit: false, flash: 0 },
+        { x: PB.W-40, y: 118, hit: false, flash: 0 },
+        { x: PB.W-40, y: 162, hit: false, flash: 0 },
+        { x: PB.W-40, y: 206, hit: false, flash: 0 },
       ];
-      PB.lp = { x: 78,          y: PB.H - 78 };
-      PB.rp = { x: PB.W - 78,   y: PB.H - 78 };
+      // 슬링샷 (좌우 대각 벽 킥백 구간)
+      PB.slings = [
+        { side: 'left',  y1: 370, y2: 440, flash: 0 },
+        { side: 'right', y1: 370, y2: 440, flash: 0 },
+      ];
+      PB.lp = { x: 82,          y: PB.H - 80 };
+      PB.rp = { x: PB.W - 82,   y: PB.H - 80 };
       PB.leftFlipperUp  = false;
       PB.rightFlipperUp = false;
       pbKeys = { left: false, right: false };
@@ -504,14 +597,41 @@ export default {
         ball.x += nx*(ball.r + 5 - dist);
         ball.y += ny*(ball.r + 5 - dist);
         const dot = ball.vx*nx + ball.vy*ny;
-        ball.vx = (ball.vx - 2*dot*nx) * 0.72;
-        ball.vy = (ball.vy - 2*dot*ny) * 0.72;
-        if (flipSide === 'left' && PB.leftFlipperUp) {
-          ball.vy -= 7; ball.vx += 2;
-          if (ball.vy > -4) ball.vy = -6;
-        } else if (flipSide === 'right' && PB.rightFlipperUp) {
-          ball.vy -= 7; ball.vx -= 2;
-          if (ball.vy > -4) ball.vy = -6;
+
+        if (!flipSide) {
+          // 일반 벽면: 표준 반사
+          ball.vx = (ball.vx - 2*dot*nx) * 0.75;
+          ball.vy = (ball.vy - 2*dot*ny) * 0.75;
+          return;
+        }
+
+        const isActive = (flipSide === 'left' && PB.leftFlipperUp) ||
+                         (flipSide === 'right' && PB.rightFlipperUp);
+
+        if (isActive) {
+          // ── 능동 플리퍼: 위치 기반 충격 ──
+          // t=0(피벗 부근) → 약한 킥, t=1(끝단) → 강한 킥
+          const tipFactor = t;                          // 0~1
+          const baseKick  = 7 + tipFactor * 10;        // 7 ~ 17
+          const sideKick  = 1.5 + tipFactor * 3.5;     // 1.5 ~ 5
+
+          // 반사 + 킥 합산 (에너지 보존 느낌)
+          ball.vx = (ball.vx - 2*dot*nx) * 0.8;
+          ball.vy = (ball.vy - 2*dot*ny) * 0.8;
+
+          if (flipSide === 'left') {
+            ball.vy -= baseKick;
+            ball.vx += sideKick;
+          } else {
+            ball.vy -= baseKick;
+            ball.vx -= sideKick;
+          }
+          // 최소 상승 속도 보장
+          if (ball.vy > -5) ball.vy = -5 - tipFactor * 3;
+        } else {
+          // 수동 플리퍼: 약하게 튕기되 에너지 많이 흡수
+          ball.vx = (ball.vx - 2*dot*nx) * 0.55;
+          ball.vy = (ball.vy - 2*dot*ny) * 0.55;
         }
       }
     };
@@ -557,9 +677,26 @@ export default {
       if (b.x + b.r > W-14) { b.x = W-14-b.r; b.vx = -Math.abs(b.vx)*0.75; pbSounds.wall(); }
       if (b.y - b.r < 14) { b.y = 14+b.r; b.vy = Math.abs(b.vy)*0.75; pbSounds.wall(); }
 
+      // 콤보 타이머 감소
+      if (PB.comboTimer > 0) { PB.comboTimer -= dt; if (PB.comboTimer <= 0) { PB.comboTimer = 0; PB.multiplier = 1; } }
+
       // 대각선 가이드 벽 충돌 (플리퍼 옆 구멍 막기)
-      pbSegCollide(b, 14, H-210, PB.lp.x - 6, PB.lp.y);
-      pbSegCollide(b, W-14, H-210, PB.rp.x + 6, PB.rp.y);
+      pbSegCollide(b, 14, H-210, PB.lp.x - 6, PB.lp.y, null);
+      pbSegCollide(b, W-14, H-210, PB.rp.x + 6, PB.rp.y, null);
+
+      // 슬링샷 충돌 (킥백)
+      PB.slings.forEach(sling => {
+        if (sling.flash > 0) sling.flash -= dt;
+        const sx = sling.side === 'left' ? 14 + b.r + 6 : W - 14 - b.r - 6;
+        const inZone = b.y > sling.y1 && b.y < sling.y2;
+        if (inZone && ((sling.side === 'left' && b.x <= sx) || (sling.side === 'right' && b.x >= sx))) {
+          b.vx = sling.side === 'left' ? Math.abs(b.vx) * 1.4 + 2 : -(Math.abs(b.vx) * 1.4 + 2);
+          b.vy -= 1.5;
+          pinballScore.value += 30 * PB.multiplier;
+          sling.flash = 12;
+          pbSounds.wall();
+        }
+      });
 
       // 범퍼 충돌
       PB.bumpers.forEach(bump => {
@@ -567,27 +704,32 @@ export default {
         const dist = Math.sqrt(dx*dx+dy*dy);
         if (dist < b.r+bump.r && dist > 0) {
           const nx=dx/dist, ny=dy/dist;
-          const speed = Math.max(Math.sqrt(b.vx*b.vx+b.vy*b.vy), 3.5);
-          b.vx = nx*speed*1.5; b.vy = ny*speed*1.5;
+          const speed = Math.max(Math.sqrt(b.vx*b.vx+b.vy*b.vy), 4);
+          b.vx = nx*speed*1.6; b.vy = ny*speed*1.6;
           b.x = bump.x + nx*(b.r+bump.r+1);
           b.y = bump.y + ny*(b.r+bump.r+1);
-          pinballScore.value += bump.score;
+          // 콤보 멀티플라이어
+          PB.comboTimer = 120;
+          PB.multiplier = Math.min(PB.multiplier + 0.5, 5);
+          const scored = Math.round(bump.score * PB.multiplier);
+          pinballScore.value += scored;
           bump.flash = 14;
           pbSpawnParticles(bump.x, bump.y, bump.ci[0]);
           pbSounds.bumper();
         }
-        if (bump.flash > 0) bump.flash--;
+        if (bump.flash > 0) bump.flash -= dt;
       });
 
-      // 드롭 타겟 충돌
+      // 드롭 타겟 충돌 (6개)
       PB.targets.forEach(tgt => {
-        if (tgt.flash > 0) tgt.flash--;
+        if (tgt.flash > 0) tgt.flash -= dt;
         if (tgt.hit) return;
         const dx = b.x - tgt.x, dy = b.y - tgt.y;
-        if (Math.abs(dx) < 13 && Math.abs(dy) < 13) {
+        if (Math.abs(dx) < 14 && Math.abs(dy) < 14) {
           b.vx = Math.sign(dx || 1) * Math.max(Math.abs(b.vx), 2) * 0.9;
           b.vy *= -0.8;
-          pinballScore.value += 150;
+          const scored = Math.round(200 * PB.multiplier);
+          pinballScore.value += scored;
           tgt.hit = true; tgt.flash = 20;
           pbSpawnParticles(tgt.x, tgt.y, '#fbbf24');
           pbSounds.target();
@@ -595,8 +737,13 @@ export default {
       });
       if (PB.targets.every(t => t.hit)) {
         PB.targets.forEach(t => { t.hit = false; t.flash = 0; });
-        pinballScore.value += 500;
+        const bonusScore = Math.round(1000 * PB.multiplier);
+        pinballScore.value += bonusScore;
+        PB.multiplier = Math.min(PB.multiplier + 1, 5);
+        PB.comboTimer = 180;
         pbSpawnParticles(W/2, H/2 - 80, '#ffffff');
+        pbSpawnParticles(W/2 - 40, H/2, '#fbbf24');
+        pbSpawnParticles(W/2 + 40, H/2, '#fbbf24');
         pbSounds.bonus();
       }
 
@@ -717,19 +864,25 @@ export default {
       ctx.beginPath(); ctx.moveTo(W-14,0); ctx.lineTo(W-14,H); ctx.stroke();
       ctx.restore();
 
-      // ── 슬링샷 삼각 킥커 (시각 장식) ──
-      const slY = H * 0.53;
-      const drawSling = (tx, dir) => {
-        const d = dir === 'L' ? 1 : -1;
+      // ── 슬링샷 킥백 구간 ──
+      PB.slings.forEach(sling => {
+        const flash = sling.flash > 0;
+        const sx = sling.side === 'left' ? 14 : W - 14;
+        const d   = sling.side === 'left' ? 1 : -1;
+        const midY = (sling.y1 + sling.y2) / 2;
         ctx.save();
-        ctx.shadowColor = '#cc3300'; ctx.shadowBlur = 8;
-        ctx.fillStyle = '#8B1A00'; ctx.strokeStyle = '#ff5500'; ctx.lineWidth = 1.5;
+        ctx.shadowColor = flash ? '#ff6600' : '#cc3300';
+        ctx.shadowBlur = flash ? 20 : 8;
+        ctx.fillStyle = flash ? '#ff5500' : '#6B1A00';
+        ctx.strokeStyle = flash ? '#ffaa00' : '#ff5500';
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.moveTo(tx, slY - 28); ctx.lineTo(tx + d*38, slY); ctx.lineTo(tx, slY + 28);
+        ctx.moveTo(sx, sling.y1);
+        ctx.lineTo(sx + d * 34, midY);
+        ctx.lineTo(sx, sling.y2);
         ctx.closePath(); ctx.fill(); ctx.stroke();
         ctx.restore();
-      };
-      drawSling(14, 'L'); drawSling(W-14, 'R');
+      });
 
       // ── 대각선 가이드 벽 ──
       ctx.save();
@@ -869,16 +1022,22 @@ export default {
       ctx.setLineDash([]);
 
       // ── 스코어 패널 ──
-      ctx.fillStyle='rgba(0,0,18,0.75)';
-      ctx.beginPath(); ctx.roundRect(W/2-85, 6, 170, 48, 8); ctx.fill();
+      ctx.fillStyle='rgba(0,0,18,0.80)';
+      ctx.beginPath(); ctx.roundRect(W/2-95, 6, 190, 52, 8); ctx.fill();
       ctx.strokeStyle='rgba(0,140,255,0.3)'; ctx.lineWidth=1; ctx.stroke();
       ctx.save();
       ctx.shadowColor='#00ccff'; ctx.shadowBlur=14;
       ctx.fillStyle='rgba(0,200,255,0.5)'; ctx.font='9px monospace';
       ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText('◆  S C O R E  ◆', W/2, 18);
-      ctx.shadowBlur=22; ctx.fillStyle='#00f5ff'; ctx.font='bold 22px monospace';
-      ctx.fillText(pinballScore.value.toLocaleString(), W/2, 38);
+      ctx.fillText('◆  S C O R E  ◆', W/2, 16);
+      ctx.shadowBlur=22; ctx.fillStyle='#00f5ff'; ctx.font='bold 20px monospace';
+      ctx.fillText(pinballScore.value.toLocaleString(), W/2, 36);
+      // 멀티플라이어 표시
+      if (PB.multiplier > 1) {
+        ctx.fillStyle = PB.multiplier >= 4 ? '#ff4444' : PB.multiplier >= 3 ? '#ff9900' : '#ffd700';
+        ctx.font = 'bold 11px monospace';
+        ctx.fillText(`×${PB.multiplier.toFixed(1)}`, W/2, 52);
+      }
       ctx.restore();
 
       // ── 목숨 ──
@@ -904,9 +1063,10 @@ export default {
       if (alive) pbAnimId = requestAnimationFrame((ts) => pbLoop(ctx, ts));
     };
 
-    const pbRestart = () => {
+    const pbRestart = async () => {
       pbGameOver.value = false;
-      pbLeaderboard.value = pbGetLB();
+      const remote = await pbGetLBRemote();
+      pbLeaderboard.value = remote.length > 0 ? remote : pbGetLB();
     };
 
     const startPinball = async () => {
@@ -976,6 +1136,7 @@ export default {
       ladderStarted.value   = true;
       ladderDone.value      = false;
       ladderResultCol.value = -1;
+      ladderActiveCol.value = -1;
       await nextTick();
 
       const canvas = ladderCanvas.value;
@@ -992,6 +1153,7 @@ export default {
       const PAD_X = 30, PAD_Y = 30;
       const colW  = (W - PAD_X * 2) / Math.max(cols - 1, 1);
 
+      // 가로 막대 생성
       const bars = [];
       for (let col = 0; col < cols - 1; col++) {
         const count = 2 + Math.floor(Math.random() * 3);
@@ -1005,40 +1167,74 @@ export default {
       }
       bars.sort((a, b) => a.y - b.y);
 
-      const startCol = Math.floor(Math.random() * cols);
-      ladderActiveCol.value = startCol;
-      let cur = startCol;
-      const path = [{ x: PAD_X + cur * colW, y: PAD_Y }];
-      bars.forEach(bar => {
-        if (bar.col === cur) {
-          path.push({ x: PAD_X + cur * colW, y: bar.y });
-          cur++;
-          path.push({ x: PAD_X + cur * colW, y: bar.y });
-        } else if (bar.col === cur - 1) {
-          path.push({ x: PAD_X + cur * colW, y: bar.y });
-          cur--;
-          path.push({ x: PAD_X + cur * colW, y: bar.y });
-        }
-      });
-      path.push({ x: PAD_X + cur * colW, y: H - PAD_Y });
-      ladderResultCol.value  = cur;
-      ladderWinnerName.value = pNames.value[startCol] || `참가자${startCol + 1}`;
+      // 모든 참가자의 경로 계산
+      const PATH_COLORS = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff9f43','#a29bfe','#fd79a8','#00b894'];
+      const allPaths = [];
+      const destinations = [];
+      for (let sc = 0; sc < cols; sc++) {
+        let cur = sc;
+        const path = [{ x: PAD_X + cur * colW, y: PAD_Y }];
+        bars.forEach(bar => {
+          if (bar.col === cur) {
+            path.push({ x: PAD_X + cur * colW, y: bar.y });
+            cur++;
+            path.push({ x: PAD_X + cur * colW, y: bar.y });
+          } else if (bar.col === cur - 1) {
+            path.push({ x: PAD_X + cur * colW, y: bar.y });
+            cur--;
+            path.push({ x: PAD_X + cur * colW, y: bar.y });
+          }
+        });
+        path.push({ x: PAD_X + cur * colW, y: H - PAD_Y });
+        allPaths.push(path);
+        destinations.push(cur);
+      }
 
-      const draw = (progress) => {
+      // 당첨자 결정 (랜덤)
+      const winnerStartCol = Math.floor(Math.random() * cols);
+      const winnerEndCol   = destinations[winnerStartCol];
+      ladderResultCol.value  = winnerEndCol;
+      ladderWinnerName.value = pNames.value[winnerStartCol] || `참가자${winnerStartCol + 1}`;
+
+      // 애니메이션 순서: 당첨자가 마지막
+      const animOrder = [];
+      for (let i = 0; i < cols; i++) { if (i !== winnerStartCol) animOrder.push(i); }
+      animOrder.push(winnerStartCol);
+
+      const completedPaths = [];
+
+      const drawScene = (animIdx, progress) => {
         ctx.clearRect(0, 0, W, H);
+        // 세로 기둥
         for (let i = 0; i < cols; i++) {
-          ctx.beginPath(); ctx.strokeStyle = 'rgba(180,180,220,0.3)'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.strokeStyle = 'rgba(180,180,220,0.28)'; ctx.lineWidth = 3;
           ctx.moveTo(PAD_X + i * colW, PAD_Y); ctx.lineTo(PAD_X + i * colW, H - PAD_Y); ctx.stroke();
         }
+        // 가로 막대
         bars.forEach(bar => {
           ctx.beginPath(); ctx.strokeStyle = 'rgba(180,180,220,0.5)'; ctx.lineWidth = 3;
           ctx.moveTo(PAD_X + bar.col * colW, bar.y); ctx.lineTo(PAD_X + (bar.col + 1) * colW, bar.y); ctx.stroke();
         });
-        if (progress > 0 && path.length > 1) {
-          const total  = path.length - 1;
-          const segIdx = Math.min(Math.floor(progress * total), total - 1);
-          ctx.beginPath(); ctx.strokeStyle = '#00f5ff'; ctx.lineWidth = 5;
-          ctx.shadowColor = '#00f5ff'; ctx.shadowBlur = 14;
+        // 완료된 경로 그리기
+        completedPaths.forEach(({ path, color, isWinner }) => {
+          ctx.beginPath();
+          ctx.strokeStyle = color; ctx.lineWidth = isWinner ? 6 : 3.5;
+          ctx.shadowColor = color; ctx.shadowBlur = isWinner ? 20 : 8;
+          ctx.moveTo(path[0].x, path[0].y);
+          for (let i = 1; i < path.length; i++) ctx.lineTo(path[i].x, path[i].y);
+          ctx.stroke(); ctx.shadowBlur = 0;
+        });
+        // 현재 애니메이션 중인 경로
+        if (animIdx !== null && animIdx < animOrder.length && progress > 0) {
+          const origIdx = animOrder[animIdx];
+          const path    = allPaths[origIdx];
+          const color   = PATH_COLORS[origIdx % PATH_COLORS.length];
+          const isWinner = origIdx === winnerStartCol;
+          const total    = path.length - 1;
+          const segIdx   = Math.min(Math.floor(progress * total), total - 1);
+          ctx.beginPath();
+          ctx.strokeStyle = color; ctx.lineWidth = isWinner ? 6 : 3.5;
+          ctx.shadowColor = color; ctx.shadowBlur = isWinner ? 20 : 8;
           ctx.moveTo(path[0].x, path[0].y);
           for (let i = 0; i < segIdx; i++) ctx.lineTo(path[i + 1].x, path[i + 1].y);
           const frac = (progress * total) % 1;
@@ -1047,13 +1243,39 @@ export default {
           ctx.stroke(); ctx.shadowBlur = 0;
         }
       };
-      let p = 0;
-      const animate = () => {
-        p = Math.min(p + 0.006, 1); draw(p);
-        if (p < 1) requestAnimationFrame(animate);
-        else { draw(1); ladderDone.value = true; }
+
+      let currentAnimIdx = 0;
+      const SPEED_NORMAL = 0.014;
+      const SPEED_WINNER = 0.009;
+
+      const animateNext = () => {
+        if (currentAnimIdx >= cols) {
+          drawScene(null, 0);
+          ladderActiveCol.value = -1;
+          ladderDone.value = true;
+          return;
+        }
+        const origIdx  = animOrder[currentAnimIdx];
+        const isWinner = origIdx === winnerStartCol;
+        const color    = PATH_COLORS[origIdx % PATH_COLORS.length];
+        ladderActiveCol.value = origIdx;
+        let p = 0;
+        const speed = isWinner ? SPEED_WINNER : SPEED_NORMAL;
+        const step = () => {
+          p = Math.min(p + speed, 1);
+          drawScene(currentAnimIdx, p);
+          if (p < 1) {
+            requestAnimationFrame(step);
+          } else {
+            completedPaths.push({ path: allPaths[origIdx], color, isWinner });
+            currentAnimIdx++;
+            setTimeout(animateNext, isWinner ? 300 : 80);
+          }
+        };
+        requestAnimationFrame(step);
       };
-      animate();
+
+      animateNext();
     };
 
     /* ══════════ 레이스 ══════════ */
@@ -1246,6 +1468,113 @@ export default {
       }, 4100);
     };
 
+    /* ══════════ 지뢰 찾기 ══════════ */
+    const msDifficulties = [
+      { label: '쉬움',   rows: 9,  cols: 9,  mines: 10 },
+      { label: '보통',   rows: 9,  cols: 16, mines: 26 },
+      { label: '어려움', rows: 9,  cols: 16, mines: 40 },
+    ];
+    const msDiff    = ref('쉬움');
+    const msRows    = ref(9);
+    const msCols    = ref(9);
+    const msMines   = ref(10);
+    const msBoard   = ref([]);
+    const msStatus  = ref('playing');   // 'playing' | 'win' | 'lose'
+    const msTime    = ref(0);
+    const msStarted = ref(false);
+    let   msTimerID = null;
+    const msRemainingMines = computed(() => msMines.value - msBoard.value.filter(c => c.flagged).length);
+    const msFaceEmoji = computed(() => msStatus.value === 'win' ? '😎' : msStatus.value === 'lose' ? '😵' : '🙂');
+
+    const msSetDiff = (d) => {
+      msDiff.value  = d.label;
+      msRows.value  = d.rows;
+      msCols.value  = d.cols;
+      msMines.value = d.mines;
+      msNewGame();
+    };
+
+    const msNewGame = () => {
+      clearInterval(msTimerID);
+      msTime.value = 0;
+      msStarted.value = false;
+      msStatus.value = 'playing';
+      const total = msRows.value * msCols.value;
+      msBoard.value = Array.from({ length: total }, () => ({
+        mine: false, revealed: false, flagged: false, count: 0, boom: false
+      }));
+    };
+
+    const msPlantMines = (safeIdx) => {
+      const total = msRows.value * msCols.value;
+      const pool = [...Array(total).keys()].filter(i => i !== safeIdx);
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      pool.slice(0, msMines.value).forEach(i => { msBoard.value[i].mine = true; });
+      for (let idx = 0; idx < total; idx++) {
+        if (msBoard.value[idx].mine) continue;
+        msBoard.value[idx].count = msNeighbors(idx).filter(n => msBoard.value[n].mine).length;
+      }
+    };
+
+    const msNeighbors = (idx) => {
+      const r = Math.floor(idx / msCols.value), c = idx % msCols.value;
+      const result = [];
+      for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+        if (!dr && !dc) continue;
+        const nr = r + dr, nc = c + dc;
+        if (nr >= 0 && nr < msRows.value && nc >= 0 && nc < msCols.value)
+          result.push(nr * msCols.value + nc);
+      }
+      return result;
+    };
+
+    const msFloodReveal = (idx) => {
+      const board = msBoard.value;
+      const stack = [idx];
+      while (stack.length) {
+        const i = stack.pop();
+        if (board[i].revealed || board[i].flagged) continue;
+        board[i].revealed = true;
+        if (board[i].count === 0) msNeighbors(i).forEach(n => { if (!board[n].revealed) stack.push(n); });
+      }
+    };
+
+    const msReveal = (idx) => {
+      const board = msBoard.value;
+      if (msStatus.value !== 'playing' || board[idx].revealed || board[idx].flagged) return;
+      if (!msStarted.value) {
+        msPlantMines(idx);
+        msStarted.value = true;
+        msTimerID = setInterval(() => { if (msStatus.value === 'playing') msTime.value++; else clearInterval(msTimerID); }, 1000);
+      }
+      if (board[idx].mine) {
+        board[idx].revealed = true;
+        board[idx].boom = true;
+        board.forEach(c => { if (c.mine) c.revealed = true; });
+        msStatus.value = 'lose';
+        clearInterval(msTimerID);
+        return;
+      }
+      msFloodReveal(idx);
+      const unrevealed = board.filter(c => !c.revealed && !c.mine).length;
+      if (unrevealed === 0) {
+        msStatus.value = 'win';
+        board.forEach(c => { if (c.mine) c.flagged = true; });
+        clearInterval(msTimerID);
+      }
+    };
+
+    const msFlag = (idx) => {
+      const board = msBoard.value;
+      if (msStatus.value !== 'playing' || board[idx].revealed) return;
+      board[idx].flagged = !board[idx].flagged;
+    };
+
+    msNewGame();
+
     return {
       gameCards, activeGame, openGame, closeGame, pCount, pNames, ballColor,
       lottoRows, isGenerating, generateLotto,
@@ -1254,6 +1583,9 @@ export default {
       wheelCanvas, rouletteStarted, wheelAngle, wheelTransition, isSpinning, wheelWinner, spinWheel, resetRoulette,
       pinballCanvas, pinballActive, pinballScore, startPinball,
       pbPlayerName, pbGameOver, pbLeaderboard, pbMyRank, pbRestart,
+      // 지뢰찾기
+      msDifficulties, msDiff, msCols, msBoard, msStatus, msTime, msFaceEmoji,
+      msRemainingMines, msSetDiff, msNewGame, msReveal, msFlag,
     };
   }
 };
@@ -1548,10 +1880,10 @@ export default {
 }
 .pinball-canvas { width: 340px; max-width: 100%; height: auto; display: block; touch-action: none; cursor: pointer; }
 .pinball-start-overlay, .pb-gameover-overlay {
-  position: absolute; inset: 0; display: flex; flex-direction: column; gap: 12px;
-  align-items: center; justify-content: flex-start; padding-top: 24px;
-  background: rgba(3,3,16,0.82); backdrop-filter: blur(6px);
-  overflow-y: auto;
+  position: absolute; inset: 0; display: flex; flex-direction: column; gap: 8px;
+  align-items: center; justify-content: center;
+  background: rgba(3,3,16,0.88); backdrop-filter: blur(6px);
+  overflow: hidden; padding: 16px 12px;
 }
 .pb-logo {
   font-size: 1.3rem; font-weight: 900; letter-spacing: 0.15em;
@@ -1665,6 +1997,82 @@ export default {
 }
 .winner-pop-enter-active { transition: all 0.5s cubic-bezier(.2,.8,.2,1); }
 .winner-pop-enter-from   { opacity: 0; transform: scale(0.7) translateY(20px); }
+
+/* ── 지뢰 찾기 ── */
+.ms-wrap { padding: 24px 20px; }
+.ms-toolbar {
+  display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px;
+}
+.ms-info {
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; padding: 10px 16px;
+}
+.ms-mines-left, .ms-timer {
+  font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums;
+  color: #00f5ff; min-width: 60px;
+}
+.ms-timer { text-align: right; }
+.ms-face-btn {
+  font-size: 1.6rem; background: none; border: none; cursor: pointer;
+  filter: drop-shadow(0 0 6px rgba(255,220,50,0.6));
+  transition: transform 0.15s; line-height: 1;
+}
+.ms-face-btn:hover { transform: scale(1.15); }
+.ms-difficulty {
+  display: flex; gap: 8px; justify-content: center;
+}
+.ms-diff-btn {
+  padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;
+  border: 1px solid rgba(0,245,255,0.3); background: rgba(0,245,255,0.06);
+  color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.2s;
+}
+.ms-diff-btn.active { background: rgba(0,245,255,0.2); border-color: #00f5ff; color: #00f5ff; }
+.ms-diff-btn:hover:not(.active) { border-color: rgba(0,245,255,0.6); color: rgba(255,255,255,0.8); }
+
+.ms-board-wrap { overflow-x: auto; display: flex; justify-content: center; padding-bottom: 4px; }
+.ms-board {
+  display: grid; gap: 2px; padding: 4px;
+  background: rgba(0,0,20,0.5); border-radius: 10px;
+  border: 1px solid rgba(0,245,255,0.1);
+}
+.ms-cell {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; font-size: 0.85rem; font-weight: 800;
+  cursor: pointer; user-select: none;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  transition: background 0.12s, transform 0.08s;
+}
+.ms-cell:hover:not(.revealed) {
+  background: rgba(0,245,255,0.15);
+  border-color: rgba(0,245,255,0.4);
+  transform: scale(0.95);
+}
+.ms-cell.revealed {
+  background: rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.05);
+  cursor: default;
+}
+.ms-cell.mine { background: rgba(255,50,50,0.15); }
+.ms-cell.boom {
+  background: rgba(255,60,20,0.55);
+  box-shadow: 0 0 12px rgba(255,80,0,0.8);
+  animation: boom-pulse 0.4s ease;
+}
+@keyframes boom-pulse { 0%{transform:scale(1.4)} 100%{transform:scale(1)} }
+.ms-cell.flagged { background: rgba(255,100,0,0.12); border-color: rgba(255,130,0,0.4); }
+/* 숫자 색상 */
+.ms-cell.n1 { color: #4d96ff; }
+.ms-cell.n2 { color: #6bcb77; }
+.ms-cell.n3 { color: #ff6b6b; }
+.ms-cell.n4 { color: #9b59b6; }
+.ms-cell.n5 { color: #e74c3c; }
+.ms-cell.n6 { color: #00b4d8; }
+.ms-cell.n7 { color: #f39c12; }
+.ms-cell.n8 { color: #aaa; }
+.ms-lose-banner { border-color: rgba(255,80,80,0.4); background: rgba(255,30,30,0.08); }
 
 /* 반응형 */
 @media (max-width: 600px) {

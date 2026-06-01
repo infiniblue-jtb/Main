@@ -1,11 +1,8 @@
 name: Weekly Data and News Update
 
 on:
-  schedule:
-    - cron: '0 0 * * 1' # Every Monday at 00:00 UTC
-#  push:
-#    branches:
-#      - main
+  # schedule:
+  #   - cron: '0 0 * * 1' # Every Monday at 00:00 UTC (비활성화)
   workflow_dispatch: # Allow manual trigger from GitHub Actions tab
 
 jobs:
