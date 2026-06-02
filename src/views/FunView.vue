@@ -313,10 +313,26 @@
                   class="ms-diff-btn" :class="{ active: msDiff === d.label }"
                   @click="msSetDiff(d)">{{ d.label }}</button>
               </div>
+              <!-- 모바일용 깃발 모드 토글 -->
+              <div class="ms-flag-bar">
+                <button
+                  class="ms-flag-toggle"
+                  :class="{ active: msFlagMode }"
+                  @click="msFlagMode = !msFlagMode"
+                >
+                  <span class="ms-flag-toggle-icon">{{ msFlagMode ? '🚩' : '🔍' }}</span>
+                  {{ msFlagMode ? '깃발 모드' : '탐색 모드' }}
+                </button>
+                <span class="ms-flag-tip">📱 길게 누르기도 가능</span>
+              </div>
             </div>
             <!-- 게임 보드 -->
             <div class="ms-board-wrap">
-              <div class="ms-board" :style="{ gridTemplateColumns: `repeat(${msCols}, 1fr)`, maxWidth: `${msCols * 34}px` }">
+              <div
+                class="ms-board"
+                :class="{ 'flag-mode-active': msFlagMode }"
+                :style="{ gridTemplateColumns: `repeat(${msCols}, 1fr)`, maxWidth: `${msCols * 34}px` }"
+              >
                 <div
                   v-for="(cell, idx) in msBoard"
                   :key="idx"
@@ -328,8 +344,11 @@
                     'boom':     cell.boom,
                     [`n${cell.count}`]: cell.revealed && !cell.mine && cell.count > 0
                   }"
-                  @click="msReveal(idx)"
+                  @click="msCellClick(idx)"
                   @contextmenu.prevent="msFlag(idx)"
+                  @touchstart.passive="msTouchStart(idx)"
+                  @touchend="msTouchEnd()"
+                  @touchmove="msTouchMove()"
                 >
                   <template v-if="cell.revealed">
                     <span v-if="cell.mine">💣</span>
@@ -1508,6 +1527,34 @@ export default {
       board[idx].flagged = !board[idx].flagged;
     };
 
+    // 모바일 지원: 깃발 모드 토글 + 길게 누르기
+    const msFlagMode = ref(false);
+    let msTouchTimer = null;
+    let msLongPressed = false;
+
+    const msTouchStart = (idx) => {
+      msLongPressed = false;
+      msTouchTimer = setTimeout(() => {
+        msLongPressed = true;
+        msFlag(idx);
+        if (navigator.vibrate) navigator.vibrate(50);
+      }, 500);
+    };
+
+    const msTouchEnd = () => {
+      if (msTouchTimer) { clearTimeout(msTouchTimer); msTouchTimer = null; }
+    };
+
+    const msTouchMove = () => {
+      if (msTouchTimer) { clearTimeout(msTouchTimer); msTouchTimer = null; }
+    };
+
+    const msCellClick = (idx) => {
+      if (msLongPressed) { msLongPressed = false; return; }
+      if (msFlagMode.value) msFlag(idx);
+      else msReveal(idx);
+    };
+
     msNewGame();
 
     return {
@@ -1521,6 +1568,7 @@ export default {
       // 지뢰찾기
       msDifficulties, msDiff, msCols, msBoard, msStatus, msTime, msFaceEmoji,
       msRemainingMines, msSetDiff, msNewGame, msReveal, msFlag,
+      msFlagMode, msCellClick, msTouchStart, msTouchEnd, msTouchMove,
     };
   }
 };
@@ -2008,6 +2056,35 @@ export default {
 .ms-cell.n7 { color: #f39c12; }
 .ms-cell.n8 { color: #aaa; }
 .ms-lose-banner { border-color: rgba(255,80,80,0.4); background: rgba(255,30,30,0.08); }
+
+/* 깃발 모드 바 */
+.ms-flag-bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;
+}
+.ms-flag-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 18px; border-radius: 20px; font-size: 0.82rem; font-weight: 700;
+  border: 1px solid rgba(255,130,0,0.4); background: rgba(255,130,0,0.08);
+  color: rgba(255,255,255,0.55); cursor: pointer; transition: all 0.2s;
+}
+.ms-flag-toggle:hover { border-color: rgba(255,130,0,0.7); color: rgba(255,255,255,0.85); }
+.ms-flag-toggle.active {
+  background: rgba(255,130,0,0.25); border-color: #ff8800;
+  color: #ffaa44;
+  box-shadow: 0 0 12px rgba(255,130,0,0.35);
+}
+.ms-flag-toggle-icon { font-size: 1rem; }
+.ms-flag-tip { font-size: 0.72rem; color: rgba(255,255,255,0.28); }
+/* 깃발 모드 활성 시 보드 테두리 강조 */
+.ms-board.flag-mode-active {
+  border-color: rgba(255,130,0,0.45);
+  box-shadow: 0 0 14px rgba(255,130,0,0.2);
+}
+/* 깃발 모드에서 미공개 셀 커서/hover 색 변경 */
+.ms-board.flag-mode-active .ms-cell:hover:not(.revealed) {
+  background: rgba(255,130,0,0.2);
+  border-color: rgba(255,130,0,0.5);
+}
 
 /* 반응형 */
 @media (max-width: 600px) {
