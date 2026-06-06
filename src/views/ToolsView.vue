@@ -273,6 +273,53 @@
               <p class="disclaimer">※ 지급률은 2025년 사업부별 발표치(전국삼성전자노동조합 공지) 기준입니다. 개인 고과·회사 정책에 따라 실제 금액은 달라질 수 있으며, 세금은 근사치입니다.</p>
             </div>
 
+            <!-- ── DS 특별경영성과급 (2026 노사합의) ── -->
+            <div v-if="['memory','dsresearch','foundry','lsi'].includes(sbDivision)" class="sb-special-wrap">
+              <div class="sb-special-header">
+                <span class="sb-special-badge">2026 노사합의</span>
+                <span class="sb-special-title">DS 특별경영성과급 시뮬레이터</span>
+              </div>
+              <p class="sb-special-desc">DS부문 사업성과의 <b>10.5%</b>를 재원으로 하며, 40% 균등 + 60% 성과 비율로 배분됩니다. 지급 상한 없음. <b>자사주</b>로 지급 (1/3 즉시·1/3 1년 후·1/3 2년 후 매도 가능).</p>
+              <div class="form-group" style="margin-top:12px;">
+                <label class="form-label">DS부문 사업성과 기준액 (조원) <span class="lbl-hint">연간 기준 추정치 입력</span></label>
+                <input v-model.number="sbDsProfit" type="number" class="tool-input" placeholder="예: 100" min="0" step="10" />
+              </div>
+              <button class="action-btn" @click="calcDsSpecial" style="width:100%;margin-top:4px;" :disabled="!sbSalary">특별성과급 계산</button>
+              <div v-if="sbSpecialResult" class="sb-special-result">
+                <div class="sb-dual-cards" style="margin-top:14px;">
+                  <div class="sb-card sb-card-gross">
+                    <div class="sb-card-label">특별성과급 (세전 추산)</div>
+                    <div class="sb-card-amount" style="color:#ff9f43;">{{ fmtW(sbSpecialResult.total) }}</div>
+                    <div class="sb-card-sub">자사주 지급</div>
+                  </div>
+                  <div class="sb-card sb-card-net">
+                    <div class="sb-card-label">총 성과보상 (OPI+TAI+특별)</div>
+                    <div class="sb-card-amount">{{ fmtW(sbSpecialResult.combined) }}</div>
+                    <div class="sb-card-sub">성과급 전체 합산</div>
+                  </div>
+                </div>
+                <div class="sb-section-hd" style="margin-top:16px;">📊 특별성과급 내역</div>
+                <table class="result-table">
+                  <tbody>
+                    <tr><td>DS 사업성과 기준액</td><td class="val">{{ fmt(sbSpecialResult.dsProfit) }}원 ({{ sbDsProfit }}조)</td></tr>
+                    <tr><td>총 재원 (× 10.5%)</td><td class="val plus">+{{ fmt(sbSpecialResult.pool) }}원</td></tr>
+                    <tr><td>균등 배분 (40% ÷ 78,000명)</td><td class="val plus">{{ fmt(sbSpecialResult.uniform) }}원</td></tr>
+                    <tr class="sb-sum-tr"><td>성과 배분 (60%, 연봉·사업부 기준)</td><td class="val plus">{{ fmt(sbSpecialResult.perf) }}원</td></tr>
+                    <tr class="sb-sum-tr"><td><b>특별성과급 합계 (세전)</b></td><td class="val" style="color:#ff9f43;font-size:1rem;">{{ fmt(sbSpecialResult.total) }}원</td></tr>
+                  </tbody>
+                </table>
+                <div class="sb-stock-vest">
+                  <div class="sb-stock-title">📦 자사주 배정 일정 (주가 {{ fmt(sbSpecialResult.priceRef) }}원 기준)</div>
+                  <div class="sb-stock-row"><span>즉시 매도 가능 (1/3)</span><span>{{ fmt(sbSpecialResult.third) }}원</span></div>
+                  <div class="sb-stock-row"><span>1년 후 매도 가능 (1/3)</span><span>{{ fmt(sbSpecialResult.third) }}원</span></div>
+                  <div class="sb-stock-row"><span>2년 후 매도 가능 (1/3)</span><span>{{ fmt(sbSpecialResult.third) }}원</span></div>
+                </div>
+                <div class="sb-special-cond">
+                  ⚠️ 지급 조건: 2026~2028년 DS 연간 영업이익 목표 달성 시 / 2029~2035년 연간 목표 달성 시. 실제 개인 지급액은 고과·사업부 성과에 따라 크게 달라질 수 있습니다.
+                </div>
+              </div>
+            </div>
+
             <!-- ── 사업부별 지급률 안내 아코디언 ── -->
             <div class="sb-guide">
               <button class="sb-guide-toggle" @click="sbGuideOpen = !sbGuideOpen">
@@ -826,6 +873,8 @@ export default {
       sbResult.value         = null;
       sbCopied.value         = false;
       sbGuideOpen.value      = false;
+      sbDsProfit.value       = 100;
+      sbSpecialResult.value  = null;
       insuranceResult.value  = null;
       loanResult.value       = null;
       severanceResult.value  = null;
@@ -928,6 +977,45 @@ export default {
       if (navigator.clipboard?.writeText) {
         navigator.clipboard.writeText(txt).then(done).catch(() => {});
       } else { done(); }
+    };
+
+    /* ══════════ DS 특별경영성과급 (2026 노사합의) ══════════ */
+    const sbDsProfit     = ref(100);  // 조원 단위
+    const sbSpecialResult = ref(null);
+
+    /* 보정계수:
+       공개된 사례 기반 역산 — DS profit 300조, 메모리 8,000만연봉 = 6.33억
+       균등분(40%): 300조 × 0.105 × 0.40 / 78,000명 = 1.615억
+       성과분(60%): 4.715억 (연봉비례 추산)
+       → B_memory = 4.715e8 / (3e14 × 8e7) = 1.965e-14 (won^-2 단위) */
+    const DS_UNIFORM_COEFF = 0.105 * 0.40 / 78_000;  // per-won of DS profit
+    const DS_PERF_COEFF = {
+      memory:     1.965e-14,
+      dsresearch: 1.965e-14,
+      lsi:        1.965e-15,
+      foundry:    1.965e-15,
+    };
+
+    const calcDsSpecial = () => {
+      const annual = (sbSalary.value || 0) * 10000;
+      if (!annual) return;
+      const profitWon = (sbDsProfit.value || 0) * 1e12;
+      if (!profitWon) return;
+
+      const pool     = profitWon * 0.105;
+      const uniform  = profitWon * DS_UNIFORM_COEFF;
+      const B        = DS_PERF_COEFF[sbDivision.value] || DS_PERF_COEFF.foundry;
+      const perf     = profitWon * B * annual;
+      const total    = uniform + perf;
+      const third    = total / 3;
+      const combined = total + (sbResult.value ? sbResult.value.totalGross : 0);
+
+      sbSpecialResult.value = {
+        dsProfit: profitWon,
+        pool, uniform, perf, total, third,
+        combined,
+        priceRef: 60_000,
+      };
     };
 
     /* ══════════ 4대보험 ══════════ */
@@ -1217,6 +1305,7 @@ export default {
       fmt, fmtBytes, fmtW, todayStr,
       salaryInput, salaryDependents, salaryResult, calcSalaryResult,
       sbDivisions, sbSalary, sbDivision, sbOpiRate, sbTaiRate, sbResult, sbCopied, sbGuideOpen,
+      sbDsProfit, sbSpecialResult, calcDsSpecial,
       applySbDivision, calcSamsung, copySamsung,
       insuranceInput, insuranceResult, calcInsuranceResult,
       loanAmount, loanRate, loanMonths, loanType, loanResult, calcLoanResult,
@@ -1522,6 +1611,41 @@ export default {
   font-size: 0.85rem; color: rgba(255,255,255,0.6);
 }
 .sb-grandtotal-val { font-weight: 800; color: #fff; font-size: 0.95rem; }
+
+/* ── DS 특별경영성과급 섹션 ── */
+.sb-special-wrap {
+  margin-top: 20px; padding: 18px 16px;
+  background: rgba(255,159,67,0.06); border: 1px solid rgba(255,159,67,0.25);
+  border-radius: 16px;
+}
+.sb-special-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.sb-special-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  background: rgba(255,159,67,0.2); border: 1px solid rgba(255,159,67,0.5);
+  color: #ff9f43; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.06em;
+}
+.sb-special-title { font-size: 0.95rem; font-weight: 800; color: #fff; }
+.sb-special-desc { font-size: 0.78rem; color: rgba(255,255,255,0.5); line-height: 1.6; }
+.sb-special-desc b { color: #ff9f43; }
+.sb-special-result { }
+.sb-stock-vest {
+  margin-top: 14px; padding: 12px 14px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+}
+.sb-stock-title { font-size: 0.78rem; font-weight: 700; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
+.sb-stock-row {
+  display: flex; justify-content: space-between;
+  font-size: 0.82rem; color: rgba(255,255,255,0.65); padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.sb-stock-row:last-child { border-bottom: none; }
+.sb-stock-row span:last-child { font-weight: 700; color: #ff9f43; }
+.sb-special-cond {
+  margin-top: 12px; padding: 10px 12px;
+  background: rgba(255,107,107,0.06); border: 1px solid rgba(255,107,107,0.2);
+  border-radius: 10px; font-size: 0.72rem; color: rgba(255,255,255,0.4); line-height: 1.5;
+}
 
 /* 안내 아코디언 */
 .sb-guide { margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 16px; }
