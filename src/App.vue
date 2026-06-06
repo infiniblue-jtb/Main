@@ -65,6 +65,9 @@
             </transition>
           </div>
 
+          <router-link to="/tools" class="nav-link" @click="isMenuOpen = false">
+            {{ currentLang === 'ko' ? '도구' : 'Tools' }}
+          </router-link>
           <router-link to="/fun" class="nav-link" @click="isMenuOpen = false">
             {{ currentLang === 'ko' ? '놀거리' : 'Fun' }}
           </router-link>
@@ -121,6 +124,10 @@
             </router-link>
             <router-link to="/health" class="drawer-link sub" @click="isMenuOpen = false">
               <span>🏥 {{ currentLang === 'ko' ? '병원' : 'Health' }}</span>
+            </router-link>
+            <router-link to="/tools" class="drawer-link" @click="isMenuOpen = false">
+              <span>🛠️ {{ currentLang === 'ko' ? '도구' : 'Tools' }}</span>
+              <span class="drawer-arrow">→</span>
             </router-link>
             <router-link to="/fun" class="drawer-link" @click="isMenuOpen = false">
               <span>{{ currentLang === 'ko' ? '놀거리' : 'Fun' }}</span>

@@ -9,6 +9,7 @@ import BlogView from '../views/BlogView.vue'
 import FunView from '../views/FunView.vue'
 import AboutView from '../views/AboutView.vue'
 import PrivacyView from '../views/PrivacyView.vue'
+import ToolsView from '../views/ToolsView.vue'
 
 const routes = [
   { path: '/', name: 'Home', component: HomeView },
@@ -20,7 +21,8 @@ const routes = [
   { path: '/fun', name: 'Fun', component: FunView },
   { path: '/board', name: 'Board', component: BoardView },
   { path: '/about', name: 'About', component: AboutView },
-  { path: '/privacy', name: 'Privacy', component: PrivacyView }
+  { path: '/privacy', name: 'Privacy', component: PrivacyView },
+  { path: '/tools', name: 'Tools', component: ToolsView }
 ]
 
 const router = createRouter({
