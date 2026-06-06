@@ -27,10 +27,35 @@ FunView의 게임 추가 패턴과 동일:
 - **퇴직금**: 평균임금×30일×(근무일수/365), 최소 1년 이상
 
 ## 유틸리티 구현 원칙
-- **QR코드**: `qrcode` npm 패키지 사용 (`import QRCode from 'qrcode'`)
+- **QR코드**: CDN 동적 로딩 방식 사용 (npm 패키지 절대 금지). 아래 패턴 준수:
+  ```javascript
+  const loadQRLib = () => new Promise((resolve, reject) => {
+    if (window.QRCode) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js';
+    s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+  // 사용: await loadQRLib(); await window.QRCode.toCanvas(canvas, text, { width: 256 });
+  ```
 - **이미지 압축**: Canvas API (`canvas.toBlob()`)로 서버 전송 없이 브라우저에서 처리
 - **글자수**: 공백포함/제외, 한글/영어/숫자 분류, 줄수, 바이트 수
 - **D-day**: 두 날짜 간 일수 차이, 오늘 기준 카운트다운
+
+## ⚠️ npm 패키지 추가 금지 규칙
+**절대로** `package.json`에 새 패키지를 추가하지 마세요.
+- Cloudflare Pages는 `npm ci`를 사용하므로 `package-lock.json`과 sync가 맞아야 합니다.
+- `package.json`에만 추가하고 `npm install`을 실행하지 않으면 빌드가 깨집니다.
+- 외부 라이브러리가 필요하면 반드시 CDN 동적 로딩 패턴을 사용하세요:
+  ```javascript
+  const loadLib = () => new Promise((resolve, reject) => {
+    if (window.LibName) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/패키지명@버전/dist/파일.min.js';
+    s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+  ```
 
 ## 재미 도구 구현 원칙
 - **반응속도**: 랜덤 딜레이(1~4초) 후 초록불 → 클릭/탭 → ms 측정, 5회 평균

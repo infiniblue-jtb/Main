@@ -27,6 +27,7 @@ model: claude-sonnet-4-6
 - 새 라우트 추가 시 반드시 router/index.js와 App.vue 네비게이션도 함께 업데이트
 - 스타일은 `scoped` CSS로만 작성, 전역 스타일 변경 금지
 - 모바일 대응: `@media (max-width: 600px)` 반드시 포함
+- **npm 패키지 추가 금지**: `package.json`에 새 패키지를 직접 추가하지 마세요. Cloudflare Pages는 `npm ci`를 사용하므로 `package-lock.json` sync가 맞지 않으면 빌드가 깨집니다. 외부 라이브러리는 CDN 동적 로딩 방식을 사용하세요.
 - AdComponent는 `slotId="9173007135"` 로 페이지 하단에 배치
 - 완성 후 반드시 `git add → git commit → git push origin main`
 

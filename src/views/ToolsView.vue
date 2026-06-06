@@ -729,18 +729,26 @@ export default {
     const qrGenerated = ref(false);
     const qrError     = ref('');
 
+    const loadQRLib = () => new Promise((resolve, reject) => {
+      if (window.QRCode) { resolve(); return; }
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js';
+      s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
+
     const generateQR = async () => {
       qrError.value     = '';
       qrGenerated.value = false;
       try {
-        const QRCode = (await import('qrcode')).default;
-        await QRCode.toCanvas(qrCanvas.value, qrText.value, {
+        await loadQRLib();
+        await window.QRCode.toCanvas(qrCanvas.value, qrText.value, {
           width: 256, margin: 2,
           color: { dark: '#000000', light: '#ffffff' }
         });
         qrGenerated.value = true;
       } catch {
-        qrError.value = '배포 환경에서만 동작합니다';
+        qrError.value = 'QR 생성 실패. 인터넷 연결을 확인해주세요.';
       }
     };
 
