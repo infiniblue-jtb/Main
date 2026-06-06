@@ -162,8 +162,13 @@
             <div class="form-group">
               <label class="form-label">사업부 / 계열사</label>
               <select v-model="sbDivision" class="tool-input tool-select" @change="applySbDivision">
-                <option v-for="d in sbDivisions" :key="d.id" :value="d.id">{{ d.name }}</option>
+                <option v-for="d in sbDivisions" :key="d.id" :value="d.id">
+                  {{ d.name }}{{ d.headcount ? ' (약 ' + (d.headcount / 10000).toFixed(1) + '만명)' : '' }}
+                </option>
               </select>
+              <div v-if="sbDivisions.find(x=>x.id===sbDivision)?.headcount" class="sb-headcount-hint">
+                👥 해당 사업부 약 <b>{{ (sbDivisions.find(x=>x.id===sbDivision).headcount).toLocaleString() }}명</b> 재직
+              </div>
             </div>
 
             <!-- 연봉 입력 -->
@@ -274,7 +279,7 @@
             </div>
 
             <!-- ── DS 특별경영성과급 (2026 노사합의) ── -->
-            <div v-if="['memory','dsresearch','foundry','lsi'].includes(sbDivision)" class="sb-special-wrap">
+            <div v-if="['memory','dscommon','foundry','lsi'].includes(sbDivision)" class="sb-special-wrap">
               <div class="sb-special-header">
                 <span class="sb-special-badge">2026 노사합의</span>
                 <span class="sb-special-title">DS 특별경영성과급 시뮬레이터</span>
@@ -288,14 +293,21 @@
               <div v-if="sbSpecialResult" class="sb-special-result">
                 <div class="sb-dual-cards" style="margin-top:14px;">
                   <div class="sb-card sb-card-gross">
-                    <div class="sb-card-label">특별성과급 (세전 추산)</div>
+                    <div class="sb-card-label">특별성과급 (세전)</div>
                     <div class="sb-card-amount" style="color:#ff9f43;">{{ fmtW(sbSpecialResult.total) }}</div>
                     <div class="sb-card-sub">자사주 지급</div>
                   </div>
                   <div class="sb-card sb-card-net">
-                    <div class="sb-card-label">총 성과보상 (OPI+TAI+특별)</div>
-                    <div class="sb-card-amount">{{ fmtW(sbSpecialResult.combined) }}</div>
-                    <div class="sb-card-sub">성과급 전체 합산</div>
+                    <div class="sb-card-label">특별성과급 (세후 추산)</div>
+                    <div class="sb-card-amount">{{ fmtW(sbSpecialResult.taxNet) }}</div>
+                    <div class="sb-card-sub">소득세·지방세·고용보험 공제</div>
+                  </div>
+                </div>
+                <div class="sb-dual-cards" style="margin-top:8px;">
+                  <div class="sb-card" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);grid-column:span 2;">
+                    <div class="sb-card-label">OPI + TAI + 특별성과급 총합 (세전)</div>
+                    <div class="sb-card-amount" style="color:#fff;font-size:1.3rem;">{{ fmtW(sbSpecialResult.combined) }}</div>
+                    <div class="sb-card-sub" v-if="sbSpecialResult.headcount">👥 약 {{ sbSpecialResult.headcount.toLocaleString() }}명 해당</div>
                   </div>
                 </div>
                 <!-- 사업부 적용 기준 표시 -->
@@ -337,20 +349,22 @@
               <div v-if="sbGuideOpen" class="sb-guide-body">
                 <div class="sb-guide-subtitle">OPI (초과이익성과급) — 계약연봉 대비, 연 1회 (1월 지급)</div>
                 <table class="sb-rate-table">
-                  <thead><tr><th>사업부</th><th>OPI 지급률</th></tr></thead>
+                  <thead><tr><th>사업부</th><th>직원 수</th><th>OPI 지급률</th></tr></thead>
                   <tbody>
                     <tr v-for="d in sbDivisions.filter(x => x.id !== 'custom')" :key="'opi-' + d.id">
                       <td>{{ d.name }}</td>
+                      <td class="sb-hc-cell">{{ d.headcount ? '약 ' + d.headcount.toLocaleString() + '명' : '—' }}</td>
                       <td><span class="sb-rate-chip" :style="{ background: d.color + '22', color: d.color, borderColor: d.color + '55' }">{{ d.opi > 0 ? d.opi + '%' : '미지급' }}</span></td>
                     </tr>
                   </tbody>
                 </table>
                 <div class="sb-guide-subtitle" style="margin-top:16px;">TAI (목표달성장려금) — 월 기본급 대비, 반기 1회 (연 2회)</div>
                 <table class="sb-rate-table">
-                  <thead><tr><th>사업부</th><th>TAI 지급률(반기)</th></tr></thead>
+                  <thead><tr><th>사업부</th><th>직원 수</th><th>TAI 지급률(반기)</th></tr></thead>
                   <tbody>
                     <tr v-for="d in sbDivisions.filter(x => x.id !== 'custom')" :key="'tai-' + d.id">
                       <td>{{ d.name }}</td>
+                      <td class="sb-hc-cell">{{ d.headcount ? '약 ' + d.headcount.toLocaleString() + '명' : '—' }}</td>
                       <td><span class="sb-rate-chip" :style="{ background: d.color + '22', color: d.color, borderColor: d.color + '55' }">{{ d.tai }}%</span></td>
                     </tr>
                   </tbody>
@@ -722,18 +736,18 @@ const FUN_TOOLS = [
    tai: 목표달성장려금(TAI) — 월 기본급 대비 %, 반기 1회(연 2회)
    출처: 전국삼성전자노동조합·삼성그룹초기업노조 공지 (2025.12 기준) */
 const SB_DIVISIONS = [
-  { id: 'memory',     name: 'DS · 메모리(반도체)',      opi: 47,   tai: 100,  color: '#4d96ff' },
-  { id: 'dsresearch', name: 'DS · 반도체연구소',        opi: 47,   tai: 100,  color: '#4d96ff' },
-  { id: 'foundry',    name: 'DS · 파운드리',            opi: 0,    tai: 25,   color: '#74b9ff' },
-  { id: 'lsi',        name: 'DS · 시스템LSI',           opi: 10,   tai: 25,   color: '#74b9ff' },
-  { id: 'mx',         name: 'DX · MX(모바일)',          opi: 50,   tai: 75,   color: '#6bcb77' },
-  { id: 'network',    name: 'DX · 네트워크',            opi: 12,   tai: 75,   color: '#6bcb77' },
-  { id: 'medical',    name: 'DX · 의료기기',            opi: 12,   tai: 75,   color: '#6bcb77' },
-  { id: 'vd',         name: 'DX · VD(영상디스플레이)',  opi: 12,   tai: 37.5, color: '#a8e063' },
-  { id: 'da',         name: 'DX · DA(생활가전)',        opi: 12,   tai: 37.5, color: '#a8e063' },
-  { id: 'sdc',        name: '삼성디스플레이(SDC)',      opi: 38,   tai: 50,   color: '#a29bfe' },
-  { id: 'semco',      name: '삼성전기',                 opi: 5.5,  tai: 25,   color: '#ff9f43' },
-  { id: 'custom',     name: '직접 입력',                opi: 0,    tai: 0,    color: '#00f5ff' },
+  { id: 'memory',   name: 'DS · 메모리(반도체)',           opi: 47,  tai: 100,  color: '#4d96ff', headcount: 28000  },
+  { id: 'dscommon', name: 'DS · 공통조직(연구소·TSP·경영)', opi: 47,  tai: 100,  color: '#4d96ff', headcount: 30000  },
+  { id: 'foundry',  name: 'DS · 파운드리',                  opi: 0,   tai: 25,   color: '#74b9ff', headcount: 10000  },
+  { id: 'lsi',      name: 'DS · 시스템LSI',                 opi: 10,  tai: 25,   color: '#74b9ff', headcount: 10000  },
+  { id: 'mx',       name: 'DX · MX(모바일)',                opi: 50,  tai: 75,   color: '#6bcb77', headcount: 30000  },
+  { id: 'network',  name: 'DX · 네트워크',                  opi: 12,  tai: 75,   color: '#6bcb77', headcount:  4000  },
+  { id: 'medical',  name: 'DX · 의료기기',                  opi: 12,  tai: 75,   color: '#6bcb77', headcount:  2000  },
+  { id: 'vd',       name: 'DX · VD(영상디스플레이)',        opi: 12,  tai: 37.5, color: '#a8e063', headcount:  5000  },
+  { id: 'da',       name: 'DX · DA(생활가전)',              opi: 12,  tai: 37.5, color: '#a8e063', headcount:  5000  },
+  { id: 'sdc',      name: '삼성디스플레이(SDC)',            opi: 38,  tai: 50,   color: '#a29bfe', headcount: 32000  },
+  { id: 'semco',    name: '삼성전기',                       opi: 5.5, tai: 25,   color: '#ff9f43', headcount: 10000  },
+  { id: 'custom',   name: '직접 입력',                      opi: 0,   tai: 0,    color: '#00f5ff', headcount: null   },
 ];
 
 /* ── MBTI 질문 ── */
@@ -1023,10 +1037,10 @@ export default {
       if (sbDivision.value === 'memory') {
         perf     = memoryPerf;
         divLabel = '메모리 — 균등분 + 사업부 성과분 (100%)';
-      } else if (sbDivision.value === 'dsresearch') {
+      } else if (sbDivision.value === 'dscommon') {
         // 공통조직: 총액 기준 메모리의 70%
         perf     = Math.max(0, memoryTotal * 0.70 - uniform);
-        divLabel = '공통조직(반도체연구소) — 메모리 지급률의 70%';
+        divLabel = 'DS 공통조직 — 메모리 지급률의 70%';
       } else {
         // 파운드리·S.LSI: 적자 사업부 → 균등분만 (2027년부터)
         isLoss   = true;
@@ -1036,11 +1050,21 @@ export default {
       const total    = uniform + perf;
       const combined = total + (sbResult.value ? sbResult.value.totalGross : 0);
 
+      // 세후 추산 (한계세율 기반)
+      const personal = 1_500_000;
+      const baseA   = Math.max(0, annual - laborDeduction(annual) - personal);
+      const baseB   = Math.max(0, annual + total - laborDeduction(annual + total) - personal);
+      const incTax  = Math.max(0, incomeTax(baseB) - incomeTax(baseA));
+      const taxNet  = total - incTax - incTax * 0.1 - total * 0.009;
+
+      const d = SB_DIVISIONS.find(x => x.id === sbDivision.value) || {};
+
       sbSpecialResult.value = {
         profitT: sbDsProfit.value,
-        pool, uniform, perf, total,
-        third:    total / 3,
+        pool, uniform, perf, total, taxNet,
+        third:    taxNet / 3,
         combined, divLabel, isLoss,
+        headcount: d.headcount,
       };
     };
 
@@ -1639,6 +1663,11 @@ export default {
 .sb-grandtotal-val { font-weight: 800; color: #fff; font-size: 0.95rem; }
 
 /* ── DS 특별경영성과급 섹션 ── */
+.sb-headcount-hint {
+  font-size: 0.75rem; color: rgba(255,255,255,0.45); margin-top: 5px;
+}
+.sb-headcount-hint b { color: #00f5ff; }
+.sb-hc-cell { font-size: 0.75rem; color: rgba(255,255,255,0.45); }
 .sb-special-wrap {
   margin-top: 20px; padding: 18px 16px;
   background: rgba(255,159,67,0.06); border: 1px solid rgba(255,159,67,0.25);

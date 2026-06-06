@@ -8,7 +8,13 @@
       "Bash(git push *)",
       "Bash(npx wrangler *)",
       "Bash(dir \"C:\\\\Users\\\\infin\\\\Desktop\\\\GIT_main_SW\\\\public\" /B)",
-      "Bash(dir \"C:\\\\Users\\\\infin\\\\Desktop\\\\GIT_main_SW\\\\src\\\\views\" /B)"
+      "Bash(dir \"C:\\\\Users\\\\infin\\\\Desktop\\\\GIT_main_SW\\\\src\\\\views\" /B)",
+      "Bash(git checkout *)",
+      "Bash(git pull *)",
+      "WebFetch(domain:www.moneysalary.com)",
+      "WebSearch",
+      "WebFetch(domain:www.infogoodman.com)",
+      "WebFetch(domain:www.wikitree.co.kr)"
     ]
   }
 }
