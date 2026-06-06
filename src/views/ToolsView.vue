@@ -151,18 +151,14 @@
           </div>
 
           <!-- ===== 삼성 성과급 계산기 ===== -->
-          <div v-if="activeTool === 'samsung'" class="game-wrap">
+          <div v-if="activeTool === 'samsung'" class="game-wrap samsung-wrap">
             <div class="game-title-row">
               <span class="g-icon">📈</span>
-              <h2>삼성 성과급 계산기</h2>
+              <h2>삼성전자 성과급 계산기</h2>
             </div>
-            <p class="tool-intro">계약연봉과 사업부를 선택하면 <b>OPI(초과이익성과급)</b>와 <b>TAI(목표달성장려금)</b> 예상 지급액을 자동 계산합니다.</p>
+            <p class="tool-intro">사업부 선택 후 계약연봉을 입력하면 <b>OPI(초과이익성과급)</b>와 <b>TAI(목표달성장려금)</b> 예상 지급액 및 세후 실수령액을 자동 계산합니다. <span class="sb-year-badge">2025년 기준</span></p>
 
-            <div class="form-group">
-              <label class="form-label">계약연봉 (만원)</label>
-              <input v-model.number="sbSalary" type="number" class="tool-input" placeholder="예: 7000" min="0" />
-            </div>
-
+            <!-- 사업부 선택 -->
             <div class="form-group">
               <label class="form-label">사업부 / 계열사</label>
               <select v-model="sbDivision" class="tool-input tool-select" @change="applySbDivision">
@@ -170,6 +166,13 @@
               </select>
             </div>
 
+            <!-- 연봉 입력 -->
+            <div class="form-group">
+              <label class="form-label">계약연봉 (만원)</label>
+              <input v-model.number="sbSalary" type="number" class="tool-input" placeholder="예: 7000" min="0" />
+            </div>
+
+            <!-- OPI / TAI 지급률 -->
             <div class="sb-rate-row">
               <div class="form-group">
                 <label class="form-label">OPI 지급률 <span class="lbl-hint">연봉 대비 %</span></label>
@@ -183,48 +186,125 @@
 
             <button class="action-btn" @click="calcSamsung" style="width:100%;margin-top:8px;" :disabled="!sbSalary">성과급 계산하기</button>
 
+            <!-- ── 결과 영역 ── -->
             <div v-if="sbResult" class="result-box">
+
+              <!-- 사업부 배지 -->
               <div class="sb-badge" :style="{ background: sbResult.color + '22', borderColor: sbResult.color + '66', color: sbResult.color }">
-                {{ sbResult.divName }}
+                {{ sbResult.divName }} · 2025년 기준
               </div>
+
+              <!-- 세전/세후 듀얼 카드 -->
+              <div class="sb-dual-cards">
+                <div class="sb-card sb-card-gross">
+                  <div class="sb-card-label">연간 성과급 (세전)</div>
+                  <div class="sb-card-amount">{{ fmtW(sbResult.totalGross) }}</div>
+                  <div class="sb-card-sub">연봉 대비 <b>{{ sbResult.ratioPct }}%</b></div>
+                </div>
+                <div class="sb-card sb-card-net">
+                  <div class="sb-card-label">세후 실수령</div>
+                  <div class="sb-card-amount">{{ fmtW(sbResult.totalNet) }}</div>
+                  <div class="sb-card-sub">월 +{{ fmtW(sbResult.monthlyAdd) }}</div>
+                </div>
+              </div>
+
+              <!-- 수직 바 차트 + 부가 수치 -->
+              <div class="sb-vchart-wrap">
+                <div class="sb-vchart">
+                  <div class="sb-vchart-col">
+                    <div class="sb-vchart-topval">{{ fmtW(sbResult.opi) }}</div>
+                    <div class="sb-vchart-track">
+                      <div class="sb-vchart-bar sb-vbar-opi" :style="{ height: sbResult.opiPct + '%' }"></div>
+                    </div>
+                    <div class="sb-vchart-lbl">OPI<br><span class="sb-vchart-sub">연 1회</span></div>
+                  </div>
+                  <div class="sb-vchart-col">
+                    <div class="sb-vchart-topval">{{ fmtW(sbResult.taiYear) }}</div>
+                    <div class="sb-vchart-track">
+                      <div class="sb-vchart-bar sb-vbar-tai" :style="{ height: sbResult.taiPct + '%' }"></div>
+                    </div>
+                    <div class="sb-vchart-lbl">TAI<br><span class="sb-vchart-sub">반기 × 2</span></div>
+                  </div>
+                </div>
+                <div class="sb-vchart-stats">
+                  <div class="sb-vstat">
+                    <div class="sb-vstat-lbl">월 환산 성과급</div>
+                    <div class="sb-vstat-val">+{{ fmtW(sbResult.monthlyAdd) }}</div>
+                  </div>
+                  <div class="sb-vstat">
+                    <div class="sb-vstat-lbl">성과급 포함 총연소득</div>
+                    <div class="sb-vstat-val">{{ fmtW(sbResult.grandTotal) }}</div>
+                  </div>
+                  <div class="sb-vstat">
+                    <div class="sb-vstat-lbl">TAI 반기 1회</div>
+                    <div class="sb-vstat-val">{{ fmtW(sbResult.taiHalf) }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 상세 내역 -->
+              <div class="sb-section-hd">📊 성과급 상세 내역</div>
               <table class="result-table">
                 <tbody>
                   <tr><td>월 기본급 (연봉 ÷ 12)</td><td class="val">{{ fmt(sbResult.monthlyBase) }}원</td></tr>
-                  <tr><td>OPI 초과이익성과급 (연 1회)</td><td class="val plus">+{{ fmt(sbResult.opi) }}원</td></tr>
-                  <tr><td>TAI 반기 1회 ({{ sbResult.taiRate }}%)</td><td class="val">{{ fmt(sbResult.taiHalf) }}원</td></tr>
-                  <tr><td>TAI 연간 합계 (2회)</td><td class="val plus">+{{ fmt(sbResult.taiYear) }}원</td></tr>
+                  <tr><td>OPI 초과이익성과급 ({{ sbResult.opiRate }}%, 연 1회)</td><td class="val plus">+{{ fmt(sbResult.opi) }}원</td></tr>
+                  <tr><td>TAI 반기 1회 (기본급 × {{ sbResult.taiRate }}%)</td><td class="val">{{ fmt(sbResult.taiHalf) }}원</td></tr>
+                  <tr class="sb-sum-tr"><td>TAI 연간 합계 (× 2회)</td><td class="val plus">+{{ fmt(sbResult.taiYear) }}원</td></tr>
                 </tbody>
               </table>
 
-              <div class="sb-bars">
-                <div class="sb-bar-item">
-                  <div class="sb-bar-label">OPI</div>
-                  <div class="sb-bar-track"><div class="sb-bar-fill opi" :style="{ width: sbResult.opiPct + '%' }"></div></div>
-                  <div class="sb-bar-val">{{ fmt(sbResult.opi) }}원</div>
-                </div>
-                <div class="sb-bar-item">
-                  <div class="sb-bar-label">TAI</div>
-                  <div class="sb-bar-track"><div class="sb-bar-fill tai" :style="{ width: sbResult.taiPct + '%' }"></div></div>
-                  <div class="sb-bar-val">{{ fmt(sbResult.taiYear) }}원</div>
-                </div>
-              </div>
-
-              <div class="result-highlight sb-highlight">
-                <div class="result-label">연간 총 성과급 (세전)</div>
-                <div class="result-amount">{{ fmt(sbResult.totalGross) }}원</div>
-                <div class="sb-sub">연봉 대비 <b>{{ sbResult.ratioPct }}%</b> · 월 환산 +{{ fmt(sbResult.monthlyAdd) }}원</div>
-              </div>
-
-              <table class="result-table" style="margin-top:16px;">
+              <!-- 세금 공제 -->
+              <div class="sb-section-hd" style="margin-top:16px;">💸 세금·공제 내역</div>
+              <table class="result-table">
                 <tbody>
-                  <tr><td>예상 세금·공제</td><td class="val minus">-{{ fmt(sbResult.tax) }}원</td></tr>
-                  <tr><td>세후 실수령 성과급</td><td class="val net">{{ fmt(sbResult.totalNet) }}원</td></tr>
-                  <tr><td>성과급 포함 총 연소득 (세전)</td><td class="val">{{ fmt(sbResult.grandTotal) }}원</td></tr>
+                  <tr><td>소득세 + 지방소득세 (추정)</td><td class="val minus">-{{ fmt(sbResult.incomeTaxTotal) }}원</td></tr>
+                  <tr><td>고용보험료 (0.9%)</td><td class="val minus">-{{ fmt(sbResult.empIns) }}원</td></tr>
+                  <tr class="sb-sum-tr"><td><b>세후 실수령 성과급</b></td><td class="val net">{{ fmt(sbResult.totalNet) }}원</td></tr>
                 </tbody>
               </table>
+
+              <!-- 총소득 -->
+              <div class="sb-grandtotal">
+                <span>성과급 포함 총연소득 (세전)</span>
+                <span class="sb-grandtotal-val">{{ fmt(sbResult.grandTotal) }}원</span>
+              </div>
 
               <button class="action-btn sm" @click="copySamsung" style="width:100%;margin-top:14px;">{{ sbCopied ? '✓ 복사됨!' : '📋 결과 공유하기' }}</button>
-              <p class="disclaimer">※ 지급률은 2025년 사업부별 발표치 기준 추정값입니다. 개인 고과·회사 정책에 따라 실제 금액은 달라질 수 있으며, 세금은 근사치입니다.</p>
+              <p class="disclaimer">※ 지급률은 2025년 사업부별 발표치(전국삼성전자노동조합 공지) 기준입니다. 개인 고과·회사 정책에 따라 실제 금액은 달라질 수 있으며, 세금은 근사치입니다.</p>
+            </div>
+
+            <!-- ── 사업부별 지급률 안내 아코디언 ── -->
+            <div class="sb-guide">
+              <button class="sb-guide-toggle" @click="sbGuideOpen = !sbGuideOpen">
+                📋 2025년 사업부별 지급률 안내 <span class="sb-toggle-arrow">{{ sbGuideOpen ? '▲' : '▼' }}</span>
+              </button>
+              <div v-if="sbGuideOpen" class="sb-guide-body">
+                <div class="sb-guide-subtitle">OPI (초과이익성과급) — 계약연봉 대비, 연 1회 (1월 지급)</div>
+                <table class="sb-rate-table">
+                  <thead><tr><th>사업부</th><th>OPI 지급률</th></tr></thead>
+                  <tbody>
+                    <tr v-for="d in sbDivisions.filter(x => x.id !== 'custom')" :key="'opi-' + d.id">
+                      <td>{{ d.name }}</td>
+                      <td><span class="sb-rate-chip" :style="{ background: d.color + '22', color: d.color, borderColor: d.color + '55' }">{{ d.opi > 0 ? d.opi + '%' : '미지급' }}</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="sb-guide-subtitle" style="margin-top:16px;">TAI (목표달성장려금) — 월 기본급 대비, 반기 1회 (연 2회)</div>
+                <table class="sb-rate-table">
+                  <thead><tr><th>사업부</th><th>TAI 지급률(반기)</th></tr></thead>
+                  <tbody>
+                    <tr v-for="d in sbDivisions.filter(x => x.id !== 'custom')" :key="'tai-' + d.id">
+                      <td>{{ d.name }}</td>
+                      <td><span class="sb-rate-chip" :style="{ background: d.color + '22', color: d.color, borderColor: d.color + '55' }">{{ d.tai }}%</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="sb-guide-info">
+                  <div class="sb-info-row"><span class="sb-info-tag">OPI</span>초과이익의 20% 한도, 개인 연봉 최대 50% 상한. 고과에 따라 차등 지급.</div>
+                  <div class="sb-info-row"><span class="sb-info-tag">TAI</span>사업부 목표달성률 기반. 개인 고과 ±20%p 내외 가감.</div>
+                  <div class="sb-info-row"><span class="sb-info-tag new-tag">2026 신설</span>DS부문 특별경영성과급: 사업성과의 10.5% 재원, 상한 없음. 자사주 지급 (1/3즉시·1년·2년 후 순차 매도 가능).</div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -581,20 +661,23 @@ const FUN_TOOLS = [
   { id: 'fortune',  icon: '🔮', name: '오늘의 운세',       desc: '생년으로 보는 오늘의 띠 운세' },
 ];
 
-/* ── 삼성 사업부별 성과급 지급률 (2025년 발표 기준 추정) ──
-   opi: 초과이익성과급(OPI, 구 PS) — 계약연봉 대비 %, 연 1회(1월)
-   tai: 목표달성장려금(TAI, 구 PI) — 월 기본급 대비 %, 반기 1회(연 2회) */
+/* ── 삼성 사업부별 성과급 지급률 (2025년 실제 발표치 기준) ──
+   opi: 초과이익성과급(OPI) — 계약연봉 대비 %, 연 1회(1월)
+   tai: 목표달성장려금(TAI) — 월 기본급 대비 %, 반기 1회(연 2회)
+   출처: 전국삼성전자노동조합·삼성그룹초기업노조 공지 (2025.12 기준) */
 const SB_DIVISIONS = [
-  { id: 'memory',  name: 'DS · 메모리(반도체)',      opi: 48,   tai: 100,  color: '#4d96ff' },
-  { id: 'foundry', name: 'DS · 파운드리',            opi: 0,    tai: 25,   color: '#4d96ff' },
-  { id: 'lsi',     name: 'DS · 시스템LSI',           opi: 10,   tai: 25,   color: '#4d96ff' },
-  { id: 'mx',      name: 'DX · MX(모바일)',          opi: 50,   tai: 75,   color: '#6bcb77' },
-  { id: 'vd',      name: 'DX · VD(영상디스플레이)',  opi: 12,   tai: 37.5, color: '#6bcb77' },
-  { id: 'da',      name: 'DX · DA(생활가전)',        opi: 12,   tai: 37.5, color: '#6bcb77' },
-  { id: 'network', name: 'DX · 네트워크',            opi: 12,   tai: 37.5, color: '#6bcb77' },
-  { id: 'sdc',     name: '삼성디스플레이(SDC)',      opi: 38,   tai: 50,   color: '#a29bfe' },
-  { id: 'semco',   name: '삼성전기',                 opi: 5,    tai: 25,   color: '#ff9f43' },
-  { id: 'custom',  name: '직접 입력',                opi: 0,    tai: 0,    color: '#00f5ff' },
+  { id: 'memory',     name: 'DS · 메모리(반도체)',      opi: 47,   tai: 100,  color: '#4d96ff' },
+  { id: 'dsresearch', name: 'DS · 반도체연구소',        opi: 47,   tai: 100,  color: '#4d96ff' },
+  { id: 'foundry',    name: 'DS · 파운드리',            opi: 0,    tai: 25,   color: '#74b9ff' },
+  { id: 'lsi',        name: 'DS · 시스템LSI',           opi: 10,   tai: 25,   color: '#74b9ff' },
+  { id: 'mx',         name: 'DX · MX(모바일)',          opi: 50,   tai: 75,   color: '#6bcb77' },
+  { id: 'network',    name: 'DX · 네트워크',            opi: 12,   tai: 75,   color: '#6bcb77' },
+  { id: 'medical',    name: 'DX · 의료기기',            opi: 12,   tai: 75,   color: '#6bcb77' },
+  { id: 'vd',         name: 'DX · VD(영상디스플레이)',  opi: 12,   tai: 37.5, color: '#a8e063' },
+  { id: 'da',         name: 'DX · DA(생활가전)',        opi: 12,   tai: 37.5, color: '#a8e063' },
+  { id: 'sdc',        name: '삼성디스플레이(SDC)',      opi: 38,   tai: 50,   color: '#a29bfe' },
+  { id: 'semco',      name: '삼성전기',                 opi: 5.5,  tai: 25,   color: '#ff9f43' },
+  { id: 'custom',     name: '직접 입력',                opi: 0,    tai: 0,    color: '#00f5ff' },
 ];
 
 /* ── MBTI 질문 ── */
@@ -720,6 +803,12 @@ export default {
 
     /* ── 공통 포맷 ── */
     const fmt = (v) => Math.round(v).toLocaleString();
+    const fmtW = (v) => {
+      const man = Math.round(v / 10000);
+      if (man >= 10000) return (man / 10000).toFixed(2) + '억원';
+      if (man >= 1) return man.toLocaleString() + '만원';
+      return Math.round(v).toLocaleString() + '원';
+    };
     const fmtBytes = (b) => {
       if (b < 1024) return b + ' B';
       if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
@@ -736,6 +825,7 @@ export default {
       sbTaiRate.value        = 100;
       sbResult.value         = null;
       sbCopied.value         = false;
+      sbGuideOpen.value      = false;
       insuranceResult.value  = null;
       loanResult.value       = null;
       severanceResult.value  = null;
@@ -773,10 +863,11 @@ export default {
     const sbDivisions = SB_DIVISIONS;
     const sbSalary    = ref('');
     const sbDivision  = ref('memory');
-    const sbOpiRate   = ref(48);
+    const sbOpiRate   = ref(47);
     const sbTaiRate   = ref(100);
     const sbResult    = ref(null);
     const sbCopied    = ref(false);
+    const sbGuideOpen = ref(false);
 
     const applySbDivision = () => {
       const d = SB_DIVISIONS.find(x => x.id === sbDivision.value);
@@ -789,19 +880,19 @@ export default {
       const monthlyBase = annual / 12;
       const opiRate = sbOpiRate.value || 0;
       const taiRate = sbTaiRate.value || 0;
-      const opi     = annual * opiRate / 100;          // 연봉 대비, 연 1회
-      const taiHalf = monthlyBase * taiRate / 100;     // 기본급 대비, 반기 1회
-      const taiYear = taiHalf * 2;                      // 연 2회
+      const opi     = annual * opiRate / 100;
+      const taiHalf = monthlyBase * taiRate / 100;
+      const taiYear = taiHalf * 2;
       const totalGross = opi + taiYear;
 
-      // 세금 근사: 성과급 추가분에 대한 한계세율 적용 (근로소득공제·기본공제 1인 가정)
       const personal  = 1_500_000;
       const baseA     = Math.max(0, annual - laborDeduction(annual) - personal);
       const baseB     = Math.max(0, annual + totalGross - laborDeduction(annual + totalGross) - personal);
-      let   incTax    = Math.max(0, incomeTax(baseB) - incomeTax(baseA));
-      const localTax  = incTax * 0.1;                   // 지방소득세 10%
-      const emp       = totalGross * 0.009;             // 고용보험 0.9%
-      const tax       = incTax + localTax + emp;
+      const incTax        = Math.max(0, incomeTax(baseB) - incomeTax(baseA));
+      const localTax      = incTax * 0.1;
+      const empIns        = totalGross * 0.009;
+      const incomeTaxTotal = incTax + localTax;
+      const tax       = incomeTaxTotal + empIns;
       const totalNet  = totalGross - tax;
 
       const d    = SB_DIVISIONS.find(x => x.id === sbDivision.value) || {};
@@ -810,8 +901,8 @@ export default {
       sbResult.value = {
         divName: d.name || '직접입력',
         color: d.color || '#00f5ff',
-        monthlyBase, opi, taiHalf, taiYear, taiRate, totalGross,
-        tax, totalNet,
+        monthlyBase, opi, taiHalf, taiYear, taiRate, opiRate, totalGross,
+        incomeTaxTotal, empIns, tax, totalNet,
         grandTotal: annual + totalGross,
         monthlyAdd: totalGross / 12,
         ratioPct: (totalGross / annual * 100).toFixed(1),
@@ -1123,9 +1214,9 @@ export default {
     return {
       calcTools, utilTools, funTools,
       activeTool, openTool, closeTool,
-      fmt, fmtBytes, todayStr,
+      fmt, fmtBytes, fmtW, todayStr,
       salaryInput, salaryDependents, salaryResult, calcSalaryResult,
-      sbDivisions, sbSalary, sbDivision, sbOpiRate, sbTaiRate, sbResult, sbCopied,
+      sbDivisions, sbSalary, sbDivision, sbOpiRate, sbTaiRate, sbResult, sbCopied, sbGuideOpen,
       applySbDivision, calcSamsung, copySamsung,
       insuranceInput, insuranceResult, calcInsuranceResult,
       loanAmount, loanRate, loanMonths, loanType, loanResult, calcLoanResult,
@@ -1368,6 +1459,111 @@ export default {
 .sb-sub { margin-top: 8px; font-size: 0.82rem; color: rgba(255,255,255,0.55); }
 .sb-sub b { color: #00f5ff; }
 
+/* ── 삼성 계산기 업그레이드 스타일 ── */
+.samsung-wrap { padding-bottom: 0; }
+.sb-year-badge {
+  display: inline-block; background: rgba(77,150,255,0.15); border: 1px solid rgba(77,150,255,0.4);
+  color: #4d96ff; font-size: 0.7rem; font-weight: 700; padding: 2px 8px;
+  border-radius: 20px; margin-left: 6px; vertical-align: middle;
+}
+
+/* 세전/세후 듀얼 카드 */
+.sb-dual-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+.sb-card {
+  padding: 16px 14px; border-radius: 16px; border: 1px solid;
+  text-align: center;
+}
+.sb-card-gross {
+  background: rgba(77,150,255,0.1); border-color: rgba(77,150,255,0.35);
+}
+.sb-card-net {
+  background: rgba(0,245,255,0.08); border-color: rgba(0,245,255,0.3);
+}
+.sb-card-label { font-size: 0.72rem; color: rgba(255,255,255,0.5); font-weight: 600; margin-bottom: 6px; }
+.sb-card-amount { font-size: 1.2rem; font-weight: 900; color: #fff; line-height: 1.1; }
+.sb-card-gross .sb-card-amount { color: #4d96ff; }
+.sb-card-net  .sb-card-amount  { color: #00f5ff; }
+.sb-card-sub  { font-size: 0.72rem; color: rgba(255,255,255,0.45); margin-top: 5px; }
+.sb-card-sub b { color: #a8e063; }
+
+/* 수직 바 차트 */
+.sb-vchart-wrap { display: flex; gap: 16px; align-items: flex-end; margin: 16px 0; }
+.sb-vchart { display: flex; gap: 18px; align-items: flex-end; flex-shrink: 0; }
+.sb-vchart-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sb-vchart-topval { font-size: 0.78rem; font-weight: 700; color: rgba(255,255,255,0.8); white-space: nowrap; }
+.sb-vchart-track {
+  width: 48px; height: 120px; background: rgba(255,255,255,0.06);
+  border-radius: 8px; overflow: hidden; display: flex; align-items: flex-end;
+}
+.sb-vchart-bar { width: 100%; border-radius: 8px; min-height: 6px; transition: height 0.8s cubic-bezier(.2,.8,.2,1); }
+.sb-vbar-opi { background: linear-gradient(0deg,#1e3a8a,#4d96ff); }
+.sb-vbar-tai { background: linear-gradient(0deg,#166534,#6bcb77); }
+.sb-vchart-lbl { font-size: 0.8rem; font-weight: 800; color: rgba(255,255,255,0.7); text-align: center; line-height: 1.4; }
+.sb-vchart-sub { font-size: 0.65rem; color: rgba(255,255,255,0.35); font-weight: 500; }
+.sb-vchart-stats { flex: 1; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+.sb-vstat {
+  padding: 10px 12px; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+}
+.sb-vstat-lbl { font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-bottom: 3px; }
+.sb-vstat-val { font-size: 0.88rem; font-weight: 800; color: #00f5ff; }
+
+/* 섹션 헤더 */
+.sb-section-hd { font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.5); margin: 14px 0 8px; letter-spacing: 0.05em; }
+
+/* 합계 행 */
+.sb-sum-tr td { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px !important; font-weight: 700; }
+
+/* 총연소득 */
+.sb-grandtotal {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px; margin-top: 12px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+  font-size: 0.85rem; color: rgba(255,255,255,0.6);
+}
+.sb-grandtotal-val { font-weight: 800; color: #fff; font-size: 0.95rem; }
+
+/* 안내 아코디언 */
+.sb-guide { margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 16px; }
+.sb-guide-toggle {
+  width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; color: rgba(255,255,255,0.65); font-size: 0.83rem; font-weight: 700;
+  padding: 12px 16px; cursor: pointer; display: flex; justify-content: space-between;
+  align-items: center; transition: background 0.2s, border-color 0.2s;
+}
+.sb-guide-toggle:hover { background: rgba(0,245,255,0.07); border-color: rgba(0,245,255,0.25); }
+.sb-toggle-arrow { color: #00f5ff; font-size: 0.75rem; }
+.sb-guide-body { padding: 16px 0 8px; }
+.sb-guide-subtitle { font-size: 0.78rem; font-weight: 700; color: rgba(255,255,255,0.5); margin-bottom: 8px; letter-spacing: 0.04em; }
+
+/* 지급률 테이블 */
+.sb-rate-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.sb-rate-table th {
+  text-align: left; padding: 6px 10px;
+  color: rgba(255,255,255,0.4); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.sb-rate-table td { padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.75); }
+.sb-rate-chip {
+  display: inline-block; padding: 2px 10px; border-radius: 999px; border: 1px solid;
+  font-size: 0.75rem; font-weight: 800;
+}
+
+/* 제도 설명 */
+.sb-guide-info { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.sb-info-row {
+  display: flex; gap: 8px; align-items: flex-start;
+  font-size: 0.78rem; color: rgba(255,255,255,0.55); line-height: 1.5;
+}
+.sb-info-tag {
+  flex-shrink: 0; display: inline-block; padding: 2px 8px; border-radius: 6px;
+  background: rgba(0,245,255,0.12); border: 1px solid rgba(0,245,255,0.3);
+  color: #00f5ff; font-size: 0.68rem; font-weight: 800; margin-top: 1px;
+}
+.new-tag { background: rgba(255,159,67,0.15); border-color: rgba(255,159,67,0.4); color: #ff9f43; }
+.sb-guide-body + .disclaimer,
+.sb-guide { padding-bottom: 20px; }
+
 /* ── QR ── */
 .qr-result  { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 20px; }
 .qr-canvas  { border-radius: 12px; border: 4px solid #fff; }
@@ -1483,6 +1679,12 @@ export default {
   .mbti-answer-btn { font-size: 0.88rem; padding: 14px 16px; }
   .dday-shortcuts  { justify-content: center; }
   .sb-rate-row     { grid-template-columns: 1fr; gap: 0; }
+  .sb-dual-cards   { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .sb-card-amount  { font-size: 1rem; }
+  .sb-vchart-wrap  { flex-direction: column; align-items: flex-start; }
+  .sb-vchart       { width: 100%; justify-content: center; }
+  .sb-vchart-stats { width: 100%; }
+  .sb-vchart-track { width: 52px; height: 100px; }
 }
 @media (max-width: 380px) {
   .tools-grid { grid-template-columns: 1fr; }
