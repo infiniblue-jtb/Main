@@ -298,18 +298,27 @@
                     <div class="sb-card-sub">성과급 전체 합산</div>
                   </div>
                 </div>
-                <div class="sb-section-hd" style="margin-top:16px;">📊 특별성과급 내역</div>
+                <!-- 사업부 적용 기준 표시 -->
+                <div class="sb-div-label">📌 {{ sbSpecialResult.divLabel }}</div>
+
+                <!-- 적자 사업부 경고 -->
+                <div v-if="sbSpecialResult.isLoss" class="sb-loss-alert">
+                  ⚠️ 파운드리·S.LSI는 <b>2027년분부터</b> 지급 개시. 2026년에는 지급 없음. 균등분(40%)만 추산 표시합니다.
+                </div>
+
+                <div class="sb-section-hd" style="margin-top:12px;">📊 특별성과급 상세 내역</div>
                 <table class="result-table">
                   <tbody>
-                    <tr><td>DS 사업성과 기준액</td><td class="val">{{ fmt(sbSpecialResult.dsProfit) }}원 ({{ sbDsProfit }}조)</td></tr>
-                    <tr><td>총 재원 (× 10.5%)</td><td class="val plus">+{{ fmt(sbSpecialResult.pool) }}원</td></tr>
-                    <tr><td>균등 배분 (40% ÷ 78,000명)</td><td class="val plus">{{ fmt(sbSpecialResult.uniform) }}원</td></tr>
-                    <tr class="sb-sum-tr"><td>성과 배분 (60%, 연봉·사업부 기준)</td><td class="val plus">{{ fmt(sbSpecialResult.perf) }}원</td></tr>
+                    <tr><td>DS 사업성과 기준 ({{ sbSpecialResult.profitT }}조원)</td><td class="val">{{ fmt(sbSpecialResult.profitT * 1e12) }}원</td></tr>
+                    <tr><td>총 재원 (× 10.5%)</td><td class="val plus">{{ fmt(sbSpecialResult.pool) }}원</td></tr>
+                    <tr><td>① 균등 배분 (재원 × 40% ÷ 78,000명)</td><td class="val plus">{{ fmt(sbSpecialResult.uniform) }}원</td></tr>
+                    <tr v-if="!sbSpecialResult.isLoss"><td>② 사업부 성과분 (재원 × 60%, 연봉 비례)</td><td class="val plus">{{ fmt(sbSpecialResult.perf) }}원</td></tr>
+                    <tr v-else><td>② 사업부 성과분 (2027년부터 지급)</td><td class="val" style="color:rgba(255,255,255,0.3);">해당없음</td></tr>
                     <tr class="sb-sum-tr"><td><b>특별성과급 합계 (세전)</b></td><td class="val" style="color:#ff9f43;font-size:1rem;">{{ fmt(sbSpecialResult.total) }}원</td></tr>
                   </tbody>
                 </table>
                 <div class="sb-stock-vest">
-                  <div class="sb-stock-title">📦 자사주 배정 일정 (주가 {{ fmt(sbSpecialResult.priceRef) }}원 기준)</div>
+                  <div class="sb-stock-title">📦 자사주 배정 일정 (세전 금액 기준)</div>
                   <div class="sb-stock-row"><span>즉시 매도 가능 (1/3)</span><span>{{ fmt(sbSpecialResult.third) }}원</span></div>
                   <div class="sb-stock-row"><span>1년 후 매도 가능 (1/3)</span><span>{{ fmt(sbSpecialResult.third) }}원</span></div>
                   <div class="sb-stock-row"><span>2년 후 매도 가능 (1/3)</span><span>{{ fmt(sbSpecialResult.third) }}원</span></div>
@@ -873,7 +882,7 @@ export default {
       sbResult.value         = null;
       sbCopied.value         = false;
       sbGuideOpen.value      = false;
-      sbDsProfit.value       = 100;
+      sbDsProfit.value       = 300;
       sbSpecialResult.value  = null;
       insuranceResult.value  = null;
       loanResult.value       = null;
@@ -979,42 +988,59 @@ export default {
       } else { done(); }
     };
 
-    /* ══════════ DS 특별경영성과급 (2026 노사합의) ══════════ */
-    const sbDsProfit     = ref(100);  // 조원 단위
+    /* ══════════ DS 특별경영성과급 (2026 노사합의) ══════════
+       정확한 배분 구조 (노조 공지 + 언론 보도 역산 기준):
+       1. 총재원 = DS 사업성과 × 10.5%
+       2. 균등분(40%): 재원 × 40% ÷ 78,000명 — 전 DS 직원 동일
+       3. 사업부 성과분(60%): 메모리 한정, 개인 연봉 비례 배분
+          - 역산 기준: 300조, 메모리 8,000만연봉 → 사업부분 4.24억
+          - 메모리 pool share = 62.82% (역산), 기준 헤드카운트 28,000명
+       4. 공통조직(반도체연구소) = 메모리 총액 × 70%
+       5. 파운드리·S.LSI(적자) = 균등분만, 2027년부터 지급
+    ══════════════════════════════════════════════════════ */
+    const sbDsProfit      = ref(300);   // 기본값 300조 (뉴스 기준 시나리오)
     const sbSpecialResult = ref(null);
 
-    /* 보정계수:
-       공개된 사례 기반 역산 — DS profit 300조, 메모리 8,000만연봉 = 6.33억
-       균등분(40%): 300조 × 0.105 × 0.40 / 78,000명 = 1.615억
-       성과분(60%): 4.715억 (연봉비례 추산)
-       → B_memory = 4.715e8 / (3e14 × 8e7) = 1.965e-14 (won^-2 단위) */
-    const DS_UNIFORM_COEFF = 0.105 * 0.40 / 78_000;  // per-won of DS profit
-    const DS_PERF_COEFF = {
-      memory:     1.965e-14,
-      dsresearch: 1.965e-14,
-      lsi:        1.965e-15,
-      foundry:    1.965e-15,
-    };
+    /* 메모리 사업부분 계수 역산:
+       pool × COEFF × salary = 사업부분
+       at 300조: pool=31.5조, salary=8000만 → 사업부분=4.24억
+       COEFF = 4.24e8 / (31.5e12 × 8e7) = 1.6825e-13 */
+    const MEMORY_PERF_COEFF = 4.24e8 / (31.5e12 * 8e7);
 
     const calcDsSpecial = () => {
       const annual = (sbSalary.value || 0) * 10000;
-      if (!annual) return;
-      const profitWon = (sbDsProfit.value || 0) * 1e12;
-      if (!profitWon) return;
+      if (!annual || !(sbDsProfit.value > 0)) return;
 
-      const pool     = profitWon * 0.105;
-      const uniform  = profitWon * DS_UNIFORM_COEFF;
-      const B        = DS_PERF_COEFF[sbDivision.value] || DS_PERF_COEFF.foundry;
-      const perf     = profitWon * B * annual;
+      const pool    = sbDsProfit.value * 1e12 * 0.105;
+      const uniform = pool * 0.40 / 78_000;
+
+      // 메모리 기준 사업부분 (연봉 비례)
+      const memoryPerf  = pool * MEMORY_PERF_COEFF * annual;
+      const memoryTotal = uniform + memoryPerf;
+
+      let perf = 0, divLabel = '', isLoss = false;
+
+      if (sbDivision.value === 'memory') {
+        perf     = memoryPerf;
+        divLabel = '메모리 — 균등분 + 사업부 성과분 (100%)';
+      } else if (sbDivision.value === 'dsresearch') {
+        // 공통조직: 총액 기준 메모리의 70%
+        perf     = Math.max(0, memoryTotal * 0.70 - uniform);
+        divLabel = '공통조직(반도체연구소) — 메모리 지급률의 70%';
+      } else {
+        // 파운드리·S.LSI: 적자 사업부 → 균등분만 (2027년부터)
+        isLoss   = true;
+        divLabel = '적자 사업부 — 균등분만 해당, 2027년부터 지급';
+      }
+
       const total    = uniform + perf;
-      const third    = total / 3;
       const combined = total + (sbResult.value ? sbResult.value.totalGross : 0);
 
       sbSpecialResult.value = {
-        dsProfit: profitWon,
-        pool, uniform, perf, total, third,
-        combined,
-        priceRef: 60_000,
+        profitT: sbDsProfit.value,
+        pool, uniform, perf, total,
+        third:    total / 3,
+        combined, divLabel, isLoss,
       };
     };
 
@@ -1641,6 +1667,14 @@ export default {
 }
 .sb-stock-row:last-child { border-bottom: none; }
 .sb-stock-row span:last-child { font-weight: 700; color: #ff9f43; }
+.sb-div-label {
+  font-size: 0.78rem; font-weight: 700; color: #ff9f43; margin: 10px 0 6px;
+}
+.sb-loss-alert {
+  padding: 8px 12px; background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.3);
+  border-radius: 8px; font-size: 0.75rem; color: rgba(255,255,255,0.55); line-height: 1.5; margin-bottom: 8px;
+}
+.sb-loss-alert b { color: #ff6b6b; }
 .sb-special-cond {
   margin-top: 12px; padding: 10px 12px;
   background: rgba(255,107,107,0.06); border: 1px solid rgba(255,107,107,0.2);
